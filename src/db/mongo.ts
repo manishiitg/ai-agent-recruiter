@@ -1,5 +1,6 @@
 import { MongoClient, ObjectId, ServerApiVersion } from "mongodb";
 import dotenv from "dotenv";
+import { Candidate, WhatsAppConversaion } from "./types";
 dotenv.config();
 
 let globalDBConnection: MongoClient | null = null;
@@ -39,7 +40,7 @@ async function run() {
 }
 run().catch(console.dir);
 
-export const check_whatapp_convsation_exists = async (uid: string) => {
+export const check_whatsapp_convsation_exists = async (uid: string) => {
   const client = await connectDB();
   const db = client.db("whatsapp");
   const collection = db.collection("conversation");
@@ -49,7 +50,22 @@ export const check_whatapp_convsation_exists = async (uid: string) => {
     ? true
     : false;
 };
-export const save_whatsapp_conversation = async (from: string, messageType: string, content: string, uid: string, body: any) => {
+
+export const get_whatspp_conversations = async (from: string) => {
+  const client = await connectDB();
+  const db = client.db("whatsapp");
+  const collection = db.collection("conversation");
+  const doc = await collection.findOne({
+    from: from,
+  });
+  if (doc) {
+    return doc.conversation as WhatsAppConversaion[];
+  } else {
+    throw new Error(`unable to get whatsapp conversaion ${from}`);
+  }
+};
+
+export const save_whatsapp_conversation = async (type: "agent" | "candidate", from: string, messageType: string, content: string, uid: string, body: any) => {
   const client = await connectDB();
   const db = client.db("whatsapp");
   const collection = db.collection("conversation");
@@ -61,18 +77,22 @@ export const save_whatsapp_conversation = async (from: string, messageType: stri
     await collection.updateOne(
       { _id: existingConversation._id },
       {
-        conversation: [
-          {
+        //@ts-ignore
+        $push: {
+          conversation: {
             messageType,
             content,
             uid,
             body,
+            userType: type,
             created_at: new Date(),
-          },
-          ...existingConversation.conversation,
-        ],
-        updated_at: new Date(),
-      }
+          } as WhatsAppConversaion,
+        },
+        $set: {
+          updated_at: new Date(),
+        },
+      },
+      { upsert: true }
     );
   } else {
     // If the conversation does not exist, create a new one
@@ -84,8 +104,9 @@ export const save_whatsapp_conversation = async (from: string, messageType: stri
           content,
           uid,
           body,
+          userType: type,
           created_at: new Date(),
-        },
+        } as WhatsAppConversaion,
       ],
       created_at: new Date(),
       updated_at: new Date(),
@@ -125,3 +146,33 @@ export const update_whatsapp_message_sent_delivery_report = async (uid: string, 
     }
   );
 };
+
+export async function getCandidateDetailsFromDB(unique_id: string): Promise<Candidate> {
+  const client = await connectDB();
+  const db = client.db("whatsapp");
+  const data = await db.collection("candidates").findOne({ unique_id: unique_id });
+  if (data) {
+    let obj: Candidate = {
+      id: data.unique_id,
+      ...data,
+    };
+    return obj;
+  } else {
+    throw new Error("candidate not found in db");
+  }
+}
+
+export async function saveCandidateDetailsToDB(candidate: Candidate) {
+  const client = await connectDB();
+  const db = client.db("whatsapp");
+  const unique_id = candidate.id;
+
+  await db.collection("candidates").updateOne({ unique_id: unique_id }, { $set: { ...candidate } }, { upsert: true });
+}
+
+export async function saveCandidateConversationDebugInfoToDB(candidate: Candidate, info: any) {
+  const client = await connectDB();
+  const db = client.db("whatsapp");
+  const unique_id = candidate.id;
+  await db.collection("candidates").updateOne({ unique_id: unique_id }, { $set: { "conversation.progress": info } }, { upsert: true });
+}
