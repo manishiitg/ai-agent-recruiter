@@ -15,16 +15,10 @@ import { summariseResume } from "../../agent/prompts/summary_resume_prompt";
 import { transitionStage } from "../../agent/recruiter/transitions";
 import { ConversationMessage } from "../../agent/recruiter/types/conversation";
 import { askOptionsFromConsole } from "../../communication/console";
-import { shortlist } from "../../agent/prompts/shortlist_prompt";
-import { postMessage, postMessageToThread, postMessageWithAttachmentsAndThreadsToSlack } from "../../communication/slack";
+import { rate_resume, shortlist } from "../../agent/prompts/shortlist_prompt";
+import { postMessage, postMessageToThread } from "../../communication/slack";
 
-export const process_whatsapp_conversation = async (
-  phoneNo: string,
-  conversation: ConversationMessage[],
-  creds: WhatsAppCreds
-): Promise<{
-  message: string;
-}> => {
+export const getCandidate = async (phoneNo: string) => {
   let candidate: Candidate;
   try {
     candidate = await getCandidateDetailsFromDB(phoneNo);
@@ -35,7 +29,6 @@ export const process_whatsapp_conversation = async (
         stage: STAGE_NEW,
         actions_taken: [],
       };
-      await saveCandidateDetailsToDB(candidate);
       console.log("update candidate.current_converstaion_id new conversion 2");
     }
   } catch (error) {
@@ -54,9 +47,18 @@ export const process_whatsapp_conversation = async (
     };
     console.error("candidate mongo", error);
   }
-
   await saveCandidateDetailsToDB(candidate);
+  return candidate;
+};
 
+export const process_whatsapp_conversation = async (
+  phoneNo: string,
+  conversation: ConversationMessage[],
+  creds: WhatsAppCreds
+): Promise<{
+  message: string;
+}> => {
+  let candidate = await getCandidate(phoneNo);
   if (candidate.conversation && !candidate.conversation?.actions_taken) {
     candidate.conversation.actions_taken = [];
   }
@@ -78,62 +80,27 @@ export const process_whatsapp_conversation = async (
     throw new Error("candidate conversion not found!");
   }
 
-  let is_file_found = false;
-  let resume_file = "";
-  //   if (!candidate.conversation.resume?.full_resume_text) {
-  //     console.log("is_file_found", is_file_found);
-  //     if (hasAttachment) {
-  //       const re = await getCandidateResume(page, resume_path);
-  //       resume_file = re.resume_file;
-  //       is_file_found = re.is_file_found;
-  //     }
-  //     if (is_file_found) {
-  //       // Extract text from the file
-  //       let resume_text: string = await new Promise((resolve, reject) => {
-  //         textract.fromFileWithPath(path.join(resume_path, resume_file), { preserveLineBreaks: true }, (error: any, text: string) => {
-  //           if (error) {
-  //             reject(error);
-  //           } else {
-  //             resolve(text);
-  //           }
-  //         });
-  //       });
-
-  //       console.log("resume text", resume_text);
-  //       if (!resume_text || resume_text.length == 0) {
-  //         // how to handle this?
-  //         candidate.conversation.conversation_completed = true;
-  //         candidate.conversation.conversation_completed_reason = "UNABLE_TO_READ_RESUME_TEXT";
-  //         await saveCandidateDetailsToDB(candidate);
-  //         console.log("UNABLE TO READ RESUME");
-
-  //         if (id) await moveToOther(page, id);
-  //         continue;
-  //       }
-  //       if (candidate.conversation)
-  //         candidate.conversation.resume = {
-  //           full_resume_text: resume_text,
-  //           created_at: new Date(),
-  //         };
-  //     }
-  //   }
+  if (candidate.conversation.resume?.full_resume_text && (!candidate.conversation.resume.SUMMARY || candidate.conversation.resume.SUMMARY == null)) {
+    const summaryResponse = await summariseResume(candidate.conversation.resume?.full_resume_text, phoneNo);
+    candidate.conversation.resume = {
+      created_at: new Date(),
+      SUMMARY: summaryResponse.SUMMARY,
+      CONTACT_INFO: summaryResponse.CONTACT_INFO,
+      EDUCATION: summaryResponse.EDUCATION,
+      PROJECTS: summaryResponse.PROJECTS,
+      TECHNICAL_SKILLS: summaryResponse.TECHNICAL_SKILLS,
+      WORK_EXP: summaryResponse.WORK_EXP,
+      full_resume_text: candidate.conversation.resume?.full_resume_text,
+    };
+    await saveCandidateDetailsToDB(candidate);
+  }
 
   if (shouldExtractInfo(candidate.conversation?.info)) {
-    const info = await extractInfo(phoneNo, creds.name, convertConversationToText(conversation), candidate.conversation.resume?.resume_summary || candidate.profile?.resume_pdf_text);
+    const info = await extractInfo(phoneNo, creds.name, convertConversationToText(conversation), candidate.conversation.resume?.CONTACT_INFO || candidate.conversation.resume?.full_resume_text);
     if (info) {
       candidate.conversation.info = info;
       await saveCandidateDetailsToDB(candidate);
     }
-  }
-
-  if (candidate.conversation.resume?.full_resume_text && (!candidate.conversation.resume.resume_summary || candidate.conversation.resume.resume_summary == null)) {
-    const summary = await summariseResume(candidate.conversation.resume?.full_resume_text, phoneNo);
-    candidate.conversation.resume = {
-      created_at: new Date(),
-      full_resume_text: candidate.conversation.resume?.full_resume_text,
-      resume_summary: summary,
-    };
-    await saveCandidateDetailsToDB(candidate);
   }
   console.log("checking conv category", candidate.conversation?.info?.classified_category);
   if (!candidate.conversation?.info?.classified_category) {
@@ -322,10 +289,16 @@ export const callViaHuman = async (candidate: Candidate, creds?: WhatsAppCreds) 
   context += `Shortlist Reason ${candidate.conversation?.shortlisted?.llm_response} \n`;
   if (creds) context += `Whatsapp Account ${creds.name}`;
 
-  //   const re = await getCandidateResume(page, resume_path);
-  //   context,
   if (process.env.slack_action_channel_id) {
     const ts = await postMessage(`call the candidate ${candidate.id} for job profile ${candidate.conversation?.shortlisted?.job_profile}`, process.env.slack_action_channel_id);
-    await postMessageToThread(ts, context, process.env.slack_action_channel_id);
+
+    if (candidate.conversation && candidate.conversation.resume && candidate.conversation.resume.SUMMARY) {
+      const ratingReply = await rate_resume(candidate.id, candidate.conversation);
+      context += `Rating Reason ${ratingReply.reason}`;
+      await postMessageToThread(ts, context, process.env.slack_action_channel_id);
+      await postMessageToThread(ts, `Resume Rating ${ratingReply.rating}`, process.env.slack_action_channel_id, true);
+    } else {
+      await postMessageToThread(ts, context, process.env.slack_action_channel_id);
+    }
   }
 };

@@ -1,36 +1,49 @@
 import { parseStringPromise } from "xml2js";
+import { callDeepkSeek, DEEP_SEEK_V2_CODER } from "../../llms/deepkseek";
 
+// is this even needed? deepseek has 32k context?
 export const summariseResume = async (resume_text: string, profileID: string) => {
-  const prompt = `Here is the text of a job candidate's resume:
+  const prompt = `
+You are tasked with analyzing a job candidate's resume and providing a concise summary of their qualifications. Follow these steps carefully:
+
+1. First, you will be provided with the text of a resume. Read it thoroughly and pay close attention to all details.
+
+  <resume>${resume_text}</resume>
   
-     <resume>${resume_text}</resume>
-     
-     Please read through the resume carefully. Pay close attention to the candidate's contact information, work experience, educational background, projects, and skills.
+2. After reading the resume, carefully analyze its contents. Focus on identifying the following key information:
+- The candidate's name, email address, and/or phone number, location
+- Work experience: companies/internships, positions held, and main responsibilities
+- Educational background: degrees earned, institutions attended, and fields of study
+- Notable projects the candidate has worked on
+- Any key publications or technical skills highlighted in the resume
 
-    After you have finished reviewing the resume, please identify and extract the most important details about the candidate. At a minimum, be sure to note:
-    - The candidate's name, email address and/or phone number
-    - The companies they have worked at, the positions they held there, and the main responsibilities of each role
-    - The degrees they have earned, the institutions attended, and the fields of study
-    - Any key projects, publications, or technical skills that are highlighted
+3. Extract and organize the most important details from each of these categories. Be thorough in your analysis, ensuring you don't miss any crucial information.
 
-    Once you have gathered this key information, please write a concise summary of the candidate's qualifications and background in just a few sentences. Focus on the main highlights and most relevant points from the categories above. 
+4. Once you have gathered all the key information, compose a concise summary of the candidate's qualifications and background. This summary should:
+   - Be no more than 3-4 sentences long
+   - Focus on the main highlights and most relevant points from the categories mentioned above
+   - Provide a clear and comprehensive overview of the candidate's professional profile
 
-    Please put your final summary inside <SUMMARY> tags, like this:
 
-    <RESPONSE>
-    <SUMMARY>
-    John Doe is a software engineer with 5 years of experience at Microsoft and Google. He earned a BS and MS in Computer Science from Stanford. John has worked on several large-scale projects including leading development of Microsoft's Cortana AI assistant. He is skilled in Python, C++, machine learning, and cloud computing.
-    </SUMMARY>
-    </RESPONSE>
+Present your final output in the following XML format:
 
-    Remember, the summary should be high-level and focus on only the most important points. Do not simply restate the entire resume. Aim for concision and clarity.
+<RESPONSE>
+<SCRATCHPAD>
+[Use this space to organize your thoughts and the key information you've extracted from the resume. This will not be included in the final output.]
+</SCRATCHPAD>
+<CONTACT_INFO>candidates contact information</CONTACT_INFO>
+<WORK_EXP>candidates work experiance</WORK_EXP>
+<PROJECTS>candidates projects/internship</PROJECTS>
+<EDUCATION>candidates educational details</EDUCATION>
+<TECHNICAL_SKILLS>candidates technical skills</TECHNICAL_SKILLS>
+<SUMMARY>
+[Insert your concise summary here]
+</SUMMARY>
+</RESPONSE>
 
-     Respond only in xml format below:
-     <RESPONSE>
-      <SUMMARY>summary of candidates resume</SUMMARY>
-    </<RESPONSE>`;
+Remember to be objective and accurate in your analysis and summary. Do not include any personal opinions or judgments about the candidate's qualifications.`;
 
-  const llm_output = await callLLMHaiku(prompt, profileID, 0, GCP_CLAUDE_HAIKU, { type: "summary" }, async (llm_output: string): Promise<Record<string, string>> => {
+  const llm_output = await callDeepkSeek(prompt, profileID, 0, DEEP_SEEK_V2_CODER, { type: "summary" }, async (llm_output: string): Promise<Record<string, string>> => {
     return {};
   });
 
@@ -42,25 +55,11 @@ export const summariseResume = async (resume_text: string, profileID: string) =>
     throw new Error("response not found!");
   }
 
-  const summary = jObj["RESPONSE"]["SUMMARY"];
-  // const startKey = "SUMMARY";
-  // const endKey = "SUITABLE JOB PROFILE";
-  // const pattern = new RegExp(`${startKey}:(.*?)${endKey}:(.*?)(?=${startKey}|$)`, "gs");
-
-  // const matches = [...llm_output.matchAll(pattern)];
-  // let summary = "";
-  // let jobprofile = "";
-  // for (let ix in matches) {
-  //   const match = matches[ix];
-  //   console.log("======");
-  //   console.log(`SUMMARY: ${match[1].trim()}`);
-  //   console.log(`SUITABLE JOB PROFILE: ${match[2].trim()}`);
-  //   summary = match[1].trim();
-  //   jobprofile = match[2].trim();
-  //   if (jobprofile == "no job profile") {
-  //     jobprofile = "";
-  //   }
-  //   break;
-  // }
-  return summary;
+  const SUMMARY = jObj["RESPONSE"]["SUMMARY"];
+  const CONTACT_INFO = jObj["RESPONSE"]["CONTACT_INFO"];
+  const WORK_EXP = jObj["RESPONSE"]["WORK_EXP"];
+  const PROJECTS = jObj["RESPONSE"]["PROJECTS"];
+  const EDUCATION = jObj["RESPONSE"]["EDUCATION"];
+  const TECHNICAL_SKILLS = jObj["RESPONSE"]["TECHNICAL_SKILLS"];
+  return { SUMMARY, CONTACT_INFO, WORK_EXP, PROJECTS, EDUCATION, TECHNICAL_SKILLS };
 };

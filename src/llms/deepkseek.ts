@@ -8,8 +8,8 @@ export const DEEP_SEEK_V2_CODER = "deepseek-v2-coder";
 export const DEEP_SEEK_V2_CHAT = "deepseek-v2-chat";
 
 const langfuse = new Langfuse({
-  secretKey: process.env.secretKey,
-  publicKey: process.env.publicKey,
+  secretKey: process.env.langfuse_secretKey,
+  publicKey: process.env.langfuse_publicKey,
   baseUrl: "https://cloud.langfuse.com",
 });
 
@@ -41,7 +41,7 @@ export async function callDeepseekViaMessages(
   system: string,
   messages: {
     content: string;
-    role: "user" | "system";
+    role: "user" | "assistant";
   }[],
   user: string,
   temperature = 0,
@@ -58,7 +58,7 @@ export async function callDeepseekViaMessages(
     version: model,
   });
 
-  const max_tokens = 1024;
+  const max_tokens = 4096;
   const generation = trace.generation({
     name: "chat-completion",
     model: model,

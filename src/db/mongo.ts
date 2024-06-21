@@ -1,15 +1,16 @@
 import { MongoClient, ObjectId, ServerApiVersion } from "mongodb";
 import dotenv from "dotenv";
 import { Candidate, WhatsAppConversaion } from "./types";
+import { threadId } from "worker_threads";
 dotenv.config();
 
 let globalDBConnection: MongoClient | null = null;
 
 export const connectDB = async (): Promise<MongoClient> => {
   const uri = process.env.mongouri;
-  console.log("mongo connection uri", uri);
   if (uri) {
     if (globalDBConnection === null) {
+      console.log("mongo connection uri", uri);
       const client = new MongoClient(uri, {
         // serverApi: {
         //   version: ServerApiVersion.v1,
@@ -40,6 +41,18 @@ async function run() {
 }
 run().catch(console.dir);
 
+// only for debugging purposes
+export const deleteDataForCandidateToDebug = async (from: string) => {
+  const client = await connectDB();
+  const db = client.db("whatsapp");
+  await db.collection("conversation").deleteOne({
+    from,
+  });
+  await db.collection("candidates").deleteOne({
+    unique_id: from,
+  });
+};
+
 export const check_whatsapp_convsation_exists = async (uid: string) => {
   const client = await connectDB();
   const db = client.db("whatsapp");
@@ -59,12 +72,26 @@ export const get_whatspp_conversations = async (from: string) => {
     from: from,
   });
   if (doc) {
-    return doc.conversation as WhatsAppConversaion[];
+    return { slack_thread_id: doc.slack_thread_id, conversation: doc.conversation as WhatsAppConversaion[] };
   } else {
-    throw new Error(`unable to get whatsapp conversaion ${from}`);
+    return { slack_thread_id: undefined, conversation: [] };
   }
 };
 
+export const update_slack_thread_id_for_conversion = async (from: string, thread_ts: string) => {
+  const client = await connectDB();
+  const db = client.db("whatsapp");
+  const collection = db.collection("conversation");
+  await collection.updateOne(
+    { from },
+    {
+      $set: {
+        slack_thread_id: thread_ts,
+      },
+    },
+    { upsert: true }
+  );
+};
 export const save_whatsapp_conversation = async (type: "agent" | "candidate", from: string, messageType: string, content: string, uid: string, body: any) => {
   const client = await connectDB();
   const db = client.db("whatsapp");

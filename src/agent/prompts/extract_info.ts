@@ -73,6 +73,7 @@ export const extractInfo = async (
   5. LOCATION: candidates current location, give priority to <conversation> when fetching location.
   6. EMAIL: email of the candidate
   7. SUITABLE_JOB_PROFILE: select closest matching job profile we are hiring for only from open jobs, if no job profile match return "no_profile"
+  8. Name: name of candidate
 
   Make sure to select suitable job from <open_jobs> only, don't make up a job profile.
   To determine if company is hiring for a job profile, only look at <open_jobs> don't see conversation
@@ -94,6 +95,7 @@ export const extractInfo = async (
     <PHONE_NO>phone no if any</PHONE_NO>
     <LOCATION>location if any</LOCATION>
     <EMAIL>email address</EMAIL>
+    <NAME>name of candidate</NAME>
   </RESPONSE>
   `;
 
@@ -175,6 +177,9 @@ export const extractInfo = async (
     } else {
       info.hiring_for_job_profile = false;
     }
+  }
+  if ("NAME" in extractedFields) {
+    info.name = extractedFields["NAME"];
   }
 
   return info;

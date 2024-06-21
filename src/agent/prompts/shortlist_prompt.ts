@@ -6,7 +6,6 @@ import { callDeepkSeek, DEEP_SEEK_V2_CODER } from "../../llms/deepkseek";
 
 export const rate_resume = async (profileID: string, conversationObj: Conversation) => {
   const classified_job_profile = conversationObj.info?.suitable_job_profile;
-  const full_resume_text = conversationObj.resume?.full_resume_text;
   let job_description = "";
 
   console.log("candidate shortling existing", classified_job_profile);
@@ -24,7 +23,9 @@ export const rate_resume = async (profileID: string, conversationObj: Conversati
 
   Here is the applicant's resume:
   <CANDIDATE_RESUME>
-  ${full_resume_text}
+      <work_experiance>${conversationObj.resume?.WORK_EXP}</work_experiance>
+      <projects>${conversationObj.resume?.PROJECTS}</projects>
+      <technical_skills>${conversationObj.resume?.TECHNICAL_SKILLS}</technical_skills>
   </CANDIDATE_RESUME>
 
   And here is the job description to evaluate the resume against:
@@ -77,7 +78,7 @@ Respond only in xml format as below.
   if (!("RESPONSE" in jObj)) {
     throw new Error("response not found!");
   }
-  rating = jObj["RESPONSE"]["RATING"];
+  rating = jObj["RESPONSE"]["RATING"].trim();
   reason = jObj["RESPONSE"]["ANALYSIS"] + jObj["RESPONSE"]["PROJECT_ANALYSIS"];
 
   return { rating, reason };
@@ -119,10 +120,6 @@ export const shortlist = async (
   <RULES_FOR_SHORTLISTING>
   ${shortlisting}
   </RULES_FOR_SHORTLISTING>
-  
-  <CANDIDATE_RESUME>
-  ${full_resume_text}
-  </CANDIDATE_RESUME>
   
   <CANDIDATE_CURRENT_DATA>
   ${context}

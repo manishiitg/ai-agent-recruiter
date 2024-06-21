@@ -13,6 +13,10 @@ export const STAGE_RULE_MAP: Record<
   >
 > = {
   new: {
+    greeting: {
+      rule: "If conversation is just a greeting, like Hello, How are you, etc. and ask for which profile he wants to apply for a job and ask his resume",
+      response: "reply with a greeting and ask job profile and ask his resume",
+    },
     tell_job_profiles: {
       rule: "candidate is asking about open job profiles",
       response: "tell about open job profiles closest matching to candidate profile. tell maximum 1-2 profiles only relevent to candidate",
@@ -22,7 +26,7 @@ export const STAGE_RULE_MAP: Record<
       response: "check our open/closed jobs profiles and respond to him accordingly closest matching to candidate profile and make sure to ask his resume",
     },
     ask_resume: {
-      rule: "If candidate has mentioned interest in a job profile in his conversation and if it is matching our open job profile and candidate has more than 1year of work experiance",
+      rule: "If candidate has mentioned interest in a job profile in his conversation and if it is matching our open job profile",
       response: "",
       condition_ctc_response: {
         true: "ask his resume and expected and current CTC and current location",
@@ -57,10 +61,6 @@ export const STAGE_RULE_MAP: Record<
       rule: "if candidate is not interested in the job profile anymore",
       response: "acknowledge the same and thank him for his time",
     },
-    greeting: {
-      rule: "If conversation is just a greeting, like Hello, How are you, etc. and ask for which profile he wants to apply for a job.",
-      response: "reply with a greeting and ask job profile",
-    },
   },
   got_resume: {
     ask_ctc: {
@@ -90,6 +90,10 @@ export const STAGE_RULE_MAP: Record<
     job_closed: {
       rule: "the job profile the candidate is interested in got closed",
       response: "inform him that the job profile is closed now and suggest him alternative suitable open jobs",
+    },
+    greeting: {
+      rule: "If conversation is just a greeting, like Hello, How are you, etc. and ask for which profile he wants to apply for a job and ask his resume.",
+      response: "reply with a greeting and ask job profile  and ask his resume",
     },
   },
   got_ctc: {
@@ -155,7 +159,7 @@ export const STAGE_RULE_MAP: Record<
   got_rejected: {
     rejected: {
       rule: "Candidate is rejected based on context",
-      response: "Inform candidate he is rejected and tell reason in a very polite way. Don't mention about other job profiles",
+      response: "Inform candidate he is rejected and also mention reason in a polite way. Don't mention about other job profiles",
     },
     no_action: {
       rule: "If candiate is not asking for reason but responding with a general message",

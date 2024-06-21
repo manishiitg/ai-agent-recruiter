@@ -32,6 +32,9 @@ export const shouldExtractInfo = (info?: CandidateInfo) => {
   if (!info.location || info.location.length == 0 || info.location == "no") {
     extract = true;
   }
+  if (!info.name || info.name.length == 0 || info.name == "no") {
+    extract = true;
+  }
   if (!info.phone_no || info.phone_no.length == 0 || info.phone_no == "no") {
     extract = true;
   }

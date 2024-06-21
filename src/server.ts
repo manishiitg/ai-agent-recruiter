@@ -3,10 +3,16 @@ import bodyParser from "body-parser";
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
 import { whatsapp_callback, whatsapp_webhook } from "./server/whatsapp";
+import { deleteFolderRecursive } from "./server/whatsapp/util";
+import { mkdirSync } from "fs";
 
 //@ts-ignore
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+
+process.env.dirname = path.join(__dirname, "images");
+deleteFolderRecursive(process.env.dirname);
+mkdirSync(process.env.dirname, { recursive: true });
 
 const app = express();
 const port = process.env.PORT || 3000;

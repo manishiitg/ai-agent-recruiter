@@ -11,10 +11,14 @@ export interface Conversation {
   info?: CandidateInfo;
   actions_taken: string[];
   resume?: {
-    created_at: Date;
-    // full_resume_pdf: string;
+    created_at?: Date;
+    SUMMARY?: string;
+    CONTACT_INFO?: string;
+    WORK_EXP?: string;
+    PROJECTS?: string;
+    EDUCATION?: string;
+    TECHNICAL_SKILLS?: string;
     full_resume_text: string;
-    resume_summary?: string;
   };
 }
 
@@ -28,6 +32,7 @@ export interface CandidateInfo {
   email?: string;
   suitable_job_profile?: string;
   hiring_for_job_profile?: boolean;
+  name?: string;
 }
 
 export interface ShortlistReponse {
@@ -38,7 +43,7 @@ export interface ShortlistReponse {
 }
 
 export interface ConversationMessage {
-  name: string;
+  name: "agent" | "candidate";
   content: string;
   date: Date;
 }

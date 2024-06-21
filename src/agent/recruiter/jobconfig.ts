@@ -37,7 +37,7 @@ export const linkedJobProfileRules: Record<
     Rule 5. Candidate should have done projects using expressjs. This is an important rule.`,
   },
   "Jr Web Developer": {
-    is_open: true,
+    is_open: false,
     basic_criteria: "for freshers with basic knowledge of reactjs",
     job_description: `This opening is only for candidates from 0 to 6 months of experience.
     Good Knowledge in javascript, reactjs or vuejs`,
@@ -48,7 +48,7 @@ export const linkedJobProfileRules: Record<
     Rule 5. Candidate should have done multiple experiance/projects/internship related reactjs or vuejs or javascript. This is an important rule.`,
   },
   "Jr React Developer": {
-    is_open: true,
+    is_open: false,
     basic_criteria: "for freshers with basic knowledge of reactjs",
     job_description: `This opening is only for candidates from 0 to 6 months of experience.
     Good Knowledge in javascript, reactjs`,
@@ -59,7 +59,7 @@ export const linkedJobProfileRules: Record<
     Rule 5. Candidate should have done multiple experiance/projects/internship related reactjs. This is an important rule.`,
   },
   "Jr Vuejs Developer": {
-    is_open: true,
+    is_open: false,
     basic_criteria: "for freshers with basic knowledge of vuejs",
     job_description: `This opening is only for candidates from 0 to 6 months of experience.
     Good Knowledge in vuejs`,

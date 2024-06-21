@@ -74,7 +74,7 @@ async function uploadFileToSlack(token: string, channel: string, filePath: strin
   } catch (error) {
     captureException(error);
     // If the request fails, throw an error with the reason
-    throw new Error(`Failed to upload file to Slack: ${error}`);
+    throw new Error(`Failed to upload file to Slack: ${error} ${channel}`);
   }
 }
 
@@ -123,73 +123,11 @@ export async function postMessageToThread(messageTs: string, text: string, chann
     if (threadResponse.data.ok) {
       console.log("Message and threads posted successfully!");
     } else {
-      console.error("Error posting message and threads:", threadResponse.data.error);
+      console.error("postMessageToThread: Error posting message and threads:", threadResponse.data.error);
     }
   } catch (error) {
     captureException(error);
-    console.error("Error posting message and threads:", error);
-  }
-}
-
-// Function to post a message with a screenshot and a PDF file as threads to a Slack channel
-export async function postMessageWithAttachmentsAndThreadsToSlack(
-  screenshotPath: string,
-  pdfPath: string,
-  text: string,
-  messageText: string,
-  channel_id?: string,
-  dont_post_screenshot_as_thread?: boolean
-): Promise<string | undefined> {
-  try {
-    // Replace with your Bot User OAuth Token
-    const token = process.env.slack_token ? process.env.slack_token : "";
-    // Replace with the ID of the channel you want to post to
-    let channel = process.env.slack_channel_id ? process.env.slack_channel_id : "";
-    if (channel_id) {
-      channel = channel_id;
-    }
-
-    // Post the initial message with the screenshot
-    const messageTs = await postMessageToSlack(token, channel, messageText);
-
-    // Upload the screenshot and PDF files
-    if (screenshotPath) {
-      if (dont_post_screenshot_as_thread) {
-        await uploadFileToSlack(token, channel, screenshotPath);
-      } else {
-        await uploadFileToSlack(token, channel, screenshotPath, messageTs);
-      }
-    }
-
-    if (pdfPath) {
-      await uploadFileToSlack(token, channel, pdfPath, messageTs);
-    }
-
-    // Post the text and PDF file as threads to the initial message
-    const threadResponse = await axios.post(
-      "https://slack.com/api/chat.postMessage",
-      {
-        channel: channel,
-        text: text,
-        thread_ts: messageTs,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
-    if (threadResponse.data.ok) {
-      console.log("Message and threads posted successfully!");
-    } else {
-      console.error("Error posting message and threads:", threadResponse.data.error);
-    }
-    return messageTs;
-  } catch (error) {
-    captureException(error);
-    console.error("Error posting message and threads:", error);
+    console.error("postMessageToThread: Error posting message and threads:", error);
   }
 }
 
@@ -208,7 +146,7 @@ export async function postAttachment(screenshotPath: string, channel_id?: string
     return messageTs;
   } catch (error) {
     captureException(error);
-    console.error("Error posting message and threads:", error);
+    console.error("postAttachment: Error posting message and threads:", error);
     throw error;
   }
 }
@@ -230,48 +168,7 @@ export async function postMessageWithAttachment(screenshotPath: string, text: st
     return messageTs;
   } catch (error) {
     captureException(error);
-    console.error("Error posting message and threads:", error);
-    throw error;
-  }
-}
-export async function postMessageAsMarkDown(mrkDown: string, channel_id?: string): Promise<string> {
-  try {
-    // Replace with your Bot User OAuth Token
-    const token = process.env.slack_token ? process.env.slack_token : "";
-    // Replace with the ID of the channel you want to post to
-    let channel = process.env.slack_channel_id ? process.env.slack_channel_id : "";
-    if (channel_id) {
-      channel = channel_id;
-    }
-
-    // Post the initial message with the screenshot
-    const response = await axios.post(
-      "https://slack.com/api/chat.postMessage",
-      {
-        channel: channel,
-        blocks: [
-          {
-            type: "section",
-            text: {
-              type: "mrkdwn",
-              text: mrkDown,
-            },
-          },
-        ],
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
-    const messageTs = response.data.ts;
-    return messageTs;
-  } catch (error) {
-    captureException(error);
-    console.error("Error posting message and threads:", error);
+    console.error("postMessageWithAttachment: Error posting message and threads:", error);
     throw error;
   }
 }
@@ -288,7 +185,7 @@ export async function postMessage(text: string, channel_id?: string): Promise<st
     return messageTs;
   } catch (error) {
     captureException(error);
-    console.error("Error posting message and threads:", error);
+    console.error("postMessage: Error posting message and threads:", error);
     throw error;
   }
 }

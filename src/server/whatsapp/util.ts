@@ -1,34 +1,55 @@
-import dotenv from "dotenv";
-dotenv.config();
+import axios from "axios";
+import fs, { readdirSync, rmdirSync, statSync, unlinkSync } from "fs";
+import { join } from "path";
 
-import { createRequire } from "module";
-// @ts-ignore
-const require = createRequire(import.meta.url);
-let plivo = require("plivo");
-let client = new plivo.Client(process.env.plivo_auth_id, process.env.plivo_auth_token);
-
-export const send_whatsapp_text_reply = async (
-  text: string,
-  to: string,
-  from: string,
-  callback_url = "https://local.excellencetechnologies.in/whatsapp_callback/"
-): Promise<{ messageUuid: string; apiId: string; message: string }> => {
-  return new Promise((res, rej) => {
-    client.messages
-      .create({
-        src: from,
-        dst: to,
-        type: "whatsapp",
-        text: text,
-        url: callback_url,
-      })
-      .then(function (response: any) {
-        console.log(response);
-        res(response);
-      })
-      .catch((err: any) => {
-        console.error(err);
-        rej(err);
-      });
+export async function downloadFile(url: string, outputPath: string): Promise<void> {
+  const response = await axios({
+    url,
+    method: "GET",
+    responseType: "stream",
   });
-};
+
+  const writer = fs.createWriteStream(outputPath);
+
+  response.data.pipe(writer);
+
+  return new Promise((resolve, reject) => {
+    writer.on("finish", resolve);
+    writer.on("error", reject);
+  });
+}
+
+export function deleteFolderRecursive(dirPath: string): void {
+  try {
+    // Check if the directory exists
+    console.log("deleting", dirPath);
+    const stats = statSync(dirPath);
+    if (!stats.isDirectory()) {
+      throw new Error(`${dirPath} is not a directory.`);
+    }
+
+    // Read the contents of the directory
+    const files = readdirSync(dirPath);
+
+    // Delete each file or directory
+    for (const file of files) {
+      const filePath = join(dirPath, file);
+      const fileStats = statSync(filePath);
+
+      if (fileStats.isDirectory()) {
+        // Recursively delete subdirectories
+        deleteFolderRecursive(filePath);
+      } else {
+        // Delete files
+        unlinkSync(filePath);
+        console.log(`Deleted file: ${filePath}`);
+      }
+    }
+
+    // Finally, delete the directory itself
+    rmdirSync(dirPath);
+    console.log(`Deleted directory: ${dirPath}`);
+  } catch (err) {
+    console.error("Error deleting folder:", err);
+  }
+}

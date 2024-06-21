@@ -128,6 +128,7 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+src/images/*
 images/*
 src/images/*
 user_data/

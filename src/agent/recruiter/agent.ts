@@ -59,12 +59,18 @@ export const generateConversationReply = async (
   let ix = 1;
   for (const k in linkedJobProfileRules) {
     if (linkedJobProfileRules[k].is_open)
-      open_jobs += `
+      if (conversationObj.shortlisted) {
+        if (k !== conversationObj.shortlisted?.job_profile) {
+          continue;
+        }
+      }
+    open_jobs += `
                     <job${ix}>
                       <name>${k}</name>
                       <job_description>${linkedJobProfileRules[k].job_description}</job_description>
                     </job${ix}>
                     `;
+
     ix++;
   }
 
@@ -104,7 +110,7 @@ export const generateConversationReply = async (
       other_rules += `
         <rule_description>
           <rule>${STAGE_RULE_MAP[stage][action].rule}</rule>
-          <response>${response}</response>
+          <response_rule>${response}</response_rule>
           <action>${action}</action>
         </rule_description>
         `;
@@ -114,7 +120,7 @@ export const generateConversationReply = async (
     priority_rules += `
     <rule_description>
       <rule>${STAGE_RULE_MAP[stage][action].rule}</rule>
-      <response>${response}</response>
+      <response_rule>${response}</response_rule>
       <action>${action}</action>
     </rule_description>
     `;
@@ -132,60 +138,78 @@ export const generateConversationReply = async (
     }
   }
 
-  const prompt = `You are an HR recruiter on ${type}.
-    You are having a conversation with a person on ${type}. 
-    Your name is ${me}.
+  const prompt = `
+  You are an AI assistant acting as an HR recruiter for Excellence Technologies. Your task is to engage in a conversation with a job seeker on ${type}.
+  Your name is ${me}.
 
-          <company_information>
-          COMPANY NAME: Excellence Technologies
-          COMPANY LOCATION: Noida
-          </company_information>
-          
-          <context>
-          ${context}
-          ${shortlist_reject_text ? shortlist_reject_text : ""}
-          </context>
+  1. Company Information:
+  <company_information>
+  COMPANY NAME: Excellence Technologies
+  COMPANY LOCATION: Noida
+  </company_information>
+    
+  2. Context and Conversation History:
+  <context>
+  ${context}
+  ${shortlist_reject_text ? shortlist_reject_text : ""}
+  </context>
 
-          <open_job_profiles>
-          ${open_jobs}
-          </open_job_profiles>
+  3. Open Job Profiles:
+  <open_job_profiles>
+  ${open_jobs}
+  </open_job_profiles>
 
-          ${
-            closed_jobs.length > 0
-              ? `<closed_job_profiles>
-          ${closed_jobs}</closed_job_profiles>`
-              : ""
-          }
+  ${
+    closed_jobs.length > 0
+      ? `4. Closed Job Profiles (if any): <closed_job_profiles>
+  ${closed_jobs}</closed_job_profiles>`
+      : ""
+  }
   
-          <priority_rules>
-          ${priority_rules}
-          </priority_rules>
+  5. Priority Rules:
+  <priority_rules>
+  ${priority_rules}
+  </priority_rules>
 
-          ${other_rules ? `<other_rules>${other_rules}</other_rules>` : ""}
-          ${extraInfo?.years_of_experiance?.length == 0 ? "Since candidate doesn't have any work experiance, Don't ask current CTC from this candidate in RESPONSE" : ""}
+  6. Other Rules (if any):
 
-
-          Select the best fitting rule based on the conversation and context provided, giving higher priority to recent conversations over older ones. If none of the actions are applicable, reply "no_action" and do not make up any new actions.
+  ${other_rules ? `<other_rules>${other_rules}</other_rules>` : ""}
   
+  ${extraInfo?.years_of_experiance?.length == 0 ? "Since candidate doesn't have any work experiance, Don't ask current CTC from this candidate in <MESSAGE>" : ""}
 
-          <scratchpad>
-          Think step by step and make sure to check all rules. Provide a detailed reason for why the selected rule was chosen.
-          </scratchpad>
 
-          <FINAL_REASON>Provide a detailed reason for selecting the rule</FINAL_REASON>
+  8. Rule Analysis and Selection:
+  - Carefully analyze all provided rules priority_rules and other_rules, giving higher priority to recent conversations over older ones.
+  - Select the best fitting rule based on the conversation and context.
+  - If no actions are applicable, reply with "no_action" and do not create new actions.
+  - Prioritize using the <priority_rules> first, and only use <other_rules> if the priority rules are not applicable.
+  - Provide a step-by-step analysis of every rule in the <scratchpad> tag.
+  - Give a detailed reason for selecting the final rule in the <FINAL_REASON> tag.
+  
+  9. Response Guidelines:
+- Generate a suitable response based on the selected rule, conversation/context, and the final selected action <response_rule>.
+- Do not mention the context or conversation explicitly in the final response.
+- Whenever possible ask candidate for resume, if you don't have candidate's resume already
 
-          Select an action based on the selected rule and generate a suitable response based on the conversation/context and action <response> instructions. Prioritize using the <priority_rules> first, and only use <other_rules> if the priority rules are not applicable.
+  10. Output Structure:
+  Provide your response in the following XML format:
 
-          Check all rules before selecting the final rule. Do not mention the context or conversation in the final response.
+<RESPONSE>
+  <scratchpad>
+  [Provide step-by-step analysis of every rule, including rule names in format <action_name>analysis</action_name>]
+  </scratchpad>
+  <FINAL_REASON>
+  [Detailed reason for selecting the rule]
+  </FINAL_REASON>
+  <ACTION>
+  [Action exactly as mentioned in the selected rule]
+  </ACTION>
+  <MESSAGE>
+  [Short response based response_rule of the selected action]
+  </MESSAGE>
+</RESPONSE>
 
-          Provide your response in the following XML format, with the RESPONSE limited to a maximum of 30 words:
-
-          <response>
-            <scratchpad>Think step by step and make sure to check all rules. Provide a detailed reason for why the selected rule was chosen.</scratchpad>
-            <FINAL_REASON>Detailed reason for selecting the rule</FINAL_REASON>  
-            <ACTION>Action exactly as mentioned in the selected rule</ACTION>
-            <RESPONSE>Short response based on the conversation/context and action</RESPONSE>
-          </response>`;
+Remember to check all rules before selecting the final one, and ensure that your response is appropriate for an HR recruiter interacting with a job seeker.`;
 
   // Rule: If we don't know for which job profile he is intersted to apply for and candidate has provided his resume suggest him suitable job based on his resume.
   // Response: Ask if he is interested on suitable job profile based on his resume/conversion.
@@ -194,37 +218,44 @@ export const generateConversationReply = async (
   // REASON: [<think step by step and mention why specific rule was selected or not selected, rule1, rule2, etc>]
   const messages: {
     content: string;
-    role: "user" | "system";
+    role: "user" | "assistant";
   }[] = [];
 
-  console.log("context", context);
+  console.log("prompt", prompt);
   console.log("conversation", conversation);
-  // console.log("prompt", prompt);
 
   if (true) {
-    let previousUser = conversation[0].name;
-    let previousContent = conversation[0].content + ".";
-    let i = 0;
-    for (const conv of conversation) {
-      i++;
-      if (i == 1) continue;
+    // deepseek supports llm supports system prompt. claude doesnt
+    if (conversation.length > 0) {
+      let previousUser = conversation[0].name;
+      let previousContent = conversation[0].content + ".";
+      let i = 0;
+      for (const conv of conversation) {
+        i++;
+        if (i == 1) continue;
 
-      if (conv.name == previousUser) {
-        previousContent += `\n ${conv.content}.`;
-        continue;
-      } else {
-        messages.push({
-          role: previousUser == me ? "system" : "user",
-          content: previousContent,
-        });
-        previousUser = conv.name;
-        previousContent = conv.content;
+        if (conv.name == "agent") {
+          previousContent += `\n ${conv.content}.`;
+          continue;
+        } else {
+          messages.push({
+            role: previousUser == me ? "assistant" : "user",
+            content: previousContent,
+          });
+          previousUser = conv.name;
+          previousContent = conv.content;
+        }
       }
+      messages.push({
+        role: previousUser == me ? "assistant" : "user",
+        content: previousContent,
+      });
+    } else {
+      messages.push({
+        role: "user",
+        content: "Hi",
+      });
     }
-    messages.push({
-      role: previousUser == me ? "system" : "user",
-      content: previousContent,
-    });
   } else {
     messages.push({
       role: "user",
@@ -261,9 +292,9 @@ export const generateConversationReply = async (
     throw new Error("response not found!");
   }
 
-  reason = jObj["RESPONSE"]["FINAL_REASON"];
-  reply = jObj["RESPONSE"]["RESPONSE"];
-  action = jObj["RESPONSE"]["ACTION"];
+  reason = jObj["RESPONSE"]["FINAL_REASON"].trim();
+  reply = jObj["RESPONSE"]["MESSAGE"].trim();
+  action = jObj["RESPONSE"]["ACTION"].trim();
   action = `${stage}.${action}`;
 
   console.log("got final action", action);
@@ -276,8 +307,12 @@ export const get_context = (conversationObj: Conversation) => {
   const suitable_job_profile = conversationObj.info?.suitable_job_profile ? conversationObj.info?.suitable_job_profile : "";
 
   let context = "";
-  if (conversationObj.resume && conversationObj.resume.resume_summary && conversationObj.resume.resume_summary.length) {
-    context += `Candidates Resume: \n ${conversationObj.resume.resume_summary}\n`;
+  if (conversationObj.resume && conversationObj.resume.SUMMARY && conversationObj.resume.SUMMARY.length) {
+    context += `<candidate_resume>
+      <work_experiance>${conversationObj.resume.WORK_EXP}</work_experiance>
+      <projects>${conversationObj.resume.PROJECTS}</projects>
+      <technical_skills>${conversationObj.resume.TECHNICAL_SKILLS}</technical_skills>
+    </candidate_resume>`;
   } else {
     context += `Candidates has not provided his resume\n`;
   }
@@ -296,6 +331,7 @@ export const get_context = (conversationObj: Conversation) => {
   if (info?.years_of_experiance && info.years_of_experiance != "no") context += `Year of Experiance ${info.years_of_experiance} \n`;
   if (info?.phone_no && info.phone_no != "no") context += `Phone No ${info.phone_no} \n`;
   if (info?.location && info.location != "no") context += `Current Location ${info.location} \n`;
+  if (info?.name && info.name != "no") context += `Candidate Name: ${info.name} \n`;
 
   return context;
 };
