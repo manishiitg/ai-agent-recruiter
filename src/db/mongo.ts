@@ -178,9 +178,9 @@ export const update_whatsapp_message_sent_delivery_report = async (uid: string, 
 export async function saveCandidateInterviewToDB(interview: Interview) {
   const client = await connectDB();
   const db = client.db("whatsapp");
-  const unique_id = candidate.id;
+  const unique_id = interview.id;
 
-  await db.collection("interviews").updateOne({ unique_id: unique_id }, { $set: { ...candidate } }, { upsert: true });
+  await db.collection("interviews").updateOne({ unique_id: unique_id }, { $set: { ...interview } }, { upsert: true });
 }
 
 export async function getCandidateInterviewFromDB(unique_id: string) {
@@ -188,7 +188,7 @@ export async function getCandidateInterviewFromDB(unique_id: string) {
   const db = client.db("whatsapp");
   const data = await db.collection("interviews").findOne({ unique_id: unique_id });
   if (data) {
-    let obj: Candidate = {
+    let obj: Interview = {
       id: data.unique_id,
       ...data,
     };

@@ -1,5 +1,5 @@
 import { callDeepseekViaMessages, DEEP_SEEK_V2_CHAT } from "../../llms/deepkseek";
-import { STAGE_RULE_MAP } from "./rule_map";
+import { STAGE_NEW, STAGE_RULE_MAP } from "./rule_map";
 import { parseStringPromise } from "xml2js";
 import { ConversationMessage, Interview } from "./types";
 import { convertConversationToText } from "./helper";
@@ -15,9 +15,9 @@ export const generateConversationReply = async (
   reply: string;
   reason: string;
 }> => {
-  const stage = conversationObj.stage;
-  const actions_taken = conversationObj.actions_taken;
-  const extraInfo = conversationObj.info;
+  const stage = conversationObj.interview?.stage || STAGE_NEW;
+  const actions_taken = conversationObj.interview?.actions_taken || [];
+  const extraInfo = conversationObj.interview?.info;
   const context = get_context(conversationObj);
 
   console.log("got candidate stage", stage);
@@ -38,7 +38,7 @@ export const generateConversationReply = async (
         response = STAGE_RULE_MAP[stage][action].condition_ctc_response.false;
       }
     }
-    console.log("actions taken", conversationObj.actions_taken, `${stage}.${action}`, actions_taken.includes(`${stage}.${action}`));
+    console.log("actions taken", conversationObj.interview?.actions_taken, `${stage}.${action}`, actions_taken.includes(`${stage}.${action}`));
     if (actions_taken.includes(`${stage}.${action}`)) {
       // || actions_taken.includes(`${action}`)
       console.log("skipping action", action);
@@ -210,7 +210,7 @@ Remember to check all rules before selecting the final one, and ensure that your
 };
 
 export const get_context = (conversationObj: Interview) => {
-  const suitable_job_profile = conversationObj.info?.suitable_job_profile ? conversationObj.info?.suitable_job_profile : "";
+  const suitable_job_profile = conversationObj.interview?.info?.suitable_job_profile ? conversationObj.interview?.info?.suitable_job_profile : "";
 
   let context = "";
   // if (conversationObj.resume && conversationObj.resume.full_resume_text && conversationObj.resume.full_resume_text.length) {
@@ -227,7 +227,7 @@ export const get_context = (conversationObj: Interview) => {
   //   context += `<suitable_job_profile>We are current not hiring for ${suitable_job_profile}</suitable_job_profile>\n`;
   // }
 
-  const info = conversationObj.info;
+  const info = conversationObj.interview?.info;
   if (info?.current_ctc && info.current_ctc != "no") context += `Current CTC: ${info.current_ctc} \n`;
   if (info?.expected_ctc && info.expected_ctc != "no") {
     context += `Expected CTC: ${info.expected_ctc} \n`;

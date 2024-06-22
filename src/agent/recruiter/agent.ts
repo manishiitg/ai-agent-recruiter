@@ -269,7 +269,7 @@ Remember to check all rules before selecting the final one, and ensure that your
   }
 
   console.log("agent jObj", jObj);
-  reason = jObj["RESPONSE"]["FINAL_REASON"].trim();
+  reason = jObj["RESPONSE"]["FINAL_REASON"];
   reply = jObj["RESPONSE"]["MESSAGE"].trim();
   action = jObj["RESPONSE"]["ACTION"].trim();
   action = `${stage}.${action}`;

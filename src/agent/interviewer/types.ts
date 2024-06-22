@@ -1,16 +1,20 @@
+import { ObjectId } from "mongodb";
+
 export interface Interview {
   id: string;
-  started_at: Date;
-  stage: string;
-  info?: CandidateInfo;
-  conversation_completed?: boolean;
-  conversation_completed_reason?: string;
-  shortlisted?: ShortlistReponse;
-  actions_taken: string[];
-  resume?: {
-    created_at?: Date;
-    SUMMARY?: string;
-    full_resume_text: string;
+  interview?: {
+    started_at: Date;
+    stage: string;
+    info?: CandidateInfo;
+    conversation_completed?: boolean;
+    conversation_completed_reason?: string;
+    shortlisted?: ShortlistReponse;
+    actions_taken: string[];
+    resume?: {
+      created_at?: Date;
+      SUMMARY?: string;
+      full_resume_text: string;
+    };
   };
 }
 

@@ -61,10 +61,6 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
   //ACK
   res.sendStatus(200);
 
-  if (From == "979717071555") {
-    await conduct_interview(From);
-  }
-
   if (!(await check_whatsapp_convsation_exists(MessageUUID))) {
     console.log("ContentType", ContentType);
 
@@ -100,6 +96,7 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
               console.log("previous msg processing started so not queueing again!");
             }
           } else {
+            console.log("scheduling queue");
             queue[fromNumber] = {
               ts: setTimeout(() => {
                 schedule_message_to_be_processed(fromNumber, cred);
@@ -240,30 +237,47 @@ const schedule_message_to_be_processed = async (fromNumber: string, cred: WhatsA
     return conv.created_at;
   });
 
-  // console.log(sortedConversation);
+  let agentReply: {
+    message: string;
+    action: string;
+    stage: string;
+  };
+  if (fromNumber == "979717071555") {
+    agentReply = await conduct_interview(
+      fromNumber,
+      sortedConversation.map((conv) => {
+        return {
+          name: conv.userType,
+          content: conv.content,
+          date: conv.created_at,
+        };
+      }),
+      cred
+    );
+  } else {
+    agentReply = await process_whatsapp_conversation(
+      fromNumber,
+      sortedConversation.map((conv) => {
+        return {
+          name: conv.userType,
+          content: conv.content,
+          date: conv.created_at,
+        };
+      }),
+      cred,
+      (reply: string) => {
+        (async () => {
+          console.log("repling through callback");
+          const response = await send_whatsapp_text_reply(reply, fromNumber, cred.phoneNo);
+          const messageUuid = response.messageUuid;
+          await save_whatsapp_conversation("agent", fromNumber, "text", reply, "", "");
+          await add_whatsapp_message_sent_delivery_report(fromNumber, reply, "text", messageUuid);
+        })();
+      }
+    );
+  }
 
-  const agentReply = await process_whatsapp_conversation(
-    fromNumber,
-    sortedConversation.map((conv) => {
-      return {
-        name: conv.userType,
-        content: conv.content,
-        date: conv.created_at,
-      };
-    }),
-    cred,
-    (reply: string) => {
-      (async () => {
-        console.log("repling through callback");
-        const response = await send_whatsapp_text_reply(reply, fromNumber, cred.phoneNo);
-        const messageUuid = response.messageUuid;
-        await save_whatsapp_conversation("agent", fromNumber, "text", reply, "", "");
-        await add_whatsapp_message_sent_delivery_report(fromNumber, reply, "text", messageUuid);
-      })();
-    }
-  );
-
-  if (agentReply.message) {
+  if (agentReply && agentReply.message) {
     const response = await send_whatsapp_text_reply(agentReply.message, fromNumber, cred.phoneNo);
     const messageUuid = response.messageUuid;
     console.log("got messageUuid", messageUuid);
@@ -291,59 +305,63 @@ export const whatsapp_callback = async (req: Request, res: Response) => {
   res.sendStatus(200);
 };
 
+const remind_candidates = async () => {
+  const candidates = await getPendingNotCompletedCandidates();
+  console.log(candidates.length);
+  for (const candidate of candidates) {
+    console.log(convertToIST(candidate.conversation.started_at));
+    const date = convertToIST(candidate.conversation.started_at) as Date;
+    const now = convertToIST(new Date());
+
+    if (now.getTime() - date.getTime() > 1000 * 60 * 60) {
+      //no response in 1hr
+      console.log(candidate.unique_id);
+      const fromNumber = candidate.unique_id;
+      const { slack_thread_id, conversation } = await get_whatspp_conversations(fromNumber);
+      const sortedConversation = sortBy(conversation, (conv: WhatsAppConversaion) => {
+        return conv.created_at;
+      });
+      const cred: WhatsAppCreds = {
+        name: "Mahima",
+        phoneNo: "917011749960",
+      };
+      const agentReply = await process_whatsapp_conversation(
+        fromNumber,
+        sortedConversation.map((conv) => {
+          return {
+            name: conv.userType,
+            content: conv.content,
+            date: conv.created_at,
+          };
+        }),
+        cred,
+        () => {}
+      );
+      console.log("agentreply", agentReply);
+      if (agentReply.message) {
+        const response = await send_whatsapp_text_reply(agentReply.message, fromNumber, cred.phoneNo);
+        const messageUuid = response.messageUuid;
+        console.log("got messageUuid", messageUuid);
+        await save_whatsapp_conversation("agent", fromNumber, "text", agentReply.message, "", "");
+        await add_whatsapp_message_sent_delivery_report(fromNumber, agentReply.message, "text", messageUuid);
+
+        if (slack_thread_id) {
+          await postMessageToThread(slack_thread_id, `HR: ${agentReply.message}. Action: ${agentReply.action} Stage: ${agentReply.stage}: Remainder`, process.env.slack_action_channel_id);
+        } else {
+          const ts = await postMessage(`HR: ${agentReply.message}. Action: ${agentReply.action} Stage: ${agentReply.stage}: Remainder`, process.env.slack_action_channel_id);
+          await update_slack_thread_id_for_conversion(fromNumber, ts);
+        }
+      }
+      await updateRemainderSent(fromNumber);
+      break;
+    }
+  }
+};
 setInterval(() => {
   //send remainders to candidate on same day
-
   (async () => {
-    const candidates = await getPendingNotCompletedCandidates();
-    console.log(candidates.length);
-    for (const candidate of candidates) {
-      console.log(convertToIST(candidate.conversation.started_at));
-      const date = convertToIST(candidate.conversation.started_at) as Date;
-      const now = convertToIST(new Date());
-
-      if (now.getTime() - date.getTime() > 1000 * 60 * 60) {
-        //no response in 1hr
-        console.log(candidate.unique_id);
-        const fromNumber = candidate.unique_id;
-        const { slack_thread_id, conversation } = await get_whatspp_conversations(fromNumber);
-        const sortedConversation = sortBy(conversation, (conv: WhatsAppConversaion) => {
-          return conv.created_at;
-        });
-        const cred: WhatsAppCreds = {
-          name: "Mahima",
-          phoneNo: "917011749960",
-        };
-        const agentReply = await process_whatsapp_conversation(
-          fromNumber,
-          sortedConversation.map((conv) => {
-            return {
-              name: conv.userType,
-              content: conv.content,
-              date: conv.created_at,
-            };
-          }),
-          cred,
-          () => {}
-        );
-        console.log("agentreply", agentReply);
-        if (agentReply.message) {
-          const response = await send_whatsapp_text_reply(agentReply.message, fromNumber, cred.phoneNo);
-          const messageUuid = response.messageUuid;
-          console.log("got messageUuid", messageUuid);
-          await save_whatsapp_conversation("agent", fromNumber, "text", agentReply.message, "", "");
-          await add_whatsapp_message_sent_delivery_report(fromNumber, agentReply.message, "text", messageUuid);
-
-          if (slack_thread_id) {
-            await postMessageToThread(slack_thread_id, `HR: ${agentReply.message}. Action: ${agentReply.action} Stage: ${agentReply.stage}: Remainder`, process.env.slack_action_channel_id);
-          } else {
-            const ts = await postMessage(`HR: ${agentReply.message}. Action: ${agentReply.action} Stage: ${agentReply.stage}: Remainder`, process.env.slack_action_channel_id);
-            await update_slack_thread_id_for_conversion(fromNumber, ts);
-          }
-        }
-        await updateRemainderSent(fromNumber);
-        break;
-      }
-    }
+    await remind_candidates();
   })();
 }, 1000 * 60 * 30); //30min
+
+remind_candidates();
