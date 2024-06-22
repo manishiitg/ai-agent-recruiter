@@ -29,9 +29,8 @@ export const linkedJobProfileRules: Record<
     Worked with databases like mongodb or mysql or postgresql`,
     full_criteria: `Rule 1. Candidate should not belong to locations ${exclude_location_rule}
     Rule 2. Candidate should have maximum salary of 40,000 per month. If candidates salary is not mentioned, assume he passes this criteria.
-    Rule 3. Candidate should not have more than 1year of Experience.
-    Rule 4. Candidate should have done multiple experiance/projects/internship related to nodejs. This is an important rule.
-    Rule 5. Candidate should have done projects using expressjs. This is an important rule.`,
+    Rule 3. Candidate should have done multiple experiance/projects/internship related to nodejs. This is an important rule.
+    Rule 4. Candidate should have done projects using expressjs. This is an important rule.`,
   },
   "Jr Web Developer": {
     is_open: false,
@@ -40,8 +39,7 @@ export const linkedJobProfileRules: Record<
     full_criteria: `Rule 1. Candidate location should be any of ${near_location}.
     Rule 2. Candidate should not belong to locations ${exclude_location_rule}
     Rule 3. Candidate should have maximum salary of 40,000 per month. If candidates salary is not mentioned, assume he passes this criteria.
-    Rule 4. Candidate should not have more than 1year of Experience.
-    Rule 5. Candidate should have done multiple experiance/projects/internship related reactjs or vuejs or javascript. This is an important rule.`,
+    Rule 4. Candidate should have done multiple experiance/projects/internship related reactjs or vuejs or javascript. This is an important rule.`,
   },
   "Jr React Developer": {
     is_open: false,
@@ -50,7 +48,6 @@ export const linkedJobProfileRules: Record<
     full_criteria: `Rule 1. Candidate location should be ${near_location}.
     Rule 2. Candidate should not belong to locations ${exclude_location_rule}
     Rule 3. Candidate should have maximum salary of 40,000 per month. If candidates salary is not mentioned, assume he passes this criteria.
-    Rule 4. Candidate should not have more than 1year of Experience.
     Rule 5. Candidate should have done multiple experiance/projects/internship related reactjs. This is an important rule.`,
   },
   "Jr Vuejs Developer": {
@@ -69,7 +66,6 @@ export const linkedJobProfileRules: Record<
     Worked with databases like mongodb or mysql or postgresql`,
     full_criteria: `Rule 1. Candidate should have maximum salary of 40,000 per month. If candidates salary is not mentioned, assume he passes this criteria.
     Rule 2. Candidate should not belong to locations ${exclude_location_rule}
-    Rule 3. Candidate should not have more than 1year of Experience.
     Rule 4. Candidate should have done multiple work/projects/internship related python and flask/django. This is an important rule.`,
   },
   "Jr PHP Developer": {
@@ -79,7 +75,6 @@ export const linkedJobProfileRules: Record<
     full_criteria: `Rule 1. Candidate location should be ${near_location}.
     Rule 2. Candidate should not belong to locations ${exclude_location_rule}
     Rule 3. Candidate should have maximum salary of 40,000 per month. If candidates salary is not mentioned, assume he passes this criteria.
-    Rule 4. Candidate should not have more than 1year of Experience.
     Rule 5. Candidate should have done multiple work/projects/internship related php. This is an important rule.`,
   },
   "Jr PHP Developer Intern": {

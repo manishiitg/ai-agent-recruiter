@@ -204,6 +204,19 @@ export async function saveCandidateConversationDebugInfoToDB(candidate: Candidat
   await db.collection("candidates").updateOne({ unique_id: unique_id }, { $set: { "conversation.progress": info } }, { upsert: true });
 }
 
+export async function updateRemainderSent(unique_id: string) {
+  const client = await connectDB();
+  const db = client.db("whatsapp");
+  await db.collection("candidates").updateOne(
+    { unique_id },
+    {
+      $set: {
+        "conversation.remainder_sent": true,
+      },
+    }
+  );
+}
+
 export async function getPendingNotCompletedCandidates() {
   const client = await connectDB();
   const db = client.db("whatsapp");

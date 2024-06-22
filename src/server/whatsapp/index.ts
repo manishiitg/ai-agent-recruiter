@@ -1,14 +1,16 @@
 import { Request, Response } from "express";
-import { deleteFolderRecursive, downloadFile } from "./util";
+import { convertToIST, deleteFolderRecursive, downloadFile } from "./util";
 import {
   add_whatsapp_message_sent_delivery_report,
   check_whatsapp_convsation_exists,
   deleteDataForCandidateToDebug,
   get_whatspp_conversations,
+  getPendingNotCompletedCandidates,
   save_whatsapp_conversation,
   saveCandidateDetailsToDB,
   update_slack_thread_id_for_conversion,
   update_whatsapp_message_sent_delivery_report,
+  updateRemainderSent,
 } from "../../db/mongo";
 import sortBy from "lodash/sortBy";
 import { WhatsAppConversaion, WhatsAppCreds } from "../../db/types";
@@ -21,6 +23,14 @@ import { send_whatsapp_text_reply } from "./plivo";
 // @ts-ignore
 const require = createRequire(import.meta.url);
 var textract = require("textract");
+
+//find whats app creds bsaed on toNumber, for now only a single cred
+//its possible user is sending multiple msgs. cannot reply to all of them. need save to db and wait 1min before processing
+
+const cred: WhatsAppCreds = {
+  name: "Mahima",
+  phoneNo: "917011749960",
+};
 
 const queue: Record<
   string,
@@ -45,14 +55,6 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
 
   const fromNumber = From;
   const toNumber = To;
-
-  //find whats app creds bsaed on toNumber, for now only a single cred
-  //its possible user is sending multiple msgs. cannot reply to all of them. need save to db and wait 1min before processing
-
-  const cred: WhatsAppCreds = {
-    name: "Mahima",
-    phoneNo: "917011749960",
-  };
 
   const time = formatTime(new Date());
   //ACK
@@ -205,7 +207,7 @@ const schedule_message_to_be_processed = async (fromNumber: string, cred: WhatsA
     return conv.created_at;
   });
 
-  console.log(sortedConversation);
+  // console.log(sortedConversation);
 
   const agentReply = await process_whatsapp_conversation(
     fromNumber,
@@ -255,3 +257,60 @@ export const whatsapp_callback = async (req: Request, res: Response) => {
   //   await update_whatsapp_message_sent_delivery_report(MessageUUID, Status);
   res.sendStatus(200);
 };
+
+setInterval(() => {
+  //send remainders to candidate on same day
+
+  (async () => {
+    const candidates = await getPendingNotCompletedCandidates();
+    console.log(candidates.length);
+    for (const candidate of candidates) {
+      console.log(convertToIST(candidate.conversation.started_at));
+      const date = convertToIST(candidate.conversation.started_at) as Date;
+      const now = convertToIST(new Date());
+
+      if (now.getTime() - date.getTime() > 1000 * 60 * 60) {
+        //no response in 1hr
+        console.log(candidate.unique_id);
+        const fromNumber = candidate.unique_id;
+        const { slack_thread_id, conversation } = await get_whatspp_conversations(fromNumber);
+        const sortedConversation = sortBy(conversation, (conv: WhatsAppConversaion) => {
+          return conv.created_at;
+        });
+        const cred: WhatsAppCreds = {
+          name: "Mahima",
+          phoneNo: "917011749960",
+        };
+        const agentReply = await process_whatsapp_conversation(
+          fromNumber,
+          sortedConversation.map((conv) => {
+            return {
+              name: conv.userType,
+              content: conv.content,
+              date: conv.created_at,
+            };
+          }),
+          cred,
+          () => {}
+        );
+        console.log("agentreply", agentReply);
+        if (agentReply.message) {
+          const response = await send_whatsapp_text_reply(agentReply.message, fromNumber, cred.phoneNo);
+          const messageUuid = response.messageUuid;
+          console.log("got messageUuid", messageUuid);
+          await save_whatsapp_conversation("agent", fromNumber, "text", agentReply.message, "", "");
+          await add_whatsapp_message_sent_delivery_report(fromNumber, agentReply.message, "text", messageUuid);
+
+          if (slack_thread_id) {
+            await postMessageToThread(slack_thread_id, `HR: ${agentReply.message}. Action: ${agentReply.action} Stage: ${agentReply.stage}: Remainder`, process.env.slack_action_channel_id);
+          } else {
+            const ts = await postMessage(`HR: ${agentReply.message}. Action: ${agentReply.action} Stage: ${agentReply.stage}: Remainder`, process.env.slack_action_channel_id);
+            await update_slack_thread_id_for_conversion(fromNumber, ts);
+          }
+        }
+        await updateRemainderSent(fromNumber);
+        break;
+      }
+    }
+  })();
+}, 1000 * 60 * 60); //30min
