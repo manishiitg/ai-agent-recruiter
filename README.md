@@ -1,6 +1,8 @@
 # ai-agent-recruiter
 
-Building an AI Agent which will get resume as an input.
+Building an AI Agent which can talk to candidate on whatsapp, process his resume for a job and conduct a basic interview!
+
+This agent is live, try it out by sending "Hi" at 91-7011749960
 
 Stack
 
