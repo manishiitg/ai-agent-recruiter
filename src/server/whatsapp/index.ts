@@ -20,6 +20,7 @@ import path from "path";
 import { existsSync, mkdirSync } from "fs";
 import { createRequire } from "module";
 import { send_whatsapp_text_reply } from "./plivo";
+import { conduct_interview } from "./interview";
 // @ts-ignore
 const require = createRequire(import.meta.url);
 var textract = require("textract");
@@ -59,6 +60,10 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
   const time = formatTime(new Date());
   //ACK
   res.sendStatus(200);
+
+  if (From == "979717071555") {
+    await conduct_interview(From);
+  }
 
   if (!(await check_whatsapp_convsation_exists(MessageUUID))) {
     console.log("ContentType", ContentType);
@@ -108,9 +113,35 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
         const caption = Body;
         console.log(`Media Message received - From: ${fromNumber}, To: ${toNumber}, Media Attachment: ${Media0}, Caption: ${caption}`);
         if (req.body.MimeType) {
-          if (!req.body.MimeType.includes("pdf")) {
-            await send_whatsapp_text_reply("Only PDF Files are accepted.", fromNumber, cred.phoneNo);
-          } else {
+          if (req.body.MimeType.includes("audio")) {
+            const resume_path = path.join(process.env.dirname ? process.env.dirname : "", fromNumber);
+            if (!existsSync(resume_path)) {
+              mkdirSync(resume_path, { recursive: true });
+            }
+            // queue[fromNumber] = {
+            //   ts: setTimeout(() => {}, 1000),
+            //   status: "RUNNING",
+            // };
+
+            const resume_file = path.join(resume_path, "audio.ogg");
+            await downloadFile(Media0, resume_file);
+
+            const { slack_thread_id } = await get_whatspp_conversations(fromNumber);
+            if (slack_thread_id) {
+              await postAttachment(resume_file, process.env.slack_action_channel_id, slack_thread_id);
+            } else {
+              const ts = await postMessage(`${fromNumber}: Attachment . Time: ${time}`, process.env.slack_action_channel_id);
+              await update_slack_thread_id_for_conversion(fromNumber, ts);
+              await postAttachment(resume_file, process.env.slack_action_channel_id, ts);
+            }
+
+            // queue[fromNumber] = {
+            //   ts: setTimeout(() => {
+            //     schedule_message_to_be_processed(fromNumber, cred);
+            //   }, DEBOUNCE_TIMEOUT * 1000),
+            //   status: "PENDING",
+            // };
+          } else if (req.body.MimeType.include("pdf")) {
             const resume_path = path.join(process.env.dirname ? process.env.dirname : "", fromNumber);
             if (!existsSync(resume_path)) {
               mkdirSync(resume_path, { recursive: true });
@@ -179,6 +210,8 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
                 status: "PENDING",
               };
             }
+          } else {
+            await send_whatsapp_text_reply("Only PDF Files are accepted.", fromNumber, cred.phoneNo);
           }
         }
 
@@ -313,4 +346,4 @@ setInterval(() => {
       }
     }
   })();
-}, 1000 * 60 * 60); //30min
+}, 1000 * 60 * 30); //30min
