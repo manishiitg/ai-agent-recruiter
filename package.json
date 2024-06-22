@@ -5,6 +5,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
+    "pm2": "pm2 stop all && pm2 start npm --name \"server\" -- run server && pm2 logs",
     "server": "npx tsx src/server.ts",
     "test": "npx tsx src/tests/index.ts",
     "sentry:sourcemaps": "sentry-cli sourcemaps inject --org excellence-technosoft-pvt-ltd --project node-express ./dist && sentry-cli sourcemaps upload --org excellence-technosoft-pvt-ltd --project node-express ./dist"
@@ -24,6 +25,7 @@
     "dotenv": "^16.4.5",
     "fast-xml-parser": "^4.3.6",
     "form-data": "^4.0.0",
+    "jimp": "^0.22.12",
     "langfuse": "^3.5.0",
     "lodash": "^4.17.21",
     "moment": "^2.30.1",
@@ -31,13 +33,12 @@
     "pdf.js-extract": "^0.2.1",
     "pdfjs-dist": "^4.1.392",
     "plivo": "^4.67.0",
-    "pm2": "^5.4.0",
+    "pm2": "^5.4.1",
     "qs": "^6.12.1",
     "textract": "^2.5.0",
     "tsx": "^4.7.2",
     "uuid": "^9.0.1",
-    "xml2js": "^0.6.2",
-    "jimp": "^0.22.12"
+    "xml2js": "^0.6.2"
   },
   "devDependencies": {
     "@types/chai": "^4.3.14",
