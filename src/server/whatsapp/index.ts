@@ -353,7 +353,6 @@ const remind_candidates = async () => {
         }
       }
       await updateRemainderSent(fromNumber);
-      break;
     }
   }
 };
