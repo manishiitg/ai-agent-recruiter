@@ -1,18 +1,11 @@
+import exp from "constants";
 import { generateConversationReply } from "../../agent/interviewer/agent";
 import { STAGE_NEW } from "../../agent/interviewer/rule_map";
 import { ConversationMessage, Interview } from "../../agent/interviewer/types";
 import { getCandidateDetailsFromDB, getCandidateInterviewFromDB, saveCandidateInterviewToDB } from "../../db/mongo";
 import { WhatsAppCreds } from "../../db/types";
 
-export const conduct_interview = async (
-  phoneNo: string,
-  conversation: ConversationMessage[],
-  creds: WhatsAppCreds
-): Promise<{
-  message: string;
-  action: string;
-  stage: string;
-}> => {
+export const getInterviewObject = async (phoneNo: string) => {
   let interview: Interview;
 
   try {
@@ -30,11 +23,26 @@ export const conduct_interview = async (
           created_at: new Date(),
           SUMMARY: candidate.conversation?.resume?.SUMMARY || "",
         },
+        info: candidate.conversation?.info,
+        shortlisted: candidate.conversation?.shortlisted,
       },
     };
 
     await saveCandidateInterviewToDB(interview);
   }
+  return interview;
+};
+
+export const conduct_interview = async (
+  phoneNo: string,
+  conversation: ConversationMessage[],
+  creds: WhatsAppCreds
+): Promise<{
+  message: string;
+  action: string;
+  stage: string;
+}> => {
+  let interview: Interview = await getInterviewObject(phoneNo);
 
   if (interview.interview?.conversation_completed) {
     console.log("interview message processing completed", interview.interview.conversation_completed_reason);

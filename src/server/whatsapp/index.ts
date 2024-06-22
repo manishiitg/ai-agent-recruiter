@@ -20,7 +20,7 @@ import path from "path";
 import { existsSync, mkdirSync } from "fs";
 import { createRequire } from "module";
 import { send_whatsapp_text_reply } from "./plivo";
-import { conduct_interview } from "./interview";
+import { conduct_interview, getInterviewObject } from "./interview";
 // @ts-ignore
 const require = createRequire(import.meta.url);
 var textract = require("textract");
@@ -111,33 +111,40 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
         console.log(`Media Message received - From: ${fromNumber}, To: ${toNumber}, Media Attachment: ${Media0}, Caption: ${caption}`);
         if (req.body.MimeType) {
           if (req.body.MimeType.includes("audio")) {
-            const resume_path = path.join(process.env.dirname ? process.env.dirname : "", fromNumber);
-            if (!existsSync(resume_path)) {
-              mkdirSync(resume_path, { recursive: true });
-            }
-            // queue[fromNumber] = {
-            //   ts: setTimeout(() => {}, 1000),
-            //   status: "RUNNING",
-            // };
+            // audio files only accept when interview starts not before it
 
-            const resume_file = path.join(resume_path, "audio.ogg");
-            await downloadFile(Media0, resume_file);
+            if (fromNumber == "919717071555") {
+              const interviewObj = getInterviewObject(fromNumber);
+              const resume_path = path.join(process.env.dirname ? process.env.dirname : "", fromNumber);
+              if (!existsSync(resume_path)) {
+                mkdirSync(resume_path, { recursive: true });
+              }
+              // queue[fromNumber] = {
+              //   ts: setTimeout(() => {}, 1000),
+              //   status: "RUNNING",
+              // };
 
-            const { slack_thread_id } = await get_whatspp_conversations(fromNumber);
-            if (slack_thread_id) {
-              await postAttachment(resume_file, process.env.slack_action_channel_id, slack_thread_id);
+              const resume_file = path.join(resume_path, "audio.ogg");
+              await downloadFile(Media0, resume_file);
+
+              const { slack_thread_id } = await get_whatspp_conversations(fromNumber);
+              if (slack_thread_id) {
+                await postAttachment(resume_file, process.env.slack_action_channel_id, slack_thread_id);
+              } else {
+                const ts = await postMessage(`${fromNumber}: Attachment . Time: ${time}`, process.env.slack_action_channel_id);
+                await update_slack_thread_id_for_conversion(fromNumber, ts);
+                await postAttachment(resume_file, process.env.slack_action_channel_id, ts);
+              }
+
+              // queue[fromNumber] = {
+              //   ts: setTimeout(() => {
+              //     schedule_message_to_be_processed(fromNumber, cred);
+              //   }, DEBOUNCE_TIMEOUT * 1000),
+              //   status: "PENDING",
+              // };
             } else {
-              const ts = await postMessage(`${fromNumber}: Attachment . Time: ${time}`, process.env.slack_action_channel_id);
-              await update_slack_thread_id_for_conversion(fromNumber, ts);
-              await postAttachment(resume_file, process.env.slack_action_channel_id, ts);
+              await send_whatsapp_text_reply("Only PDF Files are accepted.", fromNumber, cred.phoneNo);
             }
-
-            // queue[fromNumber] = {
-            //   ts: setTimeout(() => {
-            //     schedule_message_to_be_processed(fromNumber, cred);
-            //   }, DEBOUNCE_TIMEOUT * 1000),
-            //   status: "PENDING",
-            // };
           } else if (req.body.MimeType.includes("pdf")) {
             const resume_path = path.join(process.env.dirname ? process.env.dirname : "", fromNumber);
             if (!existsSync(resume_path)) {
@@ -315,44 +322,48 @@ const remind_candidates = async () => {
 
     if (now.getTime() - date.getTime() > 1000 * 60 * 60) {
       //no response in 1hr
+
       console.log(candidate.unique_id);
       const fromNumber = candidate.unique_id;
       const { slack_thread_id, conversation } = await get_whatspp_conversations(fromNumber);
       const sortedConversation = sortBy(conversation, (conv: WhatsAppConversaion) => {
         return conv.created_at;
       });
-      const cred: WhatsAppCreds = {
-        name: "Mahima",
-        phoneNo: "917011749960",
-      };
-      const agentReply = await process_whatsapp_conversation(
-        fromNumber,
-        sortedConversation.map((conv) => {
-          return {
-            name: conv.userType,
-            content: conv.content,
-            date: conv.created_at,
-          };
-        }),
-        cred,
-        () => {}
-      );
-      console.log("agentreply", agentReply);
-      if (agentReply.message) {
-        const response = await send_whatsapp_text_reply(agentReply.message, fromNumber, cred.phoneNo);
-        const messageUuid = response.messageUuid;
-        console.log("got messageUuid", messageUuid);
-        await save_whatsapp_conversation("agent", fromNumber, "text", agentReply.message, "", "");
-        await add_whatsapp_message_sent_delivery_report(fromNumber, agentReply.message, "text", messageUuid);
 
-        if (slack_thread_id) {
-          await postMessageToThread(slack_thread_id, `HR: ${agentReply.message}. Action: ${agentReply.action} Stage: ${agentReply.stage}: Remainder`, process.env.slack_action_channel_id);
-        } else {
-          const ts = await postMessage(`HR: ${agentReply.message}. Action: ${agentReply.action} Stage: ${agentReply.stage}: Remainder`, process.env.slack_action_channel_id);
-          await update_slack_thread_id_for_conversion(fromNumber, ts);
+      if (sortedConversation[sortedConversation.length - 1].userType == "candidate") {
+        const cred: WhatsAppCreds = {
+          name: "Mahima",
+          phoneNo: "917011749960",
+        };
+        const agentReply = await process_whatsapp_conversation(
+          fromNumber,
+          sortedConversation.map((conv) => {
+            return {
+              name: conv.userType,
+              content: conv.content,
+              date: conv.created_at,
+            };
+          }),
+          cred,
+          () => {}
+        );
+        console.log("agentreply", agentReply);
+        if (agentReply.message) {
+          const response = await send_whatsapp_text_reply(agentReply.message, fromNumber, cred.phoneNo);
+          const messageUuid = response.messageUuid;
+          console.log("got messageUuid", messageUuid);
+          await save_whatsapp_conversation("agent", fromNumber, "text", agentReply.message, "", "");
+          await add_whatsapp_message_sent_delivery_report(fromNumber, agentReply.message, "text", messageUuid);
+
+          if (slack_thread_id) {
+            await postMessageToThread(slack_thread_id, `HR: ${agentReply.message}. Action: ${agentReply.action} Stage: ${agentReply.stage}: Remainder`, process.env.slack_action_channel_id);
+          } else {
+            const ts = await postMessage(`HR: ${agentReply.message}. Action: ${agentReply.action} Stage: ${agentReply.stage}: Remainder`, process.env.slack_action_channel_id);
+            await update_slack_thread_id_for_conversion(fromNumber, ts);
+          }
         }
+        await updateRemainderSent(fromNumber);
       }
-      await updateRemainderSent(fromNumber);
     }
   }
 };

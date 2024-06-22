@@ -261,7 +261,7 @@ export const callViaHuman = async (candidate: Candidate, creds: WhatsAppCreds, p
   if (info?.location && info.location != "no") context += `Current Location ${info.location} \n`;
 
   // context += `Resume Summary ${candidate.resume?.resume_summary} \n`;
-  context += `Shortlist Reason ${candidate.conversation?.shortlisted?.llm_response} \n`;
+  // context += `Shortlist Reason ${candidate.conversation?.shortlisted?.llm_response} \n`;
   if (creds) context += `Whatsapp Account ${creds.name}`;
 
   if (process.env.slack_action_channel_id) {
@@ -292,3 +292,6 @@ export const callViaHuman = async (candidate: Candidate, creds: WhatsAppCreds, p
     }
   }
 };
+
+
+

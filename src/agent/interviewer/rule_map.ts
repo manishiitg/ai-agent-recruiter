@@ -27,7 +27,7 @@ export const STAGE_RULE_MAP: Record<
   introduction: {
     ask_for_introduction: {
       rule: "If candidate is alright to start with his interview on whatsapp",
-      response: "Ask candidate to give a brief introduction about himself by recording a audio on whatsapp and sending it",
+      response: "Ask candidate to give a brief introduction about himself by recording a audio on whatsapp and sending it.",
     },
     ask_for_introduction_completed: {
       rule: "If candidate is has given his audio interview on whatsapp",

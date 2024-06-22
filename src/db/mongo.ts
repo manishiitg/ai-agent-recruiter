@@ -183,7 +183,7 @@ export async function saveCandidateInterviewToDB(interview: Interview) {
   await db.collection("interviews").updateOne({ unique_id: unique_id }, { $set: { ...interview } }, { upsert: true });
 }
 
-export async function getCandidateInterviewFromDB(unique_id: string) {
+export async function getCandidateInterviewFromDB(unique_id: string): Promise<Interview> {
   const client = await connectDB();
   const db = client.db("whatsapp");
   const data = await db.collection("interviews").findOne({ unique_id: unique_id });
@@ -258,7 +258,7 @@ export async function getPendingNotCompletedCandidates() {
     .collection("candidates")
     .find(
       {
-        "conversation.remainder_sent": { $exists: false },
+        // "conversation.remainder_sent": { $exists: false },
         $or: [{ "conversation.conversation_completed": false }, { "conversation.conversation_completed": { $exists: false } }],
         "conversation.started_at": {
           $gte: startOfDay,
@@ -272,6 +272,6 @@ export async function getPendingNotCompletedCandidates() {
         },
       }
     )
-    .limit(10)
+    .limit(50)
     .toArray();
 }
