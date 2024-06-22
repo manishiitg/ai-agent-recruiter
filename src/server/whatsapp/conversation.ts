@@ -60,6 +60,7 @@ export const process_whatsapp_conversation = async (
   callback: (reply: string) => void
 ): Promise<{
   message: string;
+  action: string;
 }> => {
   let candidate = await getCandidate(phoneNo);
   if (candidate.conversation && !candidate.conversation?.actions_taken) {
@@ -74,7 +75,7 @@ export const process_whatsapp_conversation = async (
 
   if (candidate.conversation?.conversation_completed) {
     console.log("auto message processing completed", candidate.conversation.conversation_completed_reason);
-    return { message: "" };
+    return { message: "", action: "completed" };
   }
 
   console.log("candidate", candidate);
@@ -123,7 +124,7 @@ export const process_whatsapp_conversation = async (
     candidate.conversation?.classifed_to.category.includes(CONV_CLASSIFY_FRIEND_PREFIX)
   ) {
     console.log("conversation type not supported skipping", candidate.conversation?.classifed_to.category);
-    return { message: "Sorry this is only regarding job" };
+    return { message: "Sorry this is only regarding job", action: "classify_non_job" };
   }
 
   const new_stage = await transitionStage(candidate.conversation);
@@ -243,9 +244,9 @@ export const process_whatsapp_conversation = async (
   }
 
   if (user_input_reply && reply.length) {
-    return { message: reply };
+    return { message: reply, action };
   } else {
-    return { message: "" };
+    return { message: "", action };
   }
 };
 

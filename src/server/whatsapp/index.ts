@@ -224,9 +224,9 @@ const schedule_message_to_be_processed = async (fromNumber: string, cred: WhatsA
     await add_whatsapp_message_sent_delivery_report(fromNumber, agentReply.message, "text", messageUuid);
 
     if (slack_thread_id) {
-      await postMessageToThread(slack_thread_id, `HR: ${agentReply.message}`, process.env.slack_action_channel_id);
+      await postMessageToThread(slack_thread_id, `HR: ${agentReply.message}. Action: ${agentReply.action}`, process.env.slack_action_channel_id);
     } else {
-      const ts = await postMessage(`HR: ${agentReply.message}`, process.env.slack_action_channel_id);
+      const ts = await postMessage(`HR: ${agentReply.message}. Action: ${agentReply.action}`, process.env.slack_action_channel_id);
       await update_slack_thread_id_for_conversion(fromNumber, ts);
     }
   } else {
