@@ -230,7 +230,7 @@ export const process_whatsapp_conversation = async (
     await saveCandidateDetailsToDB(candidate);
   }
   if (action.includes("do_call_via_human")) {
-    callViaHuman(candidate, creds);
+    callViaHuman(candidate, creds, phoneNo);
   }
   console.log("final action", action);
   if (!action.includes("no_action")) {
@@ -249,7 +249,7 @@ export const process_whatsapp_conversation = async (
   }
 };
 
-export const callViaHuman = async (candidate: Candidate, creds?: WhatsAppCreds, phoneNo: string) => {
+export const callViaHuman = async (candidate: Candidate, creds: WhatsAppCreds, phoneNo: string) => {
   let context = "";
   const info = candidate.conversation?.info;
   if (info?.current_ctc && info.current_ctc != "no") context += `Current CTC: ${info.current_ctc} \n`;
