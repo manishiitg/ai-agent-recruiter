@@ -32,6 +32,13 @@ const queue: Record<
 
 const DEBOUNCE_TIMEOUT = 60; // no of seconds to wait before processing messages
 
+function formatTime(date: Date) {
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  const seconds = String(date.getSeconds()).padStart(2, "0");
+  return `${hours}:${minutes}:${seconds}`;
+}
+
 export const whatsapp_webhook = async (req: Request, res: Response) => {
   const { From, To, ContentType, Context, Button, Media0, Body, MessageUUID } = req.body;
   console.log(req.body);
@@ -47,6 +54,7 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
     phoneNo: "917011749960",
   };
 
+  const time = formatTime(new Date());
   //ACK
   res.sendStatus(200);
 
@@ -65,9 +73,9 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
           await save_whatsapp_conversation("candidate", fromNumber, ContentType, text, MessageUUID, req.body);
           const { slack_thread_id } = await get_whatspp_conversations(fromNumber);
           if (slack_thread_id) {
-            await postMessageToThread(slack_thread_id, `${fromNumber}: ${text}`, process.env.slack_action_channel_id);
+            await postMessageToThread(slack_thread_id, `${fromNumber}: ${text}. Time: ${time}`, process.env.slack_action_channel_id);
           } else {
-            const ts = await postMessage(`${fromNumber}: ${text}`, process.env.slack_action_channel_id);
+            const ts = await postMessage(`${fromNumber}: ${text}. Time: ${time}`, process.env.slack_action_channel_id);
             await update_slack_thread_id_for_conversion(fromNumber, ts);
           }
 
@@ -113,7 +121,7 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
             if (slack_thread_id) {
               await postAttachment(resume_file, process.env.slack_action_channel_id, slack_thread_id);
             } else {
-              const ts = await postMessage(`${fromNumber}: Attachment`, process.env.slack_action_channel_id);
+              const ts = await postMessage(`${fromNumber}: Attachment . Time: ${time}`, process.env.slack_action_channel_id);
               await update_slack_thread_id_for_conversion(fromNumber, ts);
               await postAttachment(resume_file, process.env.slack_action_channel_id, ts);
             }
