@@ -43,7 +43,7 @@ export const STAGE_RULE_MAP: Record<
     },
     tell_no_recommend_job_closed: {
       rule: "If candidate has mentioned interest in a job profile in his conversation and if it is similar to a <closed_jobs> profile",
-      response: "Tell we don't have an open job profile matching his interest",
+      response: "Tell we don't have an open job profile matching his interest and suggest open job profiles we have",
     },
     tell_job_profile_specific: {
       rule: "candidate is asking about a specific job profile",
