@@ -113,6 +113,10 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
             if (!existsSync(resume_path)) {
               mkdirSync(resume_path, { recursive: true });
             }
+            queue[fromNumber] = {
+              ts: setTimeout(() => {}, 1000),
+              status: "RUNNING",
+            };
 
             const resume_file = path.join(resume_path, "resume.pdf");
             await downloadFile(Media0, resume_file);
@@ -232,9 +236,9 @@ const schedule_message_to_be_processed = async (fromNumber: string, cred: WhatsA
     await add_whatsapp_message_sent_delivery_report(fromNumber, agentReply.message, "text", messageUuid);
 
     if (slack_thread_id) {
-      await postMessageToThread(slack_thread_id, `HR: ${agentReply.message}. Action: ${agentReply.action}`, process.env.slack_action_channel_id);
+      await postMessageToThread(slack_thread_id, `HR: ${agentReply.message}. Action: ${agentReply.action} Stage: ${agentReply.stage}`, process.env.slack_action_channel_id);
     } else {
-      const ts = await postMessage(`HR: ${agentReply.message}. Action: ${agentReply.action}`, process.env.slack_action_channel_id);
+      const ts = await postMessage(`HR: ${agentReply.message}. Action: ${agentReply.action} Stage: ${agentReply.stage}`, process.env.slack_action_channel_id);
       await update_slack_thread_id_for_conversion(fromNumber, ts);
     }
   } else {

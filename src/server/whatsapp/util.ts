@@ -53,3 +53,16 @@ export function deleteFolderRecursive(dirPath: string): void {
     console.error("Error deleting folder:", err);
   }
 }
+
+export function convertToIST(date: Date): Date {
+  // Convert the date to UTC
+  const utcDate = new Date(date.toUTCString());
+
+  // IST offset is UTC + 5:30
+  const istOffset = 5.5 * 60; // 5 hours and 30 minutes in minutes
+
+  // Create a new Date with the IST offset
+  const istDate = new Date(utcDate.getTime() + istOffset * 60 * 1000);
+
+  return istDate;
+}

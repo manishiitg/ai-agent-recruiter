@@ -61,6 +61,7 @@ export const process_whatsapp_conversation = async (
 ): Promise<{
   message: string;
   action: string;
+  stage: string;
 }> => {
   let candidate = await getCandidate(phoneNo);
   if (candidate.conversation && !candidate.conversation?.actions_taken) {
@@ -75,7 +76,7 @@ export const process_whatsapp_conversation = async (
 
   if (candidate.conversation?.conversation_completed) {
     console.log("auto message processing completed", candidate.conversation.conversation_completed_reason);
-    return { message: "", action: "completed" };
+    return { message: "", action: "completed", stage: "completed" };
   }
 
   console.log("candidate", candidate);
@@ -124,7 +125,7 @@ export const process_whatsapp_conversation = async (
     candidate.conversation?.classifed_to.category.includes(CONV_CLASSIFY_FRIEND_PREFIX)
   ) {
     console.log("conversation type not supported skipping", candidate.conversation?.classifed_to.category);
-    return { message: "Sorry this is only regarding job", action: "classify_non_job" };
+    return { message: "Sorry this is only regarding job", action: "classify_non_job", stage: "" };
   }
 
   const new_stage = await transitionStage(candidate.conversation);
@@ -244,9 +245,9 @@ export const process_whatsapp_conversation = async (
   }
 
   if (user_input_reply && reply.length) {
-    return { message: reply, action };
+    return { message: reply, action, stage: candidate.conversation.stage };
   } else {
-    return { message: "", action };
+    return { message: "", action, stage: candidate.conversation.stage };
   }
 };
 
@@ -278,7 +279,7 @@ export const callViaHuman = async (candidate: Candidate, creds: WhatsAppCreds, p
       } else {
         slack_thread_id = await postMessage(`call the candidate ${candidate.id} for job profile ${candidate.conversation?.shortlisted?.job_profile}`, process.env.slack_action_channel_id);
       }
-      context += `Rating Reason ${ratingReply.reason}`;
+      // context += `Rating Reason ${ratingReply.reason}`;
       await postMessageToThread(slack_thread_id, context, process.env.slack_action_channel_id);
     } else {
       let { slack_thread_id } = await get_whatspp_conversations(phoneNo);

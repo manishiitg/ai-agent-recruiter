@@ -203,3 +203,38 @@ export async function saveCandidateConversationDebugInfoToDB(candidate: Candidat
   const unique_id = candidate.id;
   await db.collection("candidates").updateOne({ unique_id: unique_id }, { $set: { "conversation.progress": info } }, { upsert: true });
 }
+
+export async function getPendingNotCompletedCandidates() {
+  const client = await connectDB();
+  const db = client.db("whatsapp");
+
+  // Get the current date
+  let currentDate = new Date();
+
+  // Set the time to the start of the day (00:00:00.000)
+  let startOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
+
+  // Set the time to the start of the next day (00:00:00.000)
+  let startOfNextDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + 1);
+
+  return await db
+    .collection("candidates")
+    .find(
+      {
+        "conversation.remainder_sent": { $exists: false },
+        $or: [{ "conversation.conversation_completed": false }, { "conversation.conversation_completed": { $exists: false } }],
+        "conversation.started_at": {
+          $gte: startOfDay,
+          $lt: startOfNextDay,
+        },
+      },
+      {
+        projection: {
+          unique_id: 1,
+          "conversation.started_at": 1,
+        },
+      }
+    )
+    .limit(10)
+    .toArray();
+}
