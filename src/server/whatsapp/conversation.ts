@@ -264,19 +264,29 @@ export const callViaHuman = async (candidate: Candidate, creds: WhatsAppCreds, p
   if (creds) context += `Whatsapp Account ${creds.name}`;
 
   if (process.env.slack_action_channel_id) {
-    let { slack_thread_id } = await get_whatspp_conversations(phoneNo);
-    if (slack_thread_id) {
-      await postMessageToThread(slack_thread_id, `call the candidate ${candidate.id} for job profile ${candidate.conversation?.shortlisted?.job_profile}`, process.env.slack_action_channel_id, true);
-    } else {
-      slack_thread_id = await postMessage(`call the candidate ${candidate.id} for job profile ${candidate.conversation?.shortlisted?.job_profile}`, process.env.slack_action_channel_id);
-    }
-
     if (candidate.conversation && candidate.conversation.resume) {
       const ratingReply = await rate_resume(candidate.id, candidate.conversation);
+
+      let { slack_thread_id } = await get_whatspp_conversations(phoneNo);
+      if (slack_thread_id) {
+        await postMessageToThread(
+          slack_thread_id,
+          `call the candidate ${candidate.id} for job profile ${candidate.conversation?.shortlisted?.job_profile} Resume Rating ${ratingReply.rating}`,
+          process.env.slack_action_channel_id,
+          true
+        );
+      } else {
+        slack_thread_id = await postMessage(`call the candidate ${candidate.id} for job profile ${candidate.conversation?.shortlisted?.job_profile}`, process.env.slack_action_channel_id);
+      }
       context += `Rating Reason ${ratingReply.reason}`;
       await postMessageToThread(slack_thread_id, context, process.env.slack_action_channel_id);
-      await postMessageToThread(slack_thread_id, `Resume Rating ${ratingReply.rating}`, process.env.slack_action_channel_id, true);
     } else {
+      let { slack_thread_id } = await get_whatspp_conversations(phoneNo);
+      if (slack_thread_id) {
+        await postMessageToThread(slack_thread_id, `call the candidate ${candidate.id} for job profile ${candidate.conversation?.shortlisted?.job_profile}`, process.env.slack_action_channel_id, true);
+      } else {
+        slack_thread_id = await postMessage(`call the candidate ${candidate.id} for job profile ${candidate.conversation?.shortlisted?.job_profile}`, process.env.slack_action_channel_id);
+      }
       await postMessageToThread(slack_thread_id, context, process.env.slack_action_channel_id);
     }
   }
