@@ -12,24 +12,6 @@ export const STAGE_GOT_CTC = "got_ctc";
 export const STAGE_SHORTLISTED = "got_shortlisted";
 export const STAGE_GOT_REJECTED = "got_rejected";
 
-// people ask update on when you will call, can we handle it?
-// do a partial shortlisting based on only resume or only expected ctc?
-// people leave msgs after rejection as well... should i proceed?
-
-// candidate asks for job description
-// candidate says he found a job and not looking anymore
-// current ctc issue is still not fixed
-// if job profile gets closed? // need to get extra info, all the time?
-
-// how to optimized extractInfo() right its called
-// see fix on how to fix asking current ctc for freshres.
-
-//. candidte asks for location..
-
-// for Anushri Jain 1st degree connection, some how, action taken == greeting is set.
-// but messgesa sent are 0. should fix this.
-
-// many times we send a msg will call you soon, in do_schedule_call, but there is no human action.
 
 export const generateConversationReply = async (
   profileID: string,

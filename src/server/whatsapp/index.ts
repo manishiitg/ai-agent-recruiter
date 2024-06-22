@@ -141,7 +141,7 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
             //   }, DEBOUNCE_TIMEOUT * 1000),
             //   status: "PENDING",
             // };
-          } else if (req.body.MimeType.include("pdf")) {
+          } else if (req.body.MimeType.includes("pdf")) {
             const resume_path = path.join(process.env.dirname ? process.env.dirname : "", fromNumber);
             if (!existsSync(resume_path)) {
               mkdirSync(resume_path, { recursive: true });
