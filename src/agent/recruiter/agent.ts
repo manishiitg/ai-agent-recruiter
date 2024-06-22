@@ -12,7 +12,6 @@ export const STAGE_GOT_CTC = "got_ctc";
 export const STAGE_SHORTLISTED = "got_shortlisted";
 export const STAGE_GOT_REJECTED = "got_rejected";
 
-
 export const generateConversationReply = async (
   profileID: string,
   conversationObj: Conversation,
@@ -269,6 +268,7 @@ Remember to check all rules before selecting the final one, and ensure that your
     throw new Error("response not found!");
   }
 
+  console.log("agent jObj", jObj);
   reason = jObj["RESPONSE"]["FINAL_REASON"].trim();
   reply = jObj["RESPONSE"]["MESSAGE"].trim();
   action = jObj["RESPONSE"]["ACTION"].trim();

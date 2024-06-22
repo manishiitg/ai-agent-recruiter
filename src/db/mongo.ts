@@ -2,6 +2,7 @@ import { MongoClient, ObjectId, ServerApiVersion } from "mongodb";
 import dotenv from "dotenv";
 import { Candidate, WhatsAppConversaion } from "./types";
 import { threadId } from "worker_threads";
+import { Interview } from "../agent/interviewer/types";
 dotenv.config();
 
 let globalDBConnection: MongoClient | null = null;
@@ -173,6 +174,29 @@ export const update_whatsapp_message_sent_delivery_report = async (uid: string, 
     }
   );
 };
+
+export async function saveCandidateInterviewToDB(interview: Interview) {
+  const client = await connectDB();
+  const db = client.db("whatsapp");
+  const unique_id = candidate.id;
+
+  await db.collection("interviews").updateOne({ unique_id: unique_id }, { $set: { ...candidate } }, { upsert: true });
+}
+
+export async function getCandidateInterviewFromDB(unique_id: string) {
+  const client = await connectDB();
+  const db = client.db("whatsapp");
+  const data = await db.collection("interviews").findOne({ unique_id: unique_id });
+  if (data) {
+    let obj: Candidate = {
+      id: data.unique_id,
+      ...data,
+    };
+    return obj;
+  } else {
+    throw new Error("interview not found in db");
+  }
+}
 
 export async function getCandidateDetailsFromDB(unique_id: string): Promise<Candidate> {
   const client = await connectDB();

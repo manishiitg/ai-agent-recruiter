@@ -1,4 +1,5 @@
 export interface Interview {
+  id: string;
   started_at: Date;
   stage: string;
   info?: CandidateInfo;
