@@ -224,7 +224,7 @@ export const process_whatsapp_conversation = async (
     });
   }
 
-  if (action.includes("do_call_via_human") || action.includes("candidate_no_job_profile") || action.includes("tell_no_recommend_job") || action.includes("rejected")) {
+  if (action.includes("do_call_via_human") || action.includes("rejected")) {
     candidate.conversation.conversation_completed = true;
     candidate.conversation.conversation_completed_reason = action;
     await saveCandidateDetailsToDB(candidate);
