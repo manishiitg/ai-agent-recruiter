@@ -11,7 +11,7 @@ import {
   CONV_CLASSIFY_WISHES_PREFIX,
   extractInfo,
 } from "../../agent/prompts/extract_info";
-import { getCandidateDetailsFromDB, saveCandidateConversationDebugInfoToDB, saveCandidateDetailsToDB } from "../../db/mongo";
+import { get_whatspp_conversations, getCandidateDetailsFromDB, saveCandidateConversationDebugInfoToDB, saveCandidateDetailsToDB } from "../../db/mongo";
 import { Candidate, WhatsAppCreds } from "../../db/types";
 import { summariseResume } from "../../agent/prompts/summary_resume_prompt";
 import { transitionStage } from "../../agent/recruiter/transitions";
@@ -249,7 +249,7 @@ export const process_whatsapp_conversation = async (
   }
 };
 
-export const callViaHuman = async (candidate: Candidate, creds?: WhatsAppCreds) => {
+export const callViaHuman = async (candidate: Candidate, creds?: WhatsAppCreds, phoneNo: string) => {
   let context = "";
   const info = candidate.conversation?.info;
   if (info?.current_ctc && info.current_ctc != "no") context += `Current CTC: ${info.current_ctc} \n`;
@@ -263,15 +263,20 @@ export const callViaHuman = async (candidate: Candidate, creds?: WhatsAppCreds) 
   if (creds) context += `Whatsapp Account ${creds.name}`;
 
   if (process.env.slack_action_channel_id) {
-    const ts = await postMessage(`call the candidate ${candidate.id} for job profile ${candidate.conversation?.shortlisted?.job_profile}`, process.env.slack_action_channel_id);
+    let { slack_thread_id } = await get_whatspp_conversations(phoneNo);
+    if (slack_thread_id) {
+      await postMessageToThread(slack_thread_id, `call the candidate ${candidate.id} for job profile ${candidate.conversation?.shortlisted?.job_profile}`, process.env.slack_action_channel_id, true);
+    } else {
+      slack_thread_id = await postMessage(`call the candidate ${candidate.id} for job profile ${candidate.conversation?.shortlisted?.job_profile}`, process.env.slack_action_channel_id);
+    }
 
     if (candidate.conversation && candidate.conversation.resume) {
       const ratingReply = await rate_resume(candidate.id, candidate.conversation);
       context += `Rating Reason ${ratingReply.reason}`;
-      await postMessageToThread(ts, context, process.env.slack_action_channel_id);
-      await postMessageToThread(ts, `Resume Rating ${ratingReply.rating}`, process.env.slack_action_channel_id, true);
+      await postMessageToThread(slack_thread_id, context, process.env.slack_action_channel_id);
+      await postMessageToThread(slack_thread_id, `Resume Rating ${ratingReply.rating}`, process.env.slack_action_channel_id, true);
     } else {
-      await postMessageToThread(ts, context, process.env.slack_action_channel_id);
+      await postMessageToThread(slack_thread_id, context, process.env.slack_action_channel_id);
     }
   }
 };
