@@ -1,6 +1,8 @@
 import { generateConversationReply, STAGE_GOT_CTC, STAGE_GOT_REJECTED, STAGE_NEW, STAGE_SHORTLISTED } from "../../agent/recruiter/agent";
 import { convertConversationToText, should_do_force_shortlist, shouldExtractInfo } from "../../agent/recruiter/helper";
 import {
+  classify_conversation,
+  CONV_CLASSIFY_CANDIDATE_JOB,
   CONV_CLASSIFY_FRIEND,
   CONV_CLASSIFY_FRIEND_PREFIX,
   CONV_CLASSIFY_INSTITUTE_PLACEMENT,
@@ -54,7 +56,8 @@ export const getCandidate = async (phoneNo: string) => {
 export const process_whatsapp_conversation = async (
   phoneNo: string,
   conversation: ConversationMessage[],
-  creds: WhatsAppCreds
+  creds: WhatsAppCreds,
+  callback: (reply: string) => void
 ): Promise<{
   message: string;
 }> => {
@@ -80,41 +83,46 @@ export const process_whatsapp_conversation = async (
     throw new Error("candidate conversion not found!");
   }
 
-  if (candidate.conversation.resume?.full_resume_text && (!candidate.conversation.resume.SUMMARY || candidate.conversation.resume.SUMMARY == null)) {
+  if (candidate.conversation.resume?.full_resume_text && (!candidate.conversation.resume.SUMMARY || candidate.conversation.resume.SUMMARY.length === 0)) {
+    callback("Please wait while i go through your resume");
     const summaryResponse = await summariseResume(candidate.conversation.resume?.full_resume_text, phoneNo);
     candidate.conversation.resume = {
       created_at: new Date(),
       SUMMARY: summaryResponse.SUMMARY,
-      CONTACT_INFO: summaryResponse.CONTACT_INFO,
-      EDUCATION: summaryResponse.EDUCATION,
-      PROJECTS: summaryResponse.PROJECTS,
-      TECHNICAL_SKILLS: summaryResponse.TECHNICAL_SKILLS,
-      WORK_EXP: summaryResponse.WORK_EXP,
       full_resume_text: candidate.conversation.resume?.full_resume_text,
     };
     await saveCandidateDetailsToDB(candidate);
   }
 
-  if (shouldExtractInfo(candidate.conversation?.info)) {
-    const info = await extractInfo(phoneNo, creds.name, convertConversationToText(conversation), candidate.conversation.resume?.CONTACT_INFO || candidate.conversation.resume?.full_resume_text);
+  if (!candidate.conversation.classifed_to || !candidate.conversation.classifed_to.category.includes(CONV_CLASSIFY_CANDIDATE_JOB)) {
+    const classifyResponse = await classify_conversation(phoneNo, convertConversationToText(conversation));
+    candidate.conversation.classifed_to = {
+      category: classifyResponse.CLASSIFIED_CATEGORY,
+      reason: classifyResponse.REASON,
+    };
+  }
+
+  if (shouldExtractInfo(candidate.conversation?.info) && candidate.conversation.resume && candidate.conversation.resume?.full_resume_text.length > 0) {
+    //atleast two messages
+    const info = await extractInfo(phoneNo, creds.name, convertConversationToText(conversation), candidate.conversation.resume?.full_resume_text);
     if (info) {
       candidate.conversation.info = info;
       await saveCandidateDetailsToDB(candidate);
     }
   }
-  console.log("checking conv category", candidate.conversation?.info?.classified_category);
-  if (!candidate.conversation?.info?.classified_category) {
+  console.log("checking conv category", candidate.conversation?.classifed_to.category);
+  if (!candidate.conversation?.classifed_to.category) {
     throw new Error("classification missing!");
   }
   if (
-    candidate.conversation?.info?.classified_category?.includes(CONV_CLASSIFY_INSTITUTE_PLACEMENT) ||
-    candidate.conversation?.info?.classified_category?.includes(CONV_CLASSIFY_INSTITUTE_PLACEMENT_PREFIX) ||
-    candidate.conversation?.info?.classified_category?.includes(CONV_CLASSIFY_WISHES) ||
-    candidate.conversation?.info?.classified_category?.includes(CONV_CLASSIFY_WISHES_PREFIX) ||
-    candidate.conversation?.info?.classified_category?.includes(CONV_CLASSIFY_FRIEND) ||
-    candidate.conversation?.info?.classified_category?.includes(CONV_CLASSIFY_FRIEND_PREFIX)
+    candidate.conversation?.classifed_to.category.includes(CONV_CLASSIFY_INSTITUTE_PLACEMENT) ||
+    candidate.conversation?.classifed_to.category.includes(CONV_CLASSIFY_INSTITUTE_PLACEMENT_PREFIX) ||
+    candidate.conversation?.classifed_to.category.includes(CONV_CLASSIFY_WISHES) ||
+    candidate.conversation?.classifed_to.category.includes(CONV_CLASSIFY_WISHES_PREFIX) ||
+    candidate.conversation?.classifed_to.category.includes(CONV_CLASSIFY_FRIEND) ||
+    candidate.conversation?.classifed_to.category.includes(CONV_CLASSIFY_FRIEND_PREFIX)
   ) {
-    console.log("conversation type not supported skipping", candidate.conversation?.info?.classified_category);
+    console.log("conversation type not supported skipping", candidate.conversation?.classifed_to.category);
     return { message: "Sorry this is only regarding job" };
   }
 
@@ -142,40 +150,19 @@ export const process_whatsapp_conversation = async (
   let has_already_asked_user_input = false;
   let user_input_reply = false;
 
-  let auto_mode = process.env.debug_mode && process.env.debug_mode?.length > 0 ? false : true;
-
-  if (!action.includes("no_action") && !action.includes("do_shortlist") && !action.includes("do_call_via_human")) {
+  if (!action.includes("do_shortlist") && !action.includes("do_call_via_human")) {
     has_already_asked_user_input = true;
-    let ans = "y";
-    if (!auto_mode) {
-      ans = await askOptionsFromConsole("save to db", [
-        {
-          name: "yes",
-          value: "y",
-        },
-        {
-          name: "no",
-          value: "n",
-        },
-      ]);
-    }
-
-    if (ans == "y") {
-      user_input_reply = true;
-      candidate.conversation.actions_taken.push(action);
-      await saveCandidateDetailsToDB(candidate);
-      await saveCandidateConversationDebugInfoToDB(candidate, {
-        time: new Date(),
-        action,
-        reply,
-        reason,
-        conversation,
-        info: candidate.conversation.info,
-      });
-    } else {
-      user_input_reply = false;
-      return { message: "" };
-    }
+    user_input_reply = true;
+    candidate.conversation.actions_taken.push(action);
+    await saveCandidateDetailsToDB(candidate);
+    await saveCandidateConversationDebugInfoToDB(candidate, {
+      time: new Date(),
+      action,
+      reply,
+      reason,
+      conversation,
+      info: candidate.conversation.info,
+    });
   }
 
   if (action.includes("ask_ctc")) {
@@ -185,7 +172,7 @@ export const process_whatsapp_conversation = async (
     console.log("second time genReply");
     let shortlist_reject_text = "";
 
-    if (!candidate.conversation.info.suitable_job_profile) {
+    if (!candidate.conversation.info || !candidate.conversation.info.suitable_job_profile) {
       throw new Error("cannot shortlist without jobprofile");
     }
 
@@ -237,7 +224,7 @@ export const process_whatsapp_conversation = async (
     });
   }
 
-  if (action.includes("do_call_via_human") || action.includes("rejected") || action.includes("candidate_no_job_profile") || action.includes("tell_no_recommend_job")) {
+  if (action.includes("do_call_via_human") || action.includes("candidate_no_job_profile") || action.includes("tell_no_recommend_job") || action.includes("rejected")) {
     candidate.conversation.conversation_completed = true;
     candidate.conversation.conversation_completed_reason = action;
     await saveCandidateDetailsToDB(candidate);
@@ -248,25 +235,11 @@ export const process_whatsapp_conversation = async (
   console.log("final action", action);
   if (!action.includes("no_action")) {
     if (!has_already_asked_user_input) {
-      let ans = "y";
-      if (!auto_mode) {
-        ans = await askOptionsFromConsole("write to candidate: " + reply, [
-          {
-            name: "yes",
-            value: "y",
-          },
-          {
-            name: "no",
-            value: "n",
-          },
-        ]);
-      }
-      if (ans == "y") {
-        user_input_reply = true;
-      }
+      user_input_reply = true;
     }
   } else {
-    user_input_reply = false;
+    // user_input_reply = false;
+    // if process no_action as well
   }
 
   if (user_input_reply && reply.length) {
@@ -292,7 +265,7 @@ export const callViaHuman = async (candidate: Candidate, creds?: WhatsAppCreds) 
   if (process.env.slack_action_channel_id) {
     const ts = await postMessage(`call the candidate ${candidate.id} for job profile ${candidate.conversation?.shortlisted?.job_profile}`, process.env.slack_action_channel_id);
 
-    if (candidate.conversation && candidate.conversation.resume && candidate.conversation.resume.SUMMARY) {
+    if (candidate.conversation && candidate.conversation.resume) {
       const ratingReply = await rate_resume(candidate.id, candidate.conversation);
       context += `Rating Reason ${ratingReply.reason}`;
       await postMessageToThread(ts, context, process.env.slack_action_channel_id);

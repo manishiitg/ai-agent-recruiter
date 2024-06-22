@@ -23,9 +23,7 @@ export const rate_resume = async (profileID: string, conversationObj: Conversati
 
   Here is the applicant's resume:
   <CANDIDATE_RESUME>
-      <work_experiance>${conversationObj.resume?.WORK_EXP}</work_experiance>
-      <projects>${conversationObj.resume?.PROJECTS}</projects>
-      <technical_skills>${conversationObj.resume?.TECHNICAL_SKILLS}</technical_skills>
+    ${conversationObj.resume?.full_resume_text}
   </CANDIDATE_RESUME>
 
   And here is the job description to evaluate the resume against:
@@ -145,7 +143,6 @@ export const shortlist = async (
     <CTC_CALCULATION>Candidate's expected CTC per month vs. job's CTC criteria</CTC_CALCULATION>
     <JOB_PROFILE>Job profile name</JOB_PROFILE>
     <REASON>Brief Step-by-step reasoning and rule checking based on candidate's resume</REASON>
-    <FINAL_REASON>Summary of key reasons for final decision</FINAL_REASON>
     <SHORTLIST>YES or NO</SHORTLIST>
   </RESPONSE>
   
@@ -158,7 +155,6 @@ export const shortlist = async (
     });
     return {
       SHORTLIST: jObj["RESPONSE"]["SHORTLIST"],
-      FINAL_REASON: jObj["RESPONSE"]["FINAL_REASON"],
       JOB_PROFILE: jObj["RESPONSE"]["JOB_PROFILE"],
     };
   });
@@ -182,7 +178,7 @@ export const shortlist = async (
   } else {
     is_shortlisted = true;
   }
-  reason = jObj["RESPONSE"]["FINAL_REASON"];
+  reason = `Full Reasoning: ${jObj["RESPONSE"]["REASON"]}. Final Reason: ${jObj["RESPONSE"]["FINAL_REASON"]}`;
 
   return { job_profile, is_shortlisted, reason, llm_output };
 };

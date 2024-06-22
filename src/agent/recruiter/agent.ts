@@ -1,5 +1,5 @@
 import { linkedJobProfileRules } from "./jobconfig";
-import { callDeepkSeek, callDeepseekViaMessages, DEEP_SEEK_V2_CODER } from "../../llms/deepkseek";
+import { callDeepkSeek, callDeepseekViaMessages, DEEP_SEEK_V2_CHAT, DEEP_SEEK_V2_CODER } from "../../llms/deepkseek";
 import { STAGE_RULE_MAP } from "./rule_map";
 import { parseStringPromise } from "xml2js";
 import { convertConversationToText } from "./helper";
@@ -49,40 +49,41 @@ export const generateConversationReply = async (
 
   let shortlist_reject_text = "";
   if (conversationObj.shortlisted) {
-    shortlist_reject_text = `Candidate is shortlisted for profile ${conversationObj.shortlisted?.job_profile}\n`;
+    shortlist_reject_text = `<candidate_shorlisted_job_profile>Candidate is shortlisted for job profile ${conversationObj.shortlisted?.job_profile}</candidate_shorlisted_job_profile>\n`;
     if (!conversationObj.shortlisted?.shortlisted_for_profile) {
-      shortlist_reject_text = `Candidate is rejected for profile ${conversationObj.shortlisted?.job_profile}. Rejection Reason ${conversationObj.shortlisted?.shortlisted_reason} \n`;
+      shortlist_reject_text = `<candidate_reject_job_profile>Candidate is rejected for profile ${conversationObj.shortlisted?.job_profile}. </candidate_reject_job_profile>\n <rejection_reason>${conversationObj.shortlisted?.shortlisted_reason}</rejection_reason>\n`;
     }
   }
 
   let open_jobs = "";
   let ix = 1;
   for (const k in linkedJobProfileRules) {
-    if (linkedJobProfileRules[k].is_open)
+    if (linkedJobProfileRules[k].is_open) {
       if (conversationObj.shortlisted) {
         if (k !== conversationObj.shortlisted?.job_profile) {
           continue;
         }
       }
-    open_jobs += `
+      open_jobs += `
                     <job${ix}>
                       <name>${k}</name>
                       <job_description>${linkedJobProfileRules[k].job_description}</job_description>
                     </job${ix}>
                     `;
-
-    ix++;
+      ix++;
+    }
   }
 
   let closed_jobs = "";
   ix = 1;
   for (const k in linkedJobProfileRules) {
-    if (!linkedJobProfileRules[k].is_open)
+    if (!linkedJobProfileRules[k].is_open) {
       closed_jobs += `
         <closed_job${ix}>
           <name>${k}</name>
         </closed_job${ix}>`;
-    ix++;
+      ix++;
+    }
   }
 
   console.log("got candidate stage", stage);
@@ -172,14 +173,12 @@ export const generateConversationReply = async (
   </priority_rules>
 
   6. Other Rules (if any):
-
   ${other_rules ? `<other_rules>${other_rules}</other_rules>` : ""}
-  
-  ${extraInfo?.years_of_experiance?.length == 0 ? "Since candidate doesn't have any work experiance, Don't ask current CTC from this candidate in <MESSAGE>" : ""}
 
 
   8. Rule Analysis and Selection:
   - Carefully analyze all provided rules priority_rules and other_rules, giving higher priority to recent conversations over older ones.
+  - When you analyze ever rule, provide explanation for the rule based on the conditions mentioned.
   - Select the best fitting rule based on the conversation and context.
   - If no actions are applicable, reply with "no_action" and do not create new actions.
   - Prioritize using the <priority_rules> first, and only use <other_rules> if the priority rules are not applicable.
@@ -196,26 +195,21 @@ export const generateConversationReply = async (
 
 <RESPONSE>
   <scratchpad>
-  [Provide step-by-step analysis of every rule, including rule names in format <action_name>analysis</action_name>]
+  Provide step-by-step analysis of every rule, including rule names in format 
+  <action_name></action_name> <rule_condition></rule_condition><analysis>reason if/why action sould be executed</analysis>
   </scratchpad>
   <FINAL_REASON>
-  [Detailed reason for selecting the rule]
+  Detailed reason for selecting the rule
   </FINAL_REASON>
   <ACTION>
-  [Action exactly as mentioned in the selected rule]
+  Action exactly as mentioned in the selected rule
   </ACTION>
   <MESSAGE>
-  [Short response based response_rule of the selected action]
+  Response to send on ${type} based response_rule of the selected action
   </MESSAGE>
 </RESPONSE>
 
 Remember to check all rules before selecting the final one, and ensure that your response is appropriate for an HR recruiter interacting with a job seeker.`;
-
-  // Rule: If we don't know for which job profile he is intersted to apply for and candidate has provided his resume suggest him suitable job based on his resume.
-  // Response: Ask if he is interested on suitable job profile based on his resume/conversion.
-  // Action: "tell_job_opening_suitable"
-
-  // REASON: [<think step by step and mention why specific rule was selected or not selected, rule1, rule2, etc>]
   const messages: {
     content: string;
     role: "user" | "assistant";
@@ -224,8 +218,9 @@ Remember to check all rules before selecting the final one, and ensure that your
   console.log("prompt", prompt);
   console.log("conversation", conversation);
 
-  if (true) {
+  if (false) {
     // deepseek supports llm supports system prompt. claude doesnt
+    // to use this, we would need to store actual LLM response. the context would become very large then..
     if (conversation.length > 0) {
       let previousUser = conversation[0].name;
       let previousContent = conversation[0].content + ".";
@@ -234,12 +229,12 @@ Remember to check all rules before selecting the final one, and ensure that your
         i++;
         if (i == 1) continue;
 
-        if (conv.name == "agent") {
+        if (conv.name == previousUser) {
           previousContent += `\n ${conv.content}.`;
           continue;
         } else {
           messages.push({
-            role: previousUser == me ? "assistant" : "user",
+            role: previousUser == "agent" ? "assistant" : "user",
             content: previousContent,
           });
           previousUser = conv.name;
@@ -247,7 +242,7 @@ Remember to check all rules before selecting the final one, and ensure that your
         }
       }
       messages.push({
-        role: previousUser == me ? "assistant" : "user",
+        role: previousUser == "agent" ? "assistant" : "user",
         content: previousContent,
       });
     } else {
@@ -271,7 +266,7 @@ Remember to check all rules before selecting the final one, and ensure that your
   }
   console.log("messages", messages);
 
-  const llm_output = await callDeepseekViaMessages(prompt, messages, profileID, 0, DEEP_SEEK_V2_CODER, { type: "reply" }, async (llm_output: string): Promise<Record<string, string>> => {
+  const llm_output = await callDeepseekViaMessages(prompt, messages, profileID, 0, DEEP_SEEK_V2_CHAT, { type: "reply" }, async (llm_output: string): Promise<Record<string, string>> => {
     const jObj = await parseStringPromise(llm_output, {
       explicitArray: false,
       strict: false,
@@ -307,20 +302,23 @@ export const get_context = (conversationObj: Conversation) => {
   const suitable_job_profile = conversationObj.info?.suitable_job_profile ? conversationObj.info?.suitable_job_profile : "";
 
   let context = "";
-  if (conversationObj.resume && conversationObj.resume.SUMMARY && conversationObj.resume.SUMMARY.length) {
+  if (conversationObj.resume && conversationObj.resume.full_resume_text && conversationObj.resume.full_resume_text.length) {
     context += `<candidate_resume>
-      <work_experiance>${conversationObj.resume.WORK_EXP}</work_experiance>
-      <projects>${conversationObj.resume.PROJECTS}</projects>
-      <technical_skills>${conversationObj.resume.TECHNICAL_SKILLS}</technical_skills>
-    </candidate_resume>`;
+      ${conversationObj.resume.SUMMARY || conversationObj.resume.full_resume_text}
+    </candidate_resume>\n`;
+    // context += `<candidate_resume>
+    //   <work_experiance>${conversationObj.resume.WORK_EXP}</work_experiance>
+    //   <projects>${conversationObj.resume.PROJECTS}</projects>
+    //   <technical_skills>${conversationObj.resume.TECHNICAL_SKILLS}</technical_skills>
+    // </candidate_resume>`;
   } else {
     context += `Candidates has not provided his resume\n`;
   }
   if (suitable_job_profile.length > 0) {
-    context += `Suitable Job Profile Based on Resume: ${suitable_job_profile}\n`;
+    context += `<suitable_job_profile>Suitable Job Profile Based on Resume: ${suitable_job_profile}</suitable_job_profile>\n`;
   }
   if (conversationObj.info?.hiring_for_job_profile === false) {
-    context += `We are current not hiring for ${suitable_job_profile}\n`;
+    context += `<suitable_job_profile>We are current not hiring for ${suitable_job_profile}</suitable_job_profile>\n`;
   }
 
   const info = conversationObj.info;

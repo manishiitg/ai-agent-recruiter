@@ -13,11 +13,11 @@ export interface Conversation {
   resume?: {
     created_at?: Date;
     SUMMARY?: string;
-    CONTACT_INFO?: string;
-    WORK_EXP?: string;
-    PROJECTS?: string;
-    EDUCATION?: string;
-    TECHNICAL_SKILLS?: string;
+    // CONTACT_INFO?: string;
+    // WORK_EXP?: string;
+    // PROJECTS?: string;
+    // EDUCATION?: string;
+    // TECHNICAL_SKILLS?: string;
     full_resume_text: string;
   };
 }
@@ -28,7 +28,6 @@ export interface CandidateInfo {
   years_of_experiance?: string;
   phone_no?: string;
   location?: string;
-  classified_category?: string;
   email?: string;
   suitable_job_profile?: string;
   hiring_for_job_profile?: boolean;

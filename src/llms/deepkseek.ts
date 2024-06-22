@@ -99,6 +99,7 @@ export async function callDeepseekViaMessages(
   const typedData = response.data as ChatCompletion;
   const responseData = typedData.choices[0].message;
   let responseText = responseData.content.replace("```", "");
+  responseText = responseText.replace("```", "");
   responseText = responseText.replace("xml", "");
   responseText = responseText.trim();
   console.log("deepakseek system response");
@@ -189,6 +190,7 @@ export async function callDeepkSeek(prompt: string, user: string, temperature = 
   const typedData = response.data as ChatCompletion;
   const responseData = typedData.choices[0].message;
   let responseText = responseData.content.replace("```", "");
+  responseText = responseText.replace("```", "");
   responseText = responseText.replace("xml", "");
   responseText = responseText.trim();
   console.log("deepakseek response");
@@ -199,7 +201,7 @@ export async function callDeepkSeek(prompt: string, user: string, temperature = 
     metadata = await cb(responseText);
   }
   trace.update({
-    output: JSON.stringify(responseText),
+    output: responseText,
     metadata: metadata,
   });
 

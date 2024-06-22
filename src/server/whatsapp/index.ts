@@ -48,7 +48,7 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
   };
 
   //ACK
-  res.sendStatus(200).send("Message Received");
+  res.sendStatus(200);
 
   if (!(await check_whatsapp_convsation_exists(MessageUUID))) {
     console.log("ContentType", ContentType);
@@ -62,6 +62,7 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
           await deleteDataForCandidateToDebug(fromNumber);
           await send_whatsapp_text_reply("DEBUG: YOUR CONVERSION HISTORY IS DELETED. START FRESH!.", fromNumber, cred.phoneNo);
         } else {
+          await save_whatsapp_conversation("candidate", fromNumber, ContentType, text, MessageUUID, req.body);
           const { slack_thread_id } = await get_whatspp_conversations(fromNumber);
           if (slack_thread_id) {
             await postMessageToThread(slack_thread_id, `${fromNumber}: ${text}`, process.env.slack_action_channel_id);
@@ -69,7 +70,6 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
             const ts = await postMessage(`${fromNumber}: ${text}`, process.env.slack_action_channel_id);
             await update_slack_thread_id_for_conversion(fromNumber, ts);
           }
-          await save_whatsapp_conversation("candidate", fromNumber, ContentType, text, MessageUUID, req.body);
 
           if (queue[fromNumber]) {
             if (queue[fromNumber].status == "PENDING") {
@@ -115,7 +115,7 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
             } else {
               const ts = await postMessage(`${fromNumber}: Attachment`, process.env.slack_action_channel_id);
               await update_slack_thread_id_for_conversion(fromNumber, ts);
-              await postAttachment(resume_file, process.env.slack_action_channel_id, slack_thread_id);
+              await postAttachment(resume_file, process.env.slack_action_channel_id, ts);
             }
 
             // Extract text from the file
@@ -133,6 +133,8 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
             if (!resume_text || resume_text.length == 0) {
               await send_whatsapp_text_reply("Unable to open your resume, please share resume which is ATS friendly..", fromNumber, cred.phoneNo);
             }
+
+            await save_whatsapp_conversation("candidate", fromNumber, ContentType, "Please find attached my resume", MessageUUID, req.body);
 
             const candidate = await getCandidate(fromNumber);
             if (candidate.conversation)
@@ -202,7 +204,16 @@ const schedule_message_to_be_processed = async (fromNumber: string, cred: WhatsA
         date: conv.created_at,
       };
     }),
-    cred
+    cred,
+    (reply: string) => {
+      (async () => {
+        console.log("repling through callback");
+        const response = await send_whatsapp_text_reply(reply, fromNumber, cred.phoneNo);
+        const messageUuid = response.messageUuid;
+        await save_whatsapp_conversation("agent", fromNumber, "text", reply, "", "");
+        await add_whatsapp_message_sent_delivery_report(fromNumber, reply, "text", messageUuid);
+      })();
+    }
   );
 
   if (agentReply.message) {
@@ -230,5 +241,5 @@ export const whatsapp_callback = async (req: Request, res: Response) => {
     req.body;
   console.log("MessageUUID", MessageUUID, "Status", Status, "To", To);
   //   await update_whatsapp_message_sent_delivery_report(MessageUUID, Status);
-  res.send(200);
+  res.sendStatus(200);
 };

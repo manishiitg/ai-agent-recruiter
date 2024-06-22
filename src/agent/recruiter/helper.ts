@@ -4,7 +4,7 @@ import { CandidateInfo, Conversation, ConversationMessage } from "./types/conver
 export const convertConversationToText = (conversation: ConversationMessage[]): string => {
   let text = ``;
   for (const conv of conversation) {
-    text += `${conv.name}: ${conv.content} \n `;
+    text += `${conv.name === "agent" ? "You" : "Candidate:"}: ${conv.content} \n `;
   }
   return text;
 };
@@ -14,9 +14,6 @@ export const shouldExtractInfo = (info?: CandidateInfo) => {
     return true;
   }
   let extract = false;
-  if (!info.classified_category || info.classified_category.length == 0 || info.classified_category == "no") {
-    extract = true;
-  }
   if (!info.suitable_job_profile || info.suitable_job_profile.length == 0 || info.suitable_job_profile == "no") {
     extract = true;
   }
@@ -48,7 +45,9 @@ export const should_do_force_shortlist = async (conversation: Conversation) => {
   let do_forced_shorlist = false;
   if (conversation.resume?.full_resume_text && conversation?.info?.suitable_job_profile && (conversation?.info?.expected_ctc || conversation.info?.current_ctc)) {
     if (!conversation?.shortlisted && conversation?.info.expected_ctc != "no") {
-      do_forced_shorlist = true;
+      if (conversation.info.suitable_job_profile != "no_profile") {
+        do_forced_shorlist = true;
+      }
     }
   }
   if (conversation?.stage == STAGE_SHORTLISTED && !conversation?.shortlisted) {

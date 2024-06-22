@@ -14,16 +14,12 @@ export const STAGE_RULE_MAP: Record<
 > = {
   new: {
     greeting: {
-      rule: "If conversation is just a greeting, like Hello, How are you, etc. and ask for which profile he wants to apply for a job and ask his resume",
-      response: "reply with a greeting and ask job profile and ask his resume",
+      rule: "If conversation is just a greeting, like Hello, How are you, etc and nothing else.",
+      response: "introduce yourself, reply with a greeting and ask his resume for job application",
     },
     tell_job_profiles: {
-      rule: "candidate is asking about open job profiles",
-      response: "tell about open job profiles closest matching to candidate profile. tell maximum 1-2 profiles only relevent to candidate",
-    },
-    tell_job_profile_specific: {
-      rule: "candidate is asking about a specific job profile",
-      response: "check our open/closed jobs profiles and respond to him accordingly closest matching to candidate profile and make sure to ask his resume",
+      rule: "If candidate is asking about open job profiles",
+      response: "tell about open job profiles closest matching to candidate profile based on <context>. tell maximum 1-2 profiles only relevent to candidate",
     },
     ask_resume: {
       rule: "If candidate has mentioned interest in a job profile in his conversation and if it is matching our open job profile",
@@ -49,6 +45,10 @@ export const STAGE_RULE_MAP: Record<
       rule: "If candidate has mentioned interest in a job profile in his conversation and if it is similar to a <closed_jobs> profile",
       response: "Tell we don't have an open job profile matching his interest",
     },
+    tell_job_profile_specific: {
+      rule: "candidate is asking about a specific job profile",
+      response: "check our open/closed jobs profiles and respond to him accordingly closest matching to candidate profile and make sure to ask his resume",
+    },
     tell_job_opening: {
       rule: "If candidate has not mentioned which job profile candidate is interested in",
       response: "Suggest the a single most suitable <open_job> profile based this conversation/context and ask if he is interested for the same",
@@ -63,13 +63,25 @@ export const STAGE_RULE_MAP: Record<
     },
   },
   got_resume: {
-    ask_ctc: {
-      rule: "If candidate has not provided his expected CTC and has not mentioned his CTC is negotiable and has not mentioned he doesn't have any CTC expectations.",
+    ask_job_profile: {
+      rule: "If candidate has not provided the job profile he is looking for and we don't have a suitable job profile",
+      response: "ask candidate about job profile he wants to apply for",
+    },
+    ask_ctc_location: {
+      rule: "If candidate has not provided his expected CTC, we need to ask him",
       response: "",
       condition_ctc_response: {
         true: "ask him about his expected and current CTC and current location",
         false: "ask him about his expected CTC and current location",
       },
+    },
+    ask_location: {
+      rule: "If candidate has not provided his current location in conversation",
+      response: "ask his current location",
+    },
+    tell_job_profiles: {
+      rule: "If candidate is asking about open job profiles",
+      response: "tell about open job profiles closest matching to candidate profile. tell maximum 1-2 profiles only relevent to candidate",
     },
     do_shortlist: {
       rule: "If candidate has not provided his expected ctc but has clearly mentioned his CTC is negotiable in conversation or has clearly mentioned in conversation he doesn't have any CTC expectations",
@@ -88,25 +100,25 @@ export const STAGE_RULE_MAP: Record<
       response: "acknowledge the same and thank him for his time",
     },
     job_closed: {
-      rule: "the job profile the candidate is interested in got closed",
+      rule: "if the job profile the candidate is interested in got closed",
       response: "inform him that the job profile is closed now and suggest him alternative suitable open jobs",
-    },
-    greeting: {
-      rule: "If conversation is just a greeting, like Hello, How are you, etc. and ask for which profile he wants to apply for a job and ask his resume.",
-      response: "reply with a greeting and ask job profile  and ask his resume",
     },
   },
   got_ctc: {
     ask_ctc_again: {
-      rule: "If candidate is asking about for budget for a role or salary/stipend for a role",
+      rule: "If candidate is asking about for budget for a role or salary/stipend for a role and has not mentioned his expected CTC",
       response: "",
       condition_ctc_response: {
         true: "ask him about his expected CTC, current ctc and explicitly mention we cannot disclouse our compensation",
         false: "ask him about his expected CTC and explicitly mention we cannot disclouse our compensation",
       },
     },
+    ask_location: {
+      rule: "If candidate has not provided his current location in conversation",
+      response: "ask his current location",
+    },
     ask_resume: {
-      rule: "if candidate has not provided his resume",
+      rule: "If candidate has not provided his resume",
       response: "ask his resume",
     },
     do_shortlist: {
@@ -126,7 +138,7 @@ export const STAGE_RULE_MAP: Record<
       response: "acknowledge the same and thank him for his time",
     },
     job_closed: {
-      rule: "the job profile the candidate is interested in got closed",
+      rule: "If the job profile the candidate is interested in got closed",
       response: "inform him the same and mention we will contact him again when the job profile opens",
     },
   },
@@ -152,14 +164,18 @@ export const STAGE_RULE_MAP: Record<
       response: "acknowledge the same and thank him for his time",
     },
     job_closed: {
-      rule: "the job profile the candidate is interested in got closed",
+      rule: "If the job profile the candidate is interested in got closed",
       response: "inform him the same and mention we will contact him again when the job profile opens",
     },
   },
   got_rejected: {
     rejected: {
-      rule: "Candidate is rejected based on context",
+      rule: "If Candidate is rejected based on context",
       response: "Inform candidate he is rejected and also mention reason in a polite way. Don't mention about other job profiles",
+    },
+    rejected_reason: {
+      rule: "If candiate is asking for reason for reason",
+      response: "Inform candidate reason in a polite way. Don't mention about other job profiles",
     },
     no_action: {
       rule: "If candiate is not asking for reason but responding with a general message",

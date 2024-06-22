@@ -15,25 +15,62 @@ export const CONV_CLASSIFY_WISHES = `${CONV_CLASSIFY_WISHES_PREFIX}. Wishing reg
 export const CONV_CLASSIFY_FRIEND_PREFIX = "4";
 export const CONV_CLASSIFY_FRIEND = `${CONV_CLASSIFY_WISHES_PREFIX}. Applying job for friend`;
 
-export const CONV_CLASSIFY_RESIGN_PREFIX = "5";
-export const CONV_CLASSIFY_RESIGN = `${CONV_CLASSIFY_RESIGN_PREFIX}. Others`;
-
-export const CONV_CLASSIFY_OTHERS_PREFIX = "6";
+export const CONV_CLASSIFY_OTHERS_PREFIX = "5";
 export const CONV_CLASSIFY_OTHERS = `${CONV_CLASSIFY_OTHERS_PREFIX}. Others`;
 
-export const extractInfo = async (
-  profileID: string,
-  me: string,
-  conversation: string,
-  short_profile?: string,
-  type: "gmail" | "linkedin" = "linkedin",
-  most_recent_message?: string
-): Promise<CandidateInfo> => {
+export const classify_conversation = async (profileID: string, conversation: string, type: "gmail" | "linkedin" | "whatsapp" = "whatsapp") => {
+  const prompt = `You are an HR recruiter on ${type}.
+  You are having a conversation with a person on ${type}.   
+
+  Below is the conversation till now. Conversion are sorted from first conversion to most recent. 
+  <conversation>${conversation}</conversation>  
+
+  You need to classify this conversation into any of the categories below
+
+  Categories
+  ${CONV_CLASSIFY_CANDIDATE_JOB}
+  ${CONV_CLASSIFY_INSTITUTE_PLACEMENT}  
+  ${CONV_CLASSIFY_WISHES}
+  ${CONV_CLASSIFY_FRIEND}
+  ${CONV_CLASSIFY_OTHERS}
+
+  Think step by step before you answer
+  Reply in xml format below:
+
+  <RESPONSE>
+    <REASON>Your brief step by step reasoning</REASON>
+    <CLASSIFIED_CATEGORY>full selected classified category with its number</CLASSIFIED_CATEGORY>
+  </RESPONSE>
+  `;
+
+  const llm_output = await callDeepkSeek(prompt, profileID, 0, DEEP_SEEK_V2_CODER, { type: "classify_conversation" }, async (llm_output: string): Promise<Record<string, string>> => {
+    const jObj = await parseStringPromise(llm_output, {
+      explicitArray: false,
+      strict: false,
+    });
+    let obj = jObj["RESPONSE"];
+    delete obj.REASON_FOR_SELECTING_JOB_PROFILE;
+    return obj;
+  });
+  console.log("LLM Output:", llm_output);
+
+  const jObj = await parseStringPromise(llm_output, {
+    explicitArray: false,
+    strict: false,
+  });
+  if (!("RESPONSE" in jObj)) {
+    throw new Error("response not found!");
+  }
+  return { CLASSIFIED_CATEGORY: jObj["RESPONSE"]["CLASSIFIED_CATEGORY"], REASON: jObj["RESPONSE"]["REASON"] };
+};
+export const extractInfo = async (profileID: string, me: string, conversation: string, short_profile: string, type: "gmail" | "linkedin" | "whatsapp" = "whatsapp"): Promise<CandidateInfo> => {
   let open_jobs = "";
   let ix = 1;
   for (const k in linkedJobProfileRules) {
-    open_jobs += `${ix}. ${k}\n`;
-    ix++;
+    if (linkedJobProfileRules[k].is_open) {
+      open_jobs += `${ix}. ${k}\n`;
+      ix++;
+    }
   }
 
   const prompt = `You are an HR recruiter on ${type}.
@@ -47,24 +84,11 @@ export const extractInfo = async (
   Below is the conversation till now. Conversion are sorted from first conversion to most recent. 
   <conversation>${conversation}</conversation>  
 
-  ${most_recent_message ? `<most_recent_message>${most_recent_message}</most_recent_message>` : ""}
-
   Job Profiles we are hiring for right now:
   <open_jobs>${open_jobs}</open_jobs>
 
-
   You need to extract the following information from the <conversation>${short_profile ? "/<short_profile>" : ""} and also
-  You need to classify this conversation into any of the categories below
-
-  Categories
-  ${CONV_CLASSIFY_CANDIDATE_JOB}
-  ${CONV_CLASSIFY_INSTITUTE_PLACEMENT}  
-  ${CONV_CLASSIFY_WISHES}
-  ${CONV_CLASSIFY_FRIEND}
-  ${CONV_CLASSIFY_RESIGN}
-  ${CONV_CLASSIFY_OTHERS}
   
-
   Information To Extract:
   1. CURRENT_CTC: if candidate has mentioned his current ctc
   2. EXPECTED_CTC: If candidate has written his expected ctc in conversion, or if candidate has written in conversion candidate doesn't have an expected ctc or if has mentioned in conversation expected ctc is negotiable.
@@ -85,7 +109,6 @@ export const extractInfo = async (
   Reply in xml format below:
 
   <RESPONSE>
-    <CLASSIFIED_CATEGORY>full selected classified category with its number</CLASSIFIED_CATEGORY>
     <REASON_FOR_SELECTING_JOB_PROFILE>reason for selecting job profile and are we hiring for this job profile</REASON_FOR_SELECTING_JOB_PROFILE>
     <SUITABLE_JOB_PROFILE>select a single job profile most suitable based on resume from open job profiles</SUITABLE_JOB_PROFILE>
     <HIRING_FOR_JOB_PROFILE>are we hiring for the job profile yes or no</HIRING_FOR_JOB_PROFILE>
@@ -148,12 +171,6 @@ export const extractInfo = async (
     info.location = extractedFields["LOCATION"];
     if (info.location == "no") {
       info.location = "";
-    }
-  }
-  if ("CLASSIFIED_CATEGORY" in extractedFields) {
-    info.classified_category = extractedFields["CLASSIFIED_CATEGORY"];
-    if (info.classified_category == "no") {
-      info.classified_category = "";
     }
   }
   if ("EMAIL" in extractedFields) {

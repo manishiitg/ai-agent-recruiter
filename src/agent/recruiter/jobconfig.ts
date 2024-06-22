@@ -4,7 +4,6 @@ const exclude_location_rule = "Pune, Hyderabad, Kerela, Bangalore, Chandigarh, G
 export const linkedJobProfileRules: Record<
   string,
   {
-    basic_criteria: string;
     full_criteria: string;
     is_open: boolean;
     job_description: string;
@@ -12,7 +11,6 @@ export const linkedJobProfileRules: Record<
 > = {
   "Jr HR Executive": {
     is_open: false,
-    basic_criteria: "for freshers with basic knowledge in recruitment, talent acquisition",
     job_description: `Handle Recruitment - IT positions
     Manage day to day operation tasks like onboarding, employee engagement, inventory management, documentations, exit formalities.
     Coordinate with the technical leads for hiring requirements
@@ -29,7 +27,6 @@ export const linkedJobProfileRules: Record<
     is_open: true,
     job_description: `Good Knowledge in expressjs or typescript or other nodejs frameworks.
     Worked with databases like mongodb or mysql or postgresql`,
-    basic_criteria: "for freshers with basic knowlege of nodejs",
     full_criteria: `Rule 1. Candidate should not belong to locations ${exclude_location_rule}
     Rule 2. Candidate should have maximum salary of 40,000 per month. If candidates salary is not mentioned, assume he passes this criteria.
     Rule 3. Candidate should not have more than 1year of Experience.
@@ -38,8 +35,7 @@ export const linkedJobProfileRules: Record<
   },
   "Jr Web Developer": {
     is_open: false,
-    basic_criteria: "for freshers with basic knowledge of reactjs",
-    job_description: `This opening is only for candidates from 0 to 6 months of experience.
+    job_description: `This opening is only for candidates from 0 to 1 year of experience.
     Good Knowledge in javascript, reactjs or vuejs`,
     full_criteria: `Rule 1. Candidate location should be any of ${near_location}.
     Rule 2. Candidate should not belong to locations ${exclude_location_rule}
@@ -49,8 +45,7 @@ export const linkedJobProfileRules: Record<
   },
   "Jr React Developer": {
     is_open: false,
-    basic_criteria: "for freshers with basic knowledge of reactjs",
-    job_description: `This opening is only for candidates from 0 to 6 months of experience.
+    job_description: `This opening is only for candidates from 0 to 1 year of experience.
     Good Knowledge in javascript, reactjs`,
     full_criteria: `Rule 1. Candidate location should be ${near_location}.
     Rule 2. Candidate should not belong to locations ${exclude_location_rule}
@@ -60,8 +55,7 @@ export const linkedJobProfileRules: Record<
   },
   "Jr Vuejs Developer": {
     is_open: false,
-    basic_criteria: "for freshers with basic knowledge of vuejs",
-    job_description: `This opening is only for candidates from 0 to 6 months of experience.
+    job_description: `This opening is only for candidates from 0 to 1 year of experience.
     Good Knowledge in vuejs`,
     full_criteria: `Rule 1. Candidate location should be ${near_location}.
     Rule 2. Candidate should not belong to locations ${exclude_location_rule}
@@ -71,7 +65,6 @@ export const linkedJobProfileRules: Record<
   },
   "Jr Python Developer": {
     is_open: true,
-    basic_criteria: "for freshers with basic knowledge of python",
     job_description: `Good Knowledge in django or flask
     Worked with databases like mongodb or mysql or postgresql`,
     full_criteria: `Rule 1. Candidate should have maximum salary of 40,000 per month. If candidates salary is not mentioned, assume he passes this criteria.
@@ -81,8 +74,7 @@ export const linkedJobProfileRules: Record<
   },
   "Jr PHP Developer": {
     is_open: false,
-    basic_criteria: "for freshers with basic knowledge of php",
-    job_description: `This opening is only for candidates from 0 to 6 months of experience.
+    job_description: `This opening is only for candidates from 0 to 1 year of experience.
     Good Knowledge in php`,
     full_criteria: `Rule 1. Candidate location should be ${near_location}.
     Rule 2. Candidate should not belong to locations ${exclude_location_rule}
@@ -92,8 +84,7 @@ export const linkedJobProfileRules: Record<
   },
   "Jr PHP Developer Intern": {
     is_open: false,
-    basic_criteria: "for freshers with basic knowledge of php",
-    job_description: `This opening is only for candidates from 0 to 6 months of experience.
+    job_description: `This opening is only for candidates from 0 to 1 year of experience.
     Good Knowledge in php`,
     full_criteria: `Rule 1. Candidate location should be ${near_location}.
     Rule 2. Candidate should not belong to locations ${exclude_location_rule}
@@ -108,7 +99,6 @@ export const linkedJobProfileRules: Record<
     - Sales Analysis, Prospecting, Cold Calling, Presentation, Follow up, Consulting
     - Client Acquisition, Bid Management, Account conversion and Client servicing
     `,
-    basic_criteria: "knowlege of lead generation, bidding, sales  for IT companies",
     full_criteria: `Rule 1. Candidate location should be any of ${near_location}.
     Rule 2. Candidate should not belong to locations ${exclude_location_rule}
     Rule 3. Candidate should have maximum salary of 100,000 per month. If candidates salary is not mentioned, assume he passes this criteria.
