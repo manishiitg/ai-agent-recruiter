@@ -21,19 +21,29 @@ export const question_to_ask_from_resume = async (resume: string, hiring_for_pro
     The questions should be specifically tailored to the candidate's work experiance and projects mentioned in his resume.
 
     Before providing the questions, please show your step-by-step reasoning and analysis of the resume that led you to select those questions. Provide this reasoning inside <SCRATCHPAD> tags.
-    Then, based on your analysis, generate 3 technical interview questions specifically tailored to assess the candidate's proficiency in the most important skills you identified from their resume. 
+    Then, based on your analysis, generate 2 technical interview questions specifically tailored to assess the candidate's proficiency in the most important skills you identified from their resume. 
 
-    Then, output each of the 3 questions inside its own XML tags, like this:
+    For each question, also provide an example of how the candidate might answer or what a correct answer might contain, inside <EXPECTED_ANSWER_#> tags.
+    The answers should not contain any code, but rather should be explained as a candidate might answer over a phone call. 
+    Provide clear, detailed and technical answers.
+
+    Then, output each of the 2 questions inside its own XML tags, like this:
     Respond with your full output in this XML format:
     <RESPONSE>            
         <SCRATCHPAD>your step by step reasoning</SCRATCHPAD>
         <QUESTION1>
         Question 1 text
         </QUESTION1>
+        <EXPECTED_ANSWER_1>
+        Expected answer for question1
+        </EXPECTED_ANSWER_1>
 
         <QUESTION2>
         Question 2 text 
         </QUESTION2>
+        <EXPECTED_ANSWER_2>
+        Expected answer for question2
+        </EXPECTED_ANSWER_2>
     </RESPONSE>   
 
     Remember, the questions should assess the key technical competencies based on candidates projects/work experiance mentioned in resume and required for a ${
@@ -58,11 +68,13 @@ export const question_to_ask_from_resume = async (resume: string, hiring_for_pro
     throw new Error("response not found!");
   }
 
+  const SCRATCHPAD = jObj["RESPONSE"]["SCRATCHPAD"]
+
   const QUESTION1 = jObj["RESPONSE"]["QUESTION1"];
-  // const EXPECTED_ANSWER_1 = jObj["RESPONSE"]["EXPECTED_ANSWER_1"];
+  const EXPECTED_ANSWER_1 = jObj["RESPONSE"]["EXPECTED_ANSWER_1"];
 
   const QUESTION2 = jObj["RESPONSE"]["QUESTION2"];
-  // const EXPECTED_ANSWER_2 = jObj["RESPONSE"]["EXPECTED_ANSWER_2"];
+  const EXPECTED_ANSWER_2 = jObj["RESPONSE"]["EXPECTED_ANSWER_2"];
 
-  return { QUESTION1, QUESTION2 };
+  return { SCRATCHPAD, QUESTION1, QUESTION2 };
 };
