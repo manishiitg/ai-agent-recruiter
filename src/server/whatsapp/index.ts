@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { convertToIST, deleteFolderRecursive, downloadFile } from "./util";
+import { convertToIST, deleteFolderRecursive, downloadFile, sleep } from "./util";
 import {
   add_whatsapp_message_sent_delivery_report,
   check_whatsapp_convsation_exists,
@@ -406,13 +406,15 @@ const remind_candidates = async (remainders: boolean) => {
       }
 
       if (should_continue) {
-        queue[fromNumber] = {
-          ts: setTimeout(() => {
-            schedule_message_to_be_processed(fromNumber, cred);
-          }, (fromNumber === ADMIN_PHNO ? 5 : DEBOUNCE_TIMEOUT) * 1000),
-          status: "PENDING",
-          canDelete: true,
-        };
+        await schedule_message_to_be_processed(fromNumber, cred);
+        await sleep(5000);
+        // queue[fromNumber] = {
+        //   ts: setTimeout(() => {
+        //     schedule_message_to_be_processed(fromNumber, cred);
+        //   }, (fromNumber === ADMIN_PHNO ? 5 : DEBOUNCE_TIMEOUT) * 1000),
+        //   status: "PENDING",
+        //   canDelete: true,
+        // };
         await updateRemainderSent(fromNumber);
       }
     }
@@ -433,13 +435,16 @@ const get_pending_hr_screening_candidates = async () => {
   for (const candidate of candidates) {
     const unique_id = candidate.unique_id;
     if (!(await isInterviewStarted(unique_id))) {
-      queue[unique_id] = {
-        ts: setTimeout(() => {
-          schedule_message_to_be_processed(unique_id, cred);
-        }, (unique_id === ADMIN_PHNO ? 5 : DEBOUNCE_TIMEOUT) * 1000),
-        status: "PENDING",
-        canDelete: true,
-      };
+      await schedule_message_to_be_processed(unique_id, cred);
+      await sleep(5000);
+      //this will schedule do many llm calls
+      // queue[unique_id] = {
+      //   ts: setTimeout(() => {
+      //     schedule_message_to_be_processed(unique_id, cred);
+      //   }, (unique_id === ADMIN_PHNO ? 5 : DEBOUNCE_TIMEOUT) * 1000),
+      //   status: "PENDING",
+      //   canDelete: true,
+      // };
     }
   }
 };

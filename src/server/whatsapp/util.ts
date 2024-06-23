@@ -66,3 +66,5 @@ export function convertToIST(date: Date): Date {
 
   return istDate;
 }
+
+export const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
