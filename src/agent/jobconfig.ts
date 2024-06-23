@@ -7,6 +7,7 @@ export const linkedJobProfileRules: Record<
     full_criteria: string;
     is_open: boolean;
     job_description: string;
+    resume_rating: string;
   }
 > = {
   "Jr HR Executive": {
@@ -22,6 +23,8 @@ export const linkedJobProfileRules: Record<
     Rule 5. Candidate should have worked on recuitment, interview scheduling, linkedin. 
     Rule 6. Candidate should have worked on projects/internship related to recruitment, hiring, hr administration.
     Rule 7. Candidate should only be a female.`,
+    resume_rating: `
+    - Candidate should have worked on projects/internship related to recruitment, hiring, hr administration.`,
   },
   "Jr NodeJs Developer": {
     is_open: true,
@@ -30,6 +33,9 @@ export const linkedJobProfileRules: Record<
     full_criteria: `Rule 1. Candidate should not belong to locations ${exclude_location_rule}
     Rule 2. Candidate should have maximum salary of 40,000 per month. If candidates salary is not mentioned, assume he passes this criteria.
     Rule 3. Candidate should have done multiple experiance/projects/internship related to nodejs. This is an important rule.`,
+    resume_rating: `
+    - Candidate should have done multiple experiance/projects/internship related to nodejs..
+    - Candidate should have worked on projects using expressjs. `,
   },
   "Jr Web Developer": {
     is_open: false,
@@ -39,6 +45,8 @@ export const linkedJobProfileRules: Record<
     Rule 2. Candidate should not belong to locations ${exclude_location_rule}
     Rule 3. Candidate should have maximum salary of 40,000 per month. If candidates salary is not mentioned, assume he passes this criteria.
     Rule 4. Candidate should have done multiple experiance/projects/internship related reactjs or vuejs or javascript. This is an important rule.`,
+    resume_rating: `
+    - Candidate should have done multiple experiance/projects/internship related to reactjs or vuejs.`,
   },
   "Jr React Developer": {
     is_open: false,
@@ -48,6 +56,8 @@ export const linkedJobProfileRules: Record<
     Rule 2. Candidate should not belong to locations ${exclude_location_rule}
     Rule 3. Candidate should have maximum salary of 40,000 per month. If candidates salary is not mentioned, assume he passes this criteria.
     Rule 5. Candidate should have done multiple experiance/projects/internship related reactjs. This is an important rule.`,
+    resume_rating: `
+    - Candidate should have done multiple experiance/projects/internship related to reactjs`,
   },
   "Jr Vuejs Developer": {
     is_open: false,
@@ -58,6 +68,8 @@ export const linkedJobProfileRules: Record<
     Rule 3. Candidate should have maximum salary of 40,000 per month. If candidates salary is not mentioned, assume he passes this criteria.
     Rule 4. Candidate should not have more than 1year of Experience.
     Rule 5. Candidate should have done multiple work/projects/internship related vuejs. This is an important rule.`,
+    resume_rating: `
+    - Candidate should have done multiple experiance/projects/internship related to vuejs`,
   },
   "Jr Python Developer": {
     is_open: true,
@@ -66,6 +78,9 @@ export const linkedJobProfileRules: Record<
     full_criteria: `Rule 1. Candidate should have maximum salary of 40,000 per month. If candidates salary is not mentioned, assume he passes this criteria.
     Rule 2. Candidate should not belong to locations ${exclude_location_rule}
     Rule 4. Candidate should have done multiple work/projects/internship related python and flask/django. This is an important rule.`,
+    resume_rating: `
+    - Candidate should have done multiple experiance/projects/internship related to python and flask/django
+    - Candidate should have done multiple experiance/projects/internship related mongodb or mysql database`,
   },
   "Jr PHP Developer": {
     is_open: false,
@@ -75,6 +90,9 @@ export const linkedJobProfileRules: Record<
     Rule 2. Candidate should not belong to locations ${exclude_location_rule}
     Rule 3. Candidate should have maximum salary of 40,000 per month. If candidates salary is not mentioned, assume he passes this criteria.
     Rule 5. Candidate should have done multiple work/projects/internship related php. This is an important rule.`,
+    resume_rating: `
+    - Candidate should have done multiple experiance/projects/internship related to laravel.
+    - Candidate should have done multiple experiance/projects/internship related mongodb or mysql database`,
   },
   "Jr PHP Developer Intern": {
     is_open: false,
@@ -85,6 +103,9 @@ export const linkedJobProfileRules: Record<
     Rule 3. Candidate should have maximum salary of 40,000 per month. If candidates salary is not mentioned, assume he passes this criteria.
     Rule 4. Candidate should not have more than 1year of Experience.
     Rule 5. Candidate should have done multiple work/projects/internship related php. This is an important rule.`,
+    resume_rating: `
+    - Candidate should have done multiple experiance/projects/internship related to laravel.
+    - Candidate should have done multiple experiance/projects/internship related mongodb or mysql database`,
   },
   "Business Development Executive": {
     is_open: false,
@@ -99,5 +120,7 @@ export const linkedJobProfileRules: Record<
     Rule 4. Candidate should not have more than 10year of Experience.
     Rule 5. Candidate should have worked on work he should have worked in linkedin lead generation or email marketin or lead generation or project bidding
     Rule 6. Knows about Linkedin or Email Marketing or B2B Sales or Upwork or Lead Generation`,
+    resume_rating: `
+    - Candidate should have done multiple experiance/projects/internship related to Linkedin or Email Marketing or B2B Sales or Upwork or Lead Generation`,
   },
 };
