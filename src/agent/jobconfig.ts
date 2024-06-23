@@ -29,8 +29,7 @@ export const linkedJobProfileRules: Record<
     Worked with databases like mongodb or mysql or postgresql`,
     full_criteria: `Rule 1. Candidate should not belong to locations ${exclude_location_rule}
     Rule 2. Candidate should have maximum salary of 40,000 per month. If candidates salary is not mentioned, assume he passes this criteria.
-    Rule 3. Candidate should have done multiple experiance/projects/internship related to nodejs. This is an important rule.
-    Rule 4. Candidate should have done projects using expressjs. This is an important rule.`,
+    Rule 3. Candidate should have done multiple experiance/projects/internship related to nodejs. This is an important rule.`,
   },
   "Jr Web Developer": {
     is_open: false,
