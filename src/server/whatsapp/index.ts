@@ -5,6 +5,7 @@ import {
   check_whatsapp_convsation_exists,
   deleteDataForCandidateToDebug,
   get_whatspp_conversations,
+  getInterviewRemainder,
   getPendingNotCompletedCandidates,
   getShortlistedCandidates,
   isInterviewStarted,
@@ -12,6 +13,7 @@ import {
   saveCandidateDetailsToDB,
   update_slack_thread_id_for_conversion,
   update_whatsapp_message_sent_delivery_report,
+  updateInterviewRemainderSent,
   updateRemainderSent,
 } from "../../db/mongo";
 import sortBy from "lodash/sortBy";
@@ -385,7 +387,7 @@ const remind_candidates = async (remainders: boolean) => {
     const date = convertToIST(candidate.conversation.started_at) as Date;
     const now = convertToIST(new Date());
 
-    if (now.getTime() - date.getTime() > 1000 * 60 * 60) {
+    if (now.getTime() - date.getTime() > 1000 * 60 * 30) {
       //no response in 1hr
       console.log(candidate.unique_id);
       const fromNumber = candidate.unique_id;
@@ -402,16 +404,9 @@ const remind_candidates = async (remainders: boolean) => {
       }
 
       if (should_continue) {
-        await schedule_message_to_be_processed(fromNumber, cred);
-        await sleep(5000);
-        // queue[fromNumber] = {
-        //   ts: setTimeout(() => {
-        //     schedule_message_to_be_processed(fromNumber, cred);
-        //   }, (fromNumber === ADMIN_PHNO ? 5 : DEBOUNCE_TIMEOUT) * 1000),
-        //   status: "PENDING",
-        //   canDelete: true,
-        // };
+        await schedule_message_to_be_processed(fromNumber, cred);        
         await updateRemainderSent(fromNumber);
+        await sleep(5000);
       }
     }
   }
@@ -433,14 +428,20 @@ const get_pending_hr_screening_candidates = async () => {
     if (!(await isInterviewStarted(unique_id))) {
       await schedule_message_to_be_processed(unique_id, cred);
       await sleep(5000);
-      //this will schedule do many llm calls
-      // queue[unique_id] = {
-      //   ts: setTimeout(() => {
-      //     schedule_message_to_be_processed(unique_id, cred);
-      //   }, (unique_id === ADMIN_PHNO ? 5 : DEBOUNCE_TIMEOUT) * 1000),
-      //   status: "PENDING",
-      //   canDelete: true,
-      // };
+    }
+  }
+  const interview_remainder = await getInterviewRemainder();
+  console.log("interview_remainder", interview_remainder.length);
+  for (const candidate of candidates) {
+    const unique_id = candidate.unique_id;
+    console.log(convertToIST(candidate.conversation.started_at));
+    const date = convertToIST(candidate.conversation.started_at) as Date;
+    const now = convertToIST(new Date());
+
+    if (now.getTime() - date.getTime() > 1000 * 60 * 30) {
+      await schedule_message_to_be_processed(unique_id, cred);
+      await updateInterviewRemainderSent(unique_id);
+      await sleep(5000);
     }
   }
 };

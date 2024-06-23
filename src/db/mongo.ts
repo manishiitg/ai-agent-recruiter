@@ -242,6 +242,56 @@ export async function updateRemainderSent(unique_id: string) {
   );
 }
 
+export async function getInterviewRemainder() {
+  const client = await connectDB();
+  const db = client.db("whatsapp");
+
+  // Get the current date
+  let currentDate = new Date();
+
+  // Set the time to the start of the day (00:00:00.000)
+  let startOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
+
+  // Set the time to the start of the next day (00:00:00.000)
+  let startOfNextDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + 1);
+
+  return await db
+    .collection("interviews")
+    .find(
+      {
+        "interview.remainder_sent": { $exists: false },
+        $or: [{ "interview.conversation_completed": false }, { "interview.conversation_completed": { $exists: false } }],
+        "interview.started_at": {
+          $gte: startOfDay,
+          $lt: startOfNextDay,
+        },
+      },
+      {
+        projection: {
+          unique_id: 1,
+          "interview.started_at": 1,
+        },
+        sort: {
+          "interview.started_at": -1,
+        },
+      }
+    )
+    .toArray();
+}
+
+export async function updateInterviewRemainderSent(unique_id: string) {
+  const client = await connectDB();
+  const db = client.db("whatsapp");
+  await db.collection("interviews").updateOne(
+    { unique_id },
+    {
+      $set: {
+        "interview.remainder_sent": true,
+      },
+    }
+  );
+}
+
 export async function getPendingNotCompletedCandidates(remainders: boolean) {
   const client = await connectDB();
   const db = client.db("whatsapp");
