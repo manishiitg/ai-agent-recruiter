@@ -23,6 +23,7 @@ export const getInterviewObject = async (phoneNo: string) => {
         actions_taken: [],
         stage: STAGE_NEW,
         started_at: new Date(),
+        updated_at: new Date(),
         resume: {
           full_resume_text: candidate.conversation?.resume?.full_resume_text || "",
           created_at: new Date(),

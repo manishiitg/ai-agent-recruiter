@@ -4,6 +4,7 @@ export interface Interview {
   id: string;
   interview?: {
     started_at: Date;
+    updated_at: Date; 
     stage: string;
     info?: CandidateInfo;
     debug?: string[];

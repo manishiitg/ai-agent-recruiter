@@ -1,5 +1,6 @@
 export interface Conversation {
   started_at: Date;
+  updated_at: Date;
   stage: string;
   classifed_to?: {
     reason: string;

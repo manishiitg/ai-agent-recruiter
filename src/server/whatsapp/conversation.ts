@@ -32,6 +32,7 @@ export const getCandidate = async (phoneNo: string) => {
     if (!candidate.conversation) {
       candidate.conversation = {
         started_at: new Date(),
+        updated_at: new Date(),
         stage: STAGE_NEW,
         actions_taken: [],
       };
@@ -44,6 +45,7 @@ export const getCandidate = async (phoneNo: string) => {
       id: phoneNo,
       conversation: {
         started_at: new Date(),
+        updated_at: new Date(),
         stage: STAGE_NEW,
         actions_taken: [],
       },

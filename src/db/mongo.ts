@@ -52,6 +52,9 @@ export const deleteDataForCandidateToDebug = async (from: string) => {
   await db.collection("candidates").deleteOne({
     unique_id: from,
   });
+  await db.collection("interviews").deleteOne({
+    unique_id: from,
+  });
 };
 
 export const check_whatsapp_convsation_exists = async (uid: string) => {
@@ -181,7 +184,7 @@ export async function saveCandidateInterviewToDB(interview: Interview) {
   const db = client.db("whatsapp");
   const unique_id = interview.id;
 
-  await db.collection("interviews").updateOne({ unique_id: unique_id }, { $set: { ...interview } }, { upsert: true });
+  await db.collection("interviews").updateOne({ unique_id: unique_id }, { $set: { ...interview, updated_at: new Date() } }, { upsert: true });
 }
 
 export async function getCandidateInterviewFromDB(unique_id: string): Promise<Interview> {
@@ -219,14 +222,14 @@ export async function saveCandidateDetailsToDB(candidate: Candidate) {
   const db = client.db("whatsapp");
   const unique_id = candidate.id;
 
-  await db.collection("candidates").updateOne({ unique_id: unique_id }, { $set: { ...candidate } }, { upsert: true });
+  await db.collection("candidates").updateOne({ unique_id: unique_id }, { $set: { ...candidate, updated_at: new Date() } }, { upsert: true });
 }
 
 export async function saveCandidateConversationDebugInfoToDB(candidate: Candidate, info: any) {
   const client = await connectDB();
   const db = client.db("whatsapp");
   const unique_id = candidate.id;
-  await db.collection("candidates").updateOne({ unique_id: unique_id }, { $set: { "conversation.progress": info } }, { upsert: true });
+  await db.collection("candidates").updateOne({ unique_id: unique_id }, { $set: { "conversation.progress": info, updated_at: new Date() } }, { upsert: true });
 }
 
 export async function updateRemainderSent(unique_id: string) {
@@ -237,6 +240,7 @@ export async function updateRemainderSent(unique_id: string) {
     {
       $set: {
         "conversation.remainder_sent": true,
+        updated_at: new Date(),
       },
     }
   );
@@ -287,6 +291,7 @@ export async function updateInterviewRemainderSent(unique_id: string) {
     {
       $set: {
         "interview.remainder_sent": true,
+        updated_at: new Date(),
       },
     }
   );
