@@ -432,8 +432,9 @@ const get_pending_hr_screening_candidates = async () => {
   }
   const interview_remainder = await getInterviewRemainder();
   console.log("interview_remainder", interview_remainder.length);
-  for (const candidate of candidates) {
+  for (const candidate of interview_remainder) {
     const unique_id = candidate.unique_id;
+    console.log(candidate)
     console.log(convertToIST(candidate.interview.started_at));
     const date = convertToIST(candidate.interview.started_at) as Date;
     const now = convertToIST(new Date());
