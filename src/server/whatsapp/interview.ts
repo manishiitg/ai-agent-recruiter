@@ -2,13 +2,14 @@ import exp from "constants";
 import { generateConversationReply } from "../../agent/interviewer/agent";
 import { STAGE_COMPLETED, STAGE_INTERVIEW_NOT_DONE, STAGE_NEW, STAGE_TECH_QUES1 } from "../../agent/interviewer/rule_map";
 import { ConversationMessage, Interview } from "../../agent/interviewer/types";
-import { getCandidateDetailsFromDB, getCandidateInterviewFromDB, saveCandidateInterviewToDB } from "../../db/mongo";
+import { get_whatspp_conversations, getCandidateDetailsFromDB, getCandidateInterviewFromDB, saveCandidateInterviewToDB } from "../../db/mongo";
 import { WhatsAppCreds } from "../../db/types";
 import { extractInfo } from "../../agent/interviewer/extract_info";
 import { convertConversationToText } from "../../agent/interviewer/helper";
 import { transitionStage } from "../../agent/interviewer/transitions";
 import { question_to_ask_from_resume } from "../../agent/prompts/resume_question";
 import { linkedJobProfileRules } from "../../agent/recruiter/jobconfig";
+import { postMessageToThread } from "../../communication/slack";
 
 export const getInterviewObject = async (phoneNo: string) => {
   let interview: Interview;
@@ -140,9 +141,25 @@ export const conduct_interview = async (
     await saveCandidateInterviewToDB(interview);
   }
 
+  if (interview.interview.stage === STAGE_COMPLETED) {
+    callViaHuman(phoneNo);
+  }
+
   const llm = await generateConversationReply(phoneNo, interview, creds.name, conversation);
   let action = llm.action;
   let reply = llm.reply;
 
   return { message: reply, action: action, stage: interview.interview?.stage || "" };
+};
+
+export const callViaHuman = async (phoneNo: string) => {
+  let slack_action_channel_id = process.env.slack_final_action_channel_id || process.env.slack_action_channel_id;
+  if (slack_action_channel_id) {
+    let { slack_thread_id, channel_id } = await get_whatspp_conversations(phoneNo);
+    if (slack_thread_id) {
+      await postMessageToThread(slack_thread_id, `HR Screening completed!`, channel_id || process.env.slack_action_channel_id, true);
+    } else {
+      await postMessage(`HR Screening completed!`, channel_id || process.env.slack_action_channel_id);
+    }
+  }
 };
