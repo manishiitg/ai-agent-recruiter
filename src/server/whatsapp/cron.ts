@@ -105,10 +105,12 @@ const check_slack_thread_for_manual_msgs = async () => {
         const text = msg.text;
         if (text.includes(process.env.bot_user_id || "<@U017T6CK4ET>")) {
           console.log(msg);
-          console.log("got msg to be sent to user!");
-          if (msg.bot_id) {
-            if (await getSlackTsRead(msg.bot_id)) {
+          console.log("got msg to be sent to user!", msg);
+          if (msg.ts) {
+            console.log("await getSlackTsRead(msg.bot_id))", await getSlackTsRead(msg.ts));
+            if (!(await getSlackTsRead(msg.ts))) {
               //post this msg to user via whatsapp
+              console.log("sending to user!");
               let text_to_send = text.replace(process.env.bot_user_id || "<@U017T6CK4ET>", "");
               text_to_send = text_to_send.trim();
 
@@ -116,8 +118,8 @@ const check_slack_thread_for_manual_msgs = async () => {
               const messageUuid = response.messageUuid;
               await save_whatsapp_conversation("agent", fromNumber, "text", fromNumber, "", "");
               await add_whatsapp_message_sent_delivery_report(fromNumber, fromNumber, "text", messageUuid);
-              await postMessageToThread(slack_thread_id, `HR: ${fromNumber}. Action: ${"manual"} Stage: ${"slack"}`, channel_id);
-              await saveSlackTsRead(msg.bot_id);
+              await postMessageToThread(slack_thread_id, `HR: ${text_to_send}. Action: ${"manual"} Stage: ${"slack"}`, channel_id);
+              await saveSlackTsRead(msg.ts);
             }
           }
         }

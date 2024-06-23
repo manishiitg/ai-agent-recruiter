@@ -371,10 +371,10 @@ export async function getSlackTsRead(ts: string) {
   const row = await db.collection("slack_channel_temp").findOne({
     ts,
   });
-  if (!row) {
-    return false;
-  } else {
+  if (row) {
     return true;
+  } else {
+    return false;
   }
 }
 
