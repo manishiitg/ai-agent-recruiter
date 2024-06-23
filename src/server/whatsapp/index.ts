@@ -307,6 +307,12 @@ const schedule_message_to_be_processed = async (fromNumber: string, cred: WhatsA
       const ts = await postMessage(`HR: ${agentReply.message}. Action: ${agentReply.action} Stage: ${agentReply.stage}`, channel_id || process.env.slack_action_channel_id);
       await update_slack_thread_id_for_conversion(fromNumber, ts, channel_id || process.env.slack_action_channel_id);
     }
+    // got_shortlisted.do_call_via_human
+    if (agentReply.action == "do_call_via_human") {
+      setTimeout(() => {
+        schedule_message_to_be_processed(fromNumber, cred);
+      }, (fromNumber === "919717071555" ? 5 : DEBOUNCE_TIMEOUT) * 1000);
+    }
   } else {
     console.log("debug!");
   }
