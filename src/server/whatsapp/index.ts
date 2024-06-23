@@ -434,8 +434,8 @@ const get_pending_hr_screening_candidates = async () => {
   console.log("interview_remainder", interview_remainder.length);
   for (const candidate of candidates) {
     const unique_id = candidate.unique_id;
-    console.log(convertToIST(candidate.conversation.started_at));
-    const date = convertToIST(candidate.conversation.started_at) as Date;
+    console.log(convertToIST(candidate.interview.started_at));
+    const date = convertToIST(candidate.interview.started_at) as Date;
     const now = convertToIST(new Date());
 
     if (now.getTime() - date.getTime() > 1000 * 60 * 30) {
