@@ -279,7 +279,9 @@ export const callViaHuman = async (candidate: Candidate, creds: WhatsAppCreds, p
         return conv.created_at;
       });
 
-      const msg = `call the candidate ${candidate.id} ${candidate.conversation.info?.name} for job profile ${candidate.conversation?.shortlisted?.job_profile} Resume Rating ${ratingReply.rating}`;
+      const msg = `call the candidate ${candidate.id} ${
+        candidate.conversation.info?.name
+      } for job profile ${candidate.conversation?.shortlisted?.job_profile.trim()} Resume Rating ${ratingReply.rating.trim()}`;
 
       const slack_thread_id = await postMessage(msg, slack_action_channel_id);
       for (const conv of sortedConversation) {
