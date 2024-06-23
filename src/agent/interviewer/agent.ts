@@ -113,6 +113,7 @@ export const generateConversationReply = async (
   9. Response Guidelines:
 - Generate a suitable response based on the selected rule, conversation/context, and the final selected action <response_rule>.
 - Do not mention the context or conversation explicitly in the final response.
+- Use candidate's name to personalise response when available
 
   10. Output Structure:
   Provide your response in the following XML format:
