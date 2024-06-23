@@ -178,7 +178,9 @@ Remember to check all rules before selecting the final one, and ensure that your
     throw new Error("response not found!");
   }
 
-  reason = jObj["RESPONSE"]["FINAL_REASON"].trim();
+  console.log(jObj);
+
+  reason = jObj["RESPONSE"]["FINAL_REASON"];
   reply = jObj["RESPONSE"]["MESSAGE"].trim();
   action = jObj["RESPONSE"]["ACTION"].trim();
   action = `${stage}.${action}`;
