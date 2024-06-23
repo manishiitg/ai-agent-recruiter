@@ -142,7 +142,7 @@ export const shortlist = async (
   <RESPONSE>
     <CTC_CALCULATION>Candidate's expected CTC per month vs. job's CTC criteria</CTC_CALCULATION>
     <JOB_PROFILE>Job profile name</JOB_PROFILE>
-    <REASON>Brief Step-by-step reasoning and rule checking based on candidate's resume</REASON>
+    <REASON>Step-by-step reasoning for every rule</REASON>
     <SHORTLIST>YES or NO</SHORTLIST>
   </RESPONSE>
   
