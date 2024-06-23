@@ -292,7 +292,7 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
 };
 
 const schedule_message_to_be_processed = async (fromNumber: string, cred: WhatsAppCreds) => {
-  queue[fromNumber].status = "RUNNING";
+  if (queue[fromNumber]) queue[fromNumber].status = "RUNNING";
   // agent processing starts
   const { slack_thread_id, conversation } = await get_whatspp_conversations(fromNumber);
   const sortedConversation = sortBy(conversation, (conv: WhatsAppConversaion) => {
@@ -369,7 +369,7 @@ const schedule_message_to_be_processed = async (fromNumber: string, cred: WhatsA
   } else {
     console.log("debug!");
   }
-  if (queue[fromNumber].canDelete) delete queue[fromNumber];
+  if (queue[fromNumber] && queue[fromNumber].canDelete) delete queue[fromNumber];
 };
 
 export const whatsapp_callback = async (req: Request, res: Response) => {
