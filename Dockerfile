@@ -12,7 +12,7 @@ RUN apt-get update && \
 
 # Install poppler-utils for pdftotext
 RUN apt-get update && \
-    apt-get install -y gcc-c++ pkgconfig poppler-cpp-devel python3-devel && \
+    apt-get install -y build-essential libpoppler-cpp-dev pkg-config python3-dev && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
