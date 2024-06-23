@@ -217,16 +217,21 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
               await postAttachment(resume_file, channel_id || process.env.slack_action_channel_id, ts);
             }
 
+            let resume_text: string = "";
             // Extract text from the file
-            let resume_text: string = await new Promise((resolve, reject) => {
-              textract.fromFileWithPath(resume_file, { preserveLineBreaks: true }, (error: any, text: string) => {
-                if (error) {
-                  reject(error);
-                } else {
-                  resolve(text);
-                }
+            try {
+              resume_text = await new Promise((resolve, reject) => {
+                textract.fromFileWithPath(resume_file, { preserveLineBreaks: true }, (error: any, text: string) => {
+                  if (error) {
+                    reject(error);
+                  } else {
+                    resolve(text);
+                  }
+                });
               });
-            });
+            } catch (error) {
+              console.error(error);
+            }
 
             console.log("resume text", resume_text);
             if (!resume_text || resume_text.length == 0) {
