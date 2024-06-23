@@ -10,6 +10,12 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
+# Install poppler-utils for pdftotext
+RUN apt-get update && \
+    apt-get install -y poppler-utils && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
 
 # Copy package.json and package-lock.json (if available)
 COPY package*.json ./
