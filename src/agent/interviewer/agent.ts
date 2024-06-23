@@ -141,7 +141,7 @@ Remember to check all rules before selecting the final one, and ensure that your
     role: "user" | "assistant";
   }[] = [];
 
-  console.log("prompt", prompt);
+  // console.log("prompt", prompt);
 
   messages.push({
     role: "user",
