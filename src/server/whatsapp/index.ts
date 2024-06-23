@@ -6,6 +6,8 @@ import {
   deleteDataForCandidateToDebug,
   get_whatspp_conversations,
   getPendingNotCompletedCandidates,
+  getShortlistedCandidates,
+  isInterviewStarted,
   save_whatsapp_conversation,
   saveCandidateDetailsToDB,
   update_slack_thread_id_for_conversion,
@@ -389,7 +391,6 @@ const remind_candidates = async (remainders: boolean) => {
 
     if (now.getTime() - date.getTime() > 1000 * 60 * 60) {
       //no response in 1hr
-
       console.log(candidate.unique_id);
       const fromNumber = candidate.unique_id;
       const { conversation } = await get_whatspp_conversations(fromNumber);
@@ -405,42 +406,13 @@ const remind_candidates = async (remainders: boolean) => {
       }
 
       if (should_continue) {
-        const cred: WhatsAppCreds = {
-          name: "Mahima",
-          phoneNo: "917011749960",
+        queue[fromNumber] = {
+          ts: setTimeout(() => {
+            schedule_message_to_be_processed(fromNumber, cred);
+          }, (fromNumber === ADMIN_PHNO ? 5 : DEBOUNCE_TIMEOUT) * 1000),
+          status: "PENDING",
+          canDelete: true,
         };
-        const agentReply = await process_whatsapp_conversation(
-          fromNumber,
-          sortedConversation.map((conv) => {
-            return {
-              name: conv.userType,
-              content: conv.content,
-              date: conv.created_at,
-            };
-          }),
-          cred,
-          () => {}
-        );
-        console.log("agentreply", agentReply);
-        if (agentReply.message) {
-          const response = await send_whatsapp_text_reply(agentReply.message, fromNumber, cred.phoneNo);
-          const messageUuid = response.messageUuid;
-          console.log("got messageUuid", messageUuid);
-          await save_whatsapp_conversation("agent", fromNumber, "text", agentReply.message, "", "");
-          await add_whatsapp_message_sent_delivery_report(fromNumber, agentReply.message, "text", messageUuid);
-
-          const { slack_thread_id, channel_id } = await get_whatspp_conversations(fromNumber);
-          if (slack_thread_id) {
-            await postMessageToThread(
-              slack_thread_id,
-              `HR: ${agentReply.message}. Action: ${agentReply.action} Stage: ${agentReply.stage}: Remainder`,
-              channel_id || process.env.slack_action_channel_id
-            );
-          } else {
-            const ts = await postMessage(`HR: ${agentReply.message}. Action: ${agentReply.action} Stage: ${agentReply.stage}: Remainder`, channel_id || process.env.slack_action_channel_id);
-            await update_slack_thread_id_for_conversion(fromNumber, ts, channel_id || process.env.slack_action_channel_id);
-          }
-        }
         await updateRemainderSent(fromNumber);
       }
     }
@@ -451,8 +423,25 @@ setInterval(() => {
   (async () => {
     await remind_candidates(false);
     await remind_candidates(true);
+    await get_pending_hr_screening_candidates();
   })();
 }, 1000 * 60 * 30); //30min
 
 remind_candidates(false);
 remind_candidates(true);
+
+const get_pending_hr_screening_candidates = async () => {
+  const candidates = await getShortlistedCandidates();
+  for (const candidate of candidates) {
+    const unique_id = candidate.unique_id;
+    if (!(await isInterviewStarted(unique_id))) {
+      queue[unique_id] = {
+        ts: setTimeout(() => {
+          schedule_message_to_be_processed(unique_id, cred);
+        }, (unique_id === ADMIN_PHNO ? 5 : DEBOUNCE_TIMEOUT) * 1000),
+        status: "PENDING",
+        canDelete: true,
+      };
+    }
+  }
+};

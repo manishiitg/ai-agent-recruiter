@@ -299,3 +299,46 @@ export async function getPendingNotCompletedCandidates(remainders: boolean) {
       .toArray();
   }
 }
+
+export const getShortlistedCandidates = async () => {
+  const client = await connectDB();
+  const db = client.db("whatsapp");
+
+  // Get the current date
+  let currentDate = new Date();
+
+  // Set the time to the start of the day (00:00:00.000)
+  let startOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
+
+  // Set the time to the start of the next day (00:00:00.000)
+  let startOfNextDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + 1);
+
+  return await db
+    .collection("candidates")
+    .find(
+      {
+        "conversation.conversation_completed_reason": "got_shortlisted.do_call_via_human",
+        "conversation.started_at": {
+          $gte: startOfDay,
+          $lt: startOfNextDay,
+        },
+      },
+      {
+        projection: {
+          unique_id: 1,
+        },
+      }
+    )
+    .limit(50)
+    .toArray();
+};
+
+export const isInterviewStarted = async (phoneNo: string) => {
+  const client = await connectDB();
+  const db = client.db("whatsapp");
+  return (await db.collection("interviews").countDocuments({
+    id: phoneNo,
+  })) > 0
+    ? true
+    : false;
+};
