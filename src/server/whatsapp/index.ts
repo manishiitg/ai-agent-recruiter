@@ -111,20 +111,20 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
         console.log(`Media Message received - From: ${fromNumber}, To: ${toNumber}, Media Attachment: ${Media0}, Caption: ${caption}`);
         if (req.body.MimeType) {
           if (req.body.MimeType.includes("audio")) {
-            // audio files only accept when interview starts not before it
+            // TODO: audio files only accept when interview starts not before it
 
             if (fromNumber == "919717071555") {
-              const interviewObj = getInterviewObject(fromNumber);
+              const interviewObj = await getInterviewObject(fromNumber);
               const resume_path = path.join(process.env.dirname ? process.env.dirname : "", fromNumber);
               if (!existsSync(resume_path)) {
                 mkdirSync(resume_path, { recursive: true });
               }
-              // queue[fromNumber] = {
-              //   ts: setTimeout(() => {}, 1000),
-              //   status: "RUNNING",
-              // };
+              queue[fromNumber] = {
+                ts: setTimeout(() => {}, 1000),
+                status: "RUNNING",
+              };
 
-              const resume_file = path.join(resume_path, "audio.ogg");
+              const resume_file = path.join(resume_path, `${fromNumber}_${interviewObj.interview?.stage}_audio.ogg`);
               await downloadFile(Media0, resume_file);
 
               const { slack_thread_id } = await get_whatspp_conversations(fromNumber);
@@ -136,12 +136,12 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
                 await postAttachment(resume_file, process.env.slack_action_channel_id, ts);
               }
 
-              // queue[fromNumber] = {
-              //   ts: setTimeout(() => {
-              //     schedule_message_to_be_processed(fromNumber, cred);
-              //   }, DEBOUNCE_TIMEOUT * 1000),
-              //   status: "PENDING",
-              // };
+              queue[fromNumber] = {
+                ts: setTimeout(() => {
+                  schedule_message_to_be_processed(fromNumber, cred);
+                }, DEBOUNCE_TIMEOUT * 1000),
+                status: "PENDING",
+              };
             } else {
               await send_whatsapp_text_reply("Only PDF Files are accepted.", fromNumber, cred.phoneNo);
             }
@@ -312,8 +312,8 @@ export const whatsapp_callback = async (req: Request, res: Response) => {
   res.sendStatus(200);
 };
 
-const remind_candidates = async () => {
-  const candidates = await getPendingNotCompletedCandidates();
+const remind_candidates = async (remainders: boolean) => {
+  const candidates = await getPendingNotCompletedCandidates(remainders);
   console.log(candidates.length);
   for (const candidate of candidates) {
     console.log(convertToIST(candidate.conversation.started_at));
@@ -330,7 +330,14 @@ const remind_candidates = async () => {
         return conv.created_at;
       });
 
-      if (sortedConversation[sortedConversation.length - 1].userType == "candidate") {
+      let should_continue = true;
+      if (!remainders) {
+        if (sortedConversation[sortedConversation.length - 1].userType == "agent") {
+          should_continue = false;
+        }
+      }
+
+      if (should_continue) {
         const cred: WhatsAppCreds = {
           name: "Mahima",
           phoneNo: "917011749960",
@@ -370,8 +377,10 @@ const remind_candidates = async () => {
 setInterval(() => {
   //send remainders to candidate on same day
   (async () => {
-    await remind_candidates();
+    await remind_candidates(false);
+    await remind_candidates(true);
   })();
 }, 1000 * 60 * 30); //30min
 
-remind_candidates();
+remind_candidates(false);
+remind_candidates(true);

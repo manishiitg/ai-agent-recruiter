@@ -1,5 +1,5 @@
 import { callDeepseekViaMessages, DEEP_SEEK_V2_CHAT } from "../../llms/deepkseek";
-import { STAGE_NEW, STAGE_RULE_MAP } from "./rule_map";
+import { STAGE_NEW, STAGE_RULE_MAP, STAGE_TECH_QUES1, STAGE_TECH_QUES2 } from "./rule_map";
 import { parseStringPromise } from "xml2js";
 import { ConversationMessage, Interview } from "./types";
 import { convertConversationToText } from "./helper";
@@ -62,6 +62,18 @@ export const generateConversationReply = async (
     pending_actions.push(action);
   }
 
+  let tech_question_to_ask = "";
+  if (conversationObj.interview?.stage == STAGE_TECH_QUES1) {
+    if (conversationObj.interview?.tech_questions) {
+      tech_question_to_ask = conversationObj.interview.tech_questions.question1;
+    }
+  }
+  if (conversationObj.interview?.stage == STAGE_TECH_QUES2) {
+    if (conversationObj.interview?.tech_questions) {
+      tech_question_to_ask = conversationObj.interview.tech_questions.question2;
+    }
+  }
+
   const prompt = `
   You are an AI assistant acting as an Technical recruiter for Excellence Technologies. 
   Your task is to conduct an online interview for a job seeker on ${type}.
@@ -83,6 +95,8 @@ export const generateConversationReply = async (
   ${priority_rules}
   </priority_rules>
 
+  ${tech_question_to_ask.length ? `<tech_question>${tech_question_to_ask}</tech_question>` : ""}
+
   4. Other Rules (if any):
   ${other_rules ? `<other_rules>${other_rules}</other_rules>` : ""}
 
@@ -99,7 +113,6 @@ export const generateConversationReply = async (
   9. Response Guidelines:
 - Generate a suitable response based on the selected rule, conversation/context, and the final selected action <response_rule>.
 - Do not mention the context or conversation explicitly in the final response.
-- Whenever possible ask candidate for resume, if you don't have candidate's resume already
 
   10. Output Structure:
   Provide your response in the following XML format:
@@ -127,45 +140,10 @@ Remember to check all rules before selecting the final one, and ensure that your
   }[] = [];
 
   console.log("prompt", prompt);
-  console.log("conversation", conversation);
 
-  if (false) {
-    // deepseek supports llm supports system prompt. claude doesnt
-    // to use this, we would need to store actual LLM response. the context would become very large then..
-    if (conversation.length > 0) {
-      let previousUser = conversation[0].name;
-      let previousContent = conversation[0].content + ".";
-      let i = 0;
-      for (const conv of conversation) {
-        i++;
-        if (i == 1) continue;
-
-        if (conv.name == previousUser) {
-          previousContent += `\n ${conv.content}.`;
-          continue;
-        } else {
-          messages.push({
-            role: previousUser == "agent" ? "assistant" : "user",
-            content: previousContent,
-          });
-          previousUser = conv.name;
-          previousContent = conv.content;
-        }
-      }
-      messages.push({
-        role: previousUser == "agent" ? "assistant" : "user",
-        content: previousContent,
-      });
-    } else {
-      messages.push({
-        role: "user",
-        content: "Hi",
-      });
-    }
-  } else {
-    messages.push({
-      role: "user",
-      content: `Below is the conversation till now. Conversion are sorted from first conversion to most recent. 
+  messages.push({
+    role: "user",
+    content: `Below is the conversation till now. Conversion are sorted from first conversion to most recent. 
 
       <conversation>
       ${convertConversationToText(conversation)}
@@ -173,11 +151,11 @@ Remember to check all rules before selecting the final one, and ensure that your
 
       Think step by step.
       `,
-    });
-  }
+  });
+
   console.log("messages", messages);
 
-  const llm_output = await callDeepseekViaMessages(prompt, messages, profileID, 0, DEEP_SEEK_V2_CHAT, { type: "reply" }, async (llm_output: string): Promise<Record<string, string>> => {
+  const llm_output = await callDeepseekViaMessages(prompt, messages, profileID, 0, DEEP_SEEK_V2_CHAT, { type: "reply_interview" }, async (llm_output: string): Promise<Record<string, string>> => {
     const jObj = await parseStringPromise(llm_output, {
       explicitArray: false,
       strict: false,
@@ -213,19 +191,14 @@ export const get_context = (conversationObj: Interview) => {
   const suitable_job_profile = conversationObj.interview?.info?.suitable_job_profile ? conversationObj.interview?.info?.suitable_job_profile : "";
 
   let context = "";
-  // if (conversationObj.resume && conversationObj.resume.full_resume_text && conversationObj.resume.full_resume_text.length) {
-  //   context += `<candidate_resume>
-  //     ${conversationObj.resume.SUMMARY || conversationObj.resume.full_resume_text}
-  //   </candidate_resume>\n`;
-  // } else {
-  //   context += `Candidates has not provided his resume\n`;
-  // }
-  // if (suitable_job_profile.length > 0) {
-  //   context += `<suitable_job_profile>Suitable Job Profile Based on Resume: ${suitable_job_profile}</suitable_job_profile>\n`;
-  // }
-  // if (conversationObj.info?.hiring_for_job_profile === false) {
-  //   context += `<suitable_job_profile>We are current not hiring for ${suitable_job_profile}</suitable_job_profile>\n`;
-  // }
+  if (conversationObj.interview && conversationObj.interview.resume?.full_resume_text && conversationObj.interview.resume.full_resume_text.length) {
+    context += `<candidate_resume>
+      ${conversationObj.interview.resume.SUMMARY || conversationObj.interview.resume.full_resume_text}
+    </candidate_resume>\n`;
+  }
+  if (suitable_job_profile.length > 0) {
+    context += `<suitable_job_profile>Suitable Job Profile Based on Resume: ${suitable_job_profile}</suitable_job_profile>\n`;
+  }
 
   const info = conversationObj.interview?.info;
   if (info?.current_ctc && info.current_ctc != "no") context += `Current CTC: ${info.current_ctc} \n`;

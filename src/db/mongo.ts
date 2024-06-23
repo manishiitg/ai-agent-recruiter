@@ -241,7 +241,7 @@ export async function updateRemainderSent(unique_id: string) {
   );
 }
 
-export async function getPendingNotCompletedCandidates() {
+export async function getPendingNotCompletedCandidates(remainders: boolean) {
   const client = await connectDB();
   const db = client.db("whatsapp");
 
@@ -254,24 +254,47 @@ export async function getPendingNotCompletedCandidates() {
   // Set the time to the start of the next day (00:00:00.000)
   let startOfNextDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + 1);
 
-  return await db
-    .collection("candidates")
-    .find(
-      {
-        // "conversation.remainder_sent": { $exists: false },
-        $or: [{ "conversation.conversation_completed": false }, { "conversation.conversation_completed": { $exists: false } }],
-        "conversation.started_at": {
-          $gte: startOfDay,
-          $lt: startOfNextDay,
+  if (remainders) {
+    return await db
+      .collection("candidates")
+      .find(
+        {
+          "conversation.remainder_sent": { $exists: false },
+          $or: [{ "conversation.conversation_completed": false }, { "conversation.conversation_completed": { $exists: false } }],
+          "conversation.started_at": {
+            $gte: startOfDay,
+            $lt: startOfNextDay,
+          },
         },
-      },
-      {
-        projection: {
-          unique_id: 1,
-          "conversation.started_at": 1,
+        {
+          projection: {
+            unique_id: 1,
+            "conversation.started_at": 1,
+          },
+        }
+      )
+      .limit(50)
+      .toArray();
+  } else {
+    return await db
+      .collection("candidates")
+      .find(
+        {
+          // "conversation.remainder_sent": { $exists: false },
+          $or: [{ "conversation.conversation_completed": false }, { "conversation.conversation_completed": { $exists: false } }],
+          "conversation.started_at": {
+            $gte: startOfDay,
+            $lt: startOfNextDay,
+          },
         },
-      }
-    )
-    .limit(50)
-    .toArray();
+        {
+          projection: {
+            unique_id: 1,
+            "conversation.started_at": 1,
+          },
+        }
+      )
+      .limit(50)
+      .toArray();
+  }
 }

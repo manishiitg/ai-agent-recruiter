@@ -86,6 +86,12 @@ export const generateConversationReply = async (
       }
     }
     console.log("actions taken", conversationObj.actions_taken, `${stage}.${action}`, actions_taken.includes(`${stage}.${action}`));
+    if (action == "do_call_via_human") {
+      const dayOfWeek = new Date().getDay();
+      if (dayOfWeek == 0 || dayOfWeek == 6) {
+        response = response + `. I will call you on monday`;
+      }
+    }
     if (actions_taken.includes(`${stage}.${action}`)) {
       // || actions_taken.includes(`${action}`)
       console.log("skipping action", action);
@@ -197,45 +203,10 @@ Remember to check all rules before selecting the final one, and ensure that your
   }[] = [];
 
   console.log("prompt", prompt);
-  console.log("conversation", conversation);
 
-  if (false) {
-    // deepseek supports llm supports system prompt. claude doesnt
-    // to use this, we would need to store actual LLM response. the context would become very large then..
-    if (conversation.length > 0) {
-      let previousUser = conversation[0].name;
-      let previousContent = conversation[0].content + ".";
-      let i = 0;
-      for (const conv of conversation) {
-        i++;
-        if (i == 1) continue;
-
-        if (conv.name == previousUser) {
-          previousContent += `\n ${conv.content}.`;
-          continue;
-        } else {
-          messages.push({
-            role: previousUser == "agent" ? "assistant" : "user",
-            content: previousContent,
-          });
-          previousUser = conv.name;
-          previousContent = conv.content;
-        }
-      }
-      messages.push({
-        role: previousUser == "agent" ? "assistant" : "user",
-        content: previousContent,
-      });
-    } else {
-      messages.push({
-        role: "user",
-        content: "Hi",
-      });
-    }
-  } else {
-    messages.push({
-      role: "user",
-      content: `Below is the conversation till now. Conversion are sorted from first conversion to most recent. 
+  messages.push({
+    role: "user",
+    content: `Below is the conversation till now. Conversion are sorted from first conversion to most recent. 
 
       <conversation>
       ${convertConversationToText(conversation)}
@@ -243,8 +214,8 @@ Remember to check all rules before selecting the final one, and ensure that your
 
       Think step by step.
       `,
-    });
-  }
+  });
+
   console.log("messages", messages);
 
   const llm_output = await callDeepseekViaMessages(prompt, messages, profileID, 0, DEEP_SEEK_V2_CHAT, { type: "reply" }, async (llm_output: string): Promise<Record<string, string>> => {

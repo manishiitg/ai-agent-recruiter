@@ -1,17 +1,31 @@
-import { STAGE_GOT_CTC, STAGE_GOT_RESUME, STAGE_NEW } from "./agent";
-import { Conversation } from "./types/conversation";
+import { STAGE_COMPLETED, STAGE_INTERVIEW_NOT_DONE, STAGE_INTRODUCTION, STAGE_NEW, STAGE_TECH_QUES1, STAGE_TECH_QUES2 } from "./rule_map";
+import { Interview } from "./types";
 
-export const transitionStage = async (conversation: Conversation) => {
-  if (conversation?.resume?.full_resume_text) {
-    if (conversation?.stage == STAGE_NEW && conversation.resume?.full_resume_text?.length > 0) {
-      return STAGE_GOT_RESUME;
+// TODO: can be a state machine later on
+export const transitionStage = (interview: Interview) => {
+  let stage = "";
+  if (interview.interview?.stage == STAGE_NEW) {
+    if (interview.interview?.interview_info?.is_interview_ok === 1) {
+      stage = STAGE_INTRODUCTION;
+    }
+    if (interview.interview?.interview_info?.is_interview_reject === 1) {
+      stage = STAGE_INTERVIEW_NOT_DONE;
     }
   }
-  const info = conversation?.info;
-  if (info?.expected_ctc && info.expected_ctc != "no") {
-    if (conversation && conversation.resume?.full_resume_text && conversation) {
-      return STAGE_GOT_CTC;
+  if (interview.interview?.stage == STAGE_INTRODUCTION) {
+    if (interview.interview?.interview_info?.is_intro_done === 1) {
+      stage = STAGE_TECH_QUES1;
     }
   }
-  return "";
+  if (interview.interview?.stage == STAGE_TECH_QUES1) {
+    if (interview.interview?.interview_info?.is_tech_question1_done === 1) {
+      stage = STAGE_TECH_QUES2;
+    }
+  }
+  if (interview.interview?.stage == STAGE_TECH_QUES2) {
+    if (interview.interview?.interview_info?.is_tech_question2_done === 1) {
+      stage = STAGE_COMPLETED;
+    }
+  }
+  return stage;
 };

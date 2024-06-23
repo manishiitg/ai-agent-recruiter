@@ -1,7 +1,9 @@
 export const STAGE_NEW = "new";
 export const STAGE_INTRODUCTION = "introduction";
+export const STAGE_TECH_QUES1 = "tech1";
+export const STAGE_TECH_QUES2 = "tech2";
 export const STAGE_COMPLETED = "completed";
-export const STAGE_REJECTED = "rejected";
+export const STAGE_INTERVIEW_NOT_DONE = "interview_not_done";
 
 export const STAGE_RULE_MAP: Record<
   string,
@@ -26,12 +28,45 @@ export const STAGE_RULE_MAP: Record<
   },
   introduction: {
     ask_for_introduction: {
-      rule: "If candidate is alright to start with his interview on whatsapp",
-      response: "Ask candidate to give a brief introduction about himself by recording a audio on whatsapp and sending it.",
+      rule: "If candidate has given go ahead to start with his interview on whatsapp",
+      response:
+        "Ask candidate to give a brief introduction about himself, his project/work experiance for the job profile by recording a audio on whatsapp and sending it. Ask basic HR questions suitable for the job profile and candidates resume.",
     },
-    ask_for_introduction_completed: {
-      rule: "If candidate is has given his audio interview on whatsapp",
-      response: "Ask if candidate is ready to give a small technical interview",
+    candidate_doesnt_understand: {
+      rule: "If candidate doesn't understand how to record on whatsapp",
+      response: "Inform candidate to use the whatsapp voice recording feature and give a short introduction. Also inform he can send multiple recordings as well if needed.",
+    },
+    candidate_sent_recording: {
+      rule: "If candidate has given recording",
+      response: "Ask candidate if he wants to share any more recordings or if he is completed and ready for the next question",
+    },
+  },
+  tech1: {
+    ask_tech_question: {
+      rule: "If candidate has completed introduction",
+      response: "Ask the tech question generated from <tech_question> tag. Explain question if needed.",
+    },
+    candidate_doesnt_understand: {
+      rule: "If candidate doesn't understand how to record on whatsapp",
+      response: "Inform candidate to use the whatsapp voice recording feature and give a short introduction. Also inform he can send multiple recordings as well if needed.",
+    },
+    candidate_sent_recording: {
+      rule: "If candidate has given recording",
+      response: "Ask candidate if he wants to share any more recordings or if he is completed and ready for the next question",
+    },
+  },
+  tech2: {
+    ask_tech_question: {
+      rule: "If candidate has completed introduction",
+      response: "Ask the tech question generated from <tech_question> tag. Explain question if needed.",
+    },
+    candidate_doesnt_understand: {
+      rule: "If candidate doesn't understand how to record on whatsapp",
+      response: "Inform candidate to use the whatsapp voice recording feature and give a short introduction. Also inform he can send multiple recordings as well if needed.",
+    },
+    candidate_sent_recording: {
+      rule: "If candidate has given recording",
+      response: "Ask candidate if he wants to share any more recordings or if he is completed and ready for the next question",
     },
   },
   completed: {
@@ -40,18 +75,10 @@ export const STAGE_RULE_MAP: Record<
       response: "Inform candidate interview is completed. Thanks for his time, we will review the recordings and get back asap.",
     },
   },
-  rejected: {
-    rejected: {
-      rule: "If Candidate is rejected based on context",
-      response: "Inform candidate he is rejected and also mention reason in a polite way. Don't mention about other job profiles",
-    },
-    rejected_reason: {
-      rule: "If candiate is asking for reason for reason",
-      response: "Inform candidate reason in a polite way. Don't mention about other job profiles",
-    },
-    no_action: {
-      rule: "If candiate is not asking for reason but responding with a general message",
-      response: "take no action",
+  interview_not_done: {
+    inform: {
+      rule: "If candidate is not agreed to take give interview on whatsapp audio",
+      response: "Inform candidate, its ok and hr's will reach out when possible",
     },
   },
 };

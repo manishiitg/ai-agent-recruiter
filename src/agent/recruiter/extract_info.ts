@@ -1,8 +1,8 @@
 import { callDeepkSeek, DEEP_SEEK_V2_CODER } from "../../llms/deepkseek";
 import { parseStringPromise } from "xml2js";
-import { linkedJobProfileRules } from "../recruiter/jobconfig";
-import { CandidateInfo } from "../recruiter/types/conversation";
-import { validateEmail } from "../recruiter/helper";
+import { linkedJobProfileRules } from "./jobconfig";
+import { CandidateInfo } from "./types/conversation";
+import { validateEmail } from "./helper";
 
 export const CONV_CLASSIFY_CANDIDATE_JOB_PREFIX = "1";
 export const CONV_CLASSIFY_CANDIDATE_JOB = `${CONV_CLASSIFY_CANDIDATE_JOB_PREFIX}. Candidate applying or enquiring for job`;

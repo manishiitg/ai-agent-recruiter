@@ -6,6 +6,13 @@ export interface Interview {
     started_at: Date;
     stage: string;
     info?: CandidateInfo;
+    interview_info: {
+      is_interview_ok: 0 | -1 | 1; // default 0, 1 is accepted, -1 is rejected
+      is_interview_reject: 0 | -1 | 1; // default 0, 1 is accepted, -1 is rejected
+      is_intro_done: 0 | -1 | 1; // default 0, 1 is accepted, -1 is rejected
+      is_tech_question1_done: 0 | -1 | 1; // default 0, 1 is accepted, -1 is rejected
+      is_tech_question2_done: 0 | -1 | 1; // default 0, 1 is accepted, -1 is rejected
+    };
     conversation_completed?: boolean;
     conversation_completed_reason?: string;
     shortlisted?: ShortlistReponse;
@@ -14,6 +21,10 @@ export interface Interview {
       created_at?: Date;
       SUMMARY?: string;
       full_resume_text: string;
+    };
+    tech_questions?: {
+      question1: string;
+      question2: string;
     };
   };
 }

@@ -10,7 +10,7 @@ import {
   CONV_CLASSIFY_WISHES,
   CONV_CLASSIFY_WISHES_PREFIX,
   extractInfo,
-} from "../../agent/prompts/extract_info";
+} from "../../agent/recruiter/extract_info";
 import { get_whatspp_conversations, getCandidateDetailsFromDB, saveCandidateConversationDebugInfoToDB, saveCandidateDetailsToDB } from "../../db/mongo";
 import { Candidate, WhatsAppCreds } from "../../db/types";
 import { summariseResume } from "../../agent/prompts/summary_resume_prompt";

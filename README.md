@@ -28,3 +28,10 @@ Keep sending status to recrutiers on slack
 
 - Keep candidate communications updated on slack so recruiters can manually view it
 - Recruiters can anytime take over the conversion via slack and stop the automated bot replies
+
+
+Agent Architecture
+======================
+
+TODO
+
