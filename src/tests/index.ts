@@ -12,38 +12,64 @@ import {
 } from "../db/mongo";
 import { WhatsAppConversaion, WhatsAppCreds } from "../db/types";
 import { getCandidate, process_whatsapp_conversation } from "../server/whatsapp/conversation";
-import { convertToIST } from "../server/whatsapp/util";
-import { conduct_interview } from "../server/whatsapp/interview";
+import { convertToIST, sleep } from "../server/whatsapp/util";
+import { conduct_interview, getInterviewObject } from "../server/whatsapp/interview";
 import { getLatestMessagesFromThread } from "../communication/slack";
+import { transribe_file } from "../server/whatsapp/assembly";
 
 (async () => {
   // there is a bug. for ph: 916309891039. he is uploaded his resume but for some reason we havne't processed it so he is stuck in stage New
 
   const candidates = await getInterviewCandidates();
-
   for (const candidate of candidates) {
     const ph = candidate.unique_id;
-    // const candidate = await getCandidateDetailsFromDB(ph)
-    const { slack_thread_id, channel_id } = await get_whatspp_conversations(ph);
-    if (slack_thread_id && channel_id) {
-      const msgs = await getLatestMessagesFromThread(channel_id, slack_thread_id, 100);
 
-      for (const msg of msgs) {
-        const text = msg.text;
-        if (text.includes(process.env.bot_user_id || "<@U017T6CK4ET>")) {
-          console.log(msg);
-          console.log("got msg to be sent to user!");
-          if (msg.bot_id) {
-            if (await getSlackTsRead(msg.bot_id)) {
-              //post this msg to user via whatsapp
-              console.log("12313");
-              // await saveSlackTsRead(msg.bot_id);
+    const inter = await getInterviewObject(ph);
+    if (inter.interview?.conversation_completed) {
+      const { conversation } = await get_whatspp_conversations(ph);
+      const audioConversation = conversation.filter((conv) => {
+        if (conv.messageType == "media" && conv.body) {
+          if ("Media0" in conv.body) {
+            if (conv.body.MimeType.includes("audio")) {
+              return true;
             }
           }
+        }
+        return false;
+      });
+      for (const conv of audioConversation) {
+        if (conv.messageType == "media" && conv.body) {
+          const text = await transribe_file(conv.body.Media0);
+          console.log(text);
+          await sleep(10000000);
         }
       }
     }
   }
+
+  // for (const candidate of candidates) {
+  //   const ph = candidate.unique_id;
+  //   // const candidate = await getCandidateDetailsFromDB(ph)
+  //   const { slack_thread_id, channel_id } = await get_whatspp_conversations(ph);
+  //   if (slack_thread_id && channel_id) {
+  //     const msgs = await getLatestMessagesFromThread(channel_id, slack_thread_id, 100);
+
+  //     for (const msg of msgs) {
+  //       const text = msg.text;
+  //       if (text.includes(process.env.bot_user_id || "<@U017T6CK4ET>")) {
+  //         console.log(msg);
+  //         console.log("got msg to be sent to user!");
+  //         if (msg.bot_id) {
+  //           if (await getSlackTsRead(msg.bot_id)) {
+  //             //post this msg to user via whatsapp
+  //             console.log("12313");
+  //             // await saveSlackTsRead(msg.bot_id);
+  //           }
+  //         }
+  //       }
+  //     }
+  //   }
+  // }
   console.log("completed!");
 
   // const interview_remainder = await getInterviewRemainder();

@@ -13,7 +13,7 @@ export const rate_resume = async (profileID: string, conversationObj: Conversati
     for (const k in linkedJobProfileRules) {
       if (linkedJobProfileRules[k].is_open)
         if (classified_job_profile.includes(k) || k == classified_job_profile) {
-          job_description = linkedJobProfileRules[k].full_criteria;
+          job_description = linkedJobProfileRules[k].resume_rating;
           break;
         }
     }
@@ -101,14 +101,14 @@ export const shortlist = async (
     for (const k in linkedJobProfileRules) {
       if (linkedJobProfileRules[k].is_open)
         if (classified_job_profile.includes(k) || k == classified_job_profile) {
-          shortlisting += `Job Profile: ${k} \n Shortlisting Criteria: ${linkedJobProfileRules[k].resume_rating} \n\n`;
+          shortlisting += `Job Profile: ${k} \n Shortlisting Criteria: ${linkedJobProfileRules[k].full_criteria} \n\n`;
           break;
         }
     }
   }
   if (shortlisting.length == 0) {
     for (const k in linkedJobProfileRules) {
-      if (linkedJobProfileRules[k].is_open) shortlisting += `Job Profile: ${k} \n Shortlisting Criteria: ${linkedJobProfileRules[k].resume_rating} \n\n`;
+      if (linkedJobProfileRules[k].is_open) shortlisting += `Job Profile: ${k} \n Shortlisting Criteria: ${linkedJobProfileRules[k].full_criteria} \n\n`;
     }
   }
 
