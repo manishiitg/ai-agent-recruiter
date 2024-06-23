@@ -51,7 +51,7 @@ First, review the job details:
   })}
   
   
-  Your task is to rate each of the candidate's answers on a scale of 0 to 10, where 0 is completely incorrect or irrelevant, and 10 is a perfect match to the best expected answer. Additionally, you should rate the candidate's overall communication skills based on their responses.
+Your task is to rate each of the candidate's answers on a scale of 0 to 10, where 0 is completely incorrect or irrelevant, and 10 is a perfect match to the best expected answer. Additionally, you should rate the candidate's overall communication skills based on their responses.
 For each question, follow these steps:
 1. Carefully compare the candidate's answer to the best expected answer.
 2. Consider the relevance, accuracy, and completeness of the candidate's response.
