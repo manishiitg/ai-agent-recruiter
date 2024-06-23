@@ -137,7 +137,6 @@ export const start_cron = () => {
 
   setInterval(() => {
     //send remainders to candidate on same day
-
     remind_candidates(false);
     remind_candidates(true);
     get_pending_hr_screening_candidates();
