@@ -123,4 +123,16 @@ export const linkedJobProfileRules: Record<
     resume_rating: `
     - Candidate should have done multiple experiance/projects/internship related to Linkedin or Email Marketing or B2B Sales or Upwork or Lead Generation`,
   },
+  "Python Internship (Cuvette)": {
+    is_open: true,
+    job_description: `Good Knowledge in django or flask
+    Worked with databases like mongodb or mysql or postgresql`,
+    full_criteria: `Rule 1. Candidate should have maximum salary of 40,000 per month. If candidates salary is not mentioned, assume he passes this criteria.
+    Rule 2. Candidate should not belong to locations ${exclude_location_rule}
+    Rule 3. Candidate should not have more than 1year of Experience.
+    Rule 4. Candidate should have done multiple work/projects/internship related python and flask/django. This is an important rule.`,
+    resume_rating: `
+    - Candidate should have done multiple experiance/projects/internship related to python and flask/django
+    - Candidate should have done multiple experiance/projects/internship related mongodb or mysql database`,
+  },
 };

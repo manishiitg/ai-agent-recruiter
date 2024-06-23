@@ -210,6 +210,7 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
 
             const { slack_thread_id, channel_id } = await get_whatspp_conversations(fromNumber);
             if (slack_thread_id) {
+              await postMessageToThread(slack_thread_id, `${fromNumber}: Attachment . Time: ${time}`, channel_id || process.env.slack_action_channel_id);
               await postAttachment(resume_file, channel_id || process.env.slack_action_channel_id, slack_thread_id);
             } else {
               const ts = await postMessage(`${fromNumber}: Attachment . Time: ${time}`, channel_id || process.env.slack_action_channel_id);
