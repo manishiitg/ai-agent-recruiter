@@ -5,8 +5,8 @@ services:
     build: .
     ports:
       - "8000:8000"
-    volumes:
-      - ./src/images:/usr/src/app/src/images
+    # volumes:
+    #   - ./src/images:/usr/src/app/src/images
     environment:
       - NODE_ENV=production
     restart: always
