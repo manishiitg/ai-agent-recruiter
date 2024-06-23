@@ -9,7 +9,7 @@ import { convertConversationToText } from "../../agent/interviewer/helper";
 import { transitionStage } from "../../agent/interviewer/transitions";
 import { question_to_ask_from_resume } from "../../agent/prompts/resume_question";
 import { linkedJobProfileRules } from "../../agent/recruiter/jobconfig";
-import { postMessageToThread } from "../../communication/slack";
+import { postMessage, postMessageToThread } from "../../communication/slack";
 
 export const getInterviewObject = async (phoneNo: string) => {
   let interview: Interview;
@@ -145,7 +145,7 @@ export const conduct_interview = async (
   }
 
   if (interview.interview.stage === STAGE_COMPLETED) {
-    callViaHuman(phoneNo);
+    callViaHuman(phoneNo, interview);
   }
 
   const llm = await generateConversationReply(phoneNo, interview, creds.name, conversation);
