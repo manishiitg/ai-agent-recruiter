@@ -68,7 +68,7 @@ export const question_to_ask_from_resume = async (resume: string, hiring_for_pro
     throw new Error("response not found!");
   }
 
-  const SCRATCHPAD = jObj["RESPONSE"]["SCRATCHPAD"]
+  const SCRATCHPAD = jObj["RESPONSE"]["SCRATCHPAD"];
 
   const QUESTION1 = jObj["RESPONSE"]["QUESTION1"];
   const EXPECTED_ANSWER_1 = jObj["RESPONSE"]["EXPECTED_ANSWER_1"];
@@ -76,5 +76,5 @@ export const question_to_ask_from_resume = async (resume: string, hiring_for_pro
   const QUESTION2 = jObj["RESPONSE"]["QUESTION2"];
   const EXPECTED_ANSWER_2 = jObj["RESPONSE"]["EXPECTED_ANSWER_2"];
 
-  return { SCRATCHPAD, QUESTION1, QUESTION2 };
+  return { SCRATCHPAD, QUESTION1, QUESTION2, EXPECTED_ANSWER_1, EXPECTED_ANSWER_2 };
 };

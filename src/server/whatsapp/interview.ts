@@ -129,8 +129,11 @@ export const conduct_interview = async (
 
     const questionsReply = await question_to_ask_from_resume(interview.interview.resume?.full_resume_text, interview.interview.info?.suitable_job_profile || "", job_criteria);
     interview.interview.tech_questions = {
+      scratchpad: questionsReply.SCRATCHPAD,
       question1: questionsReply.QUESTION1,
       question2: questionsReply.QUESTION2,
+      answer1: questionsReply.EXPECTED_ANSWER_1,
+      answer2: questionsReply.EXPECTED_ANSWER_2,
     };
     await saveCandidateInterviewToDB(interview);
   }
@@ -152,12 +155,16 @@ export const conduct_interview = async (
   return { message: reply, action: action, stage: interview.interview?.stage || "" };
 };
 
-export const callViaHuman = async (phoneNo: string) => {
+export const callViaHuman = async (phoneNo: string, interview: Interview) => {
   let slack_action_channel_id = process.env.slack_final_action_channel_id || process.env.slack_action_channel_id;
   if (slack_action_channel_id) {
     let { slack_thread_id, channel_id } = await get_whatspp_conversations(phoneNo);
     if (slack_thread_id) {
       await postMessageToThread(slack_thread_id, `HR Screening completed!`, channel_id || process.env.slack_action_channel_id, true);
+      await postMessageToThread(slack_thread_id, `Question1: ${interview.interview?.tech_questions?.question1}`);
+      await postMessageToThread(slack_thread_id, `Answer1: ${interview.interview?.tech_questions?.answer1}`);
+      await postMessageToThread(slack_thread_id, `Question2: ${interview.interview?.tech_questions?.question2}`);
+      await postMessageToThread(slack_thread_id, `Answer2: ${interview.interview?.tech_questions?.answer2}`);
     } else {
       await postMessage(`HR Screening completed!`, channel_id || process.env.slack_action_channel_id);
     }

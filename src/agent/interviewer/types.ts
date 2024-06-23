@@ -24,8 +24,11 @@ export interface Interview {
       full_resume_text: string;
     };
     tech_questions?: {
+      scratchpad: string;
       question1: string;
+      answer1: string;
       question2: string;
+      answer2: string;
     };
   };
 }
