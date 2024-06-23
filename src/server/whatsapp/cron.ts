@@ -130,17 +130,17 @@ const check_slack_thread_for_manual_msgs = async () => {
 };
 
 export const start_cron = () => {
-  //   get_pending_hr_screening_candidates();
-  //   remind_candidates(false);
-  //   remind_candidates(true);
+  get_pending_hr_screening_candidates();
+  remind_candidates(false);
+  remind_candidates(true);
   check_slack_thread_for_manual_msgs();
 
   setInterval(() => {
     //send remainders to candidate on same day
 
-    //   remind_candidates(false);
-    //   remind_candidates(true);
-    //   get_pending_hr_screening_candidates();
+    remind_candidates(false);
+    remind_candidates(true);
+    get_pending_hr_screening_candidates();
     check_slack_thread_for_manual_msgs();
   }, 1000 * 60 * 30); //30min
 };
