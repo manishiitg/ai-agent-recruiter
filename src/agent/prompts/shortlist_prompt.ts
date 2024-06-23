@@ -30,15 +30,15 @@ export const rate_resume = async (profileID: string, conversationObj: Conversati
   <JOB_TITLE>
   ${classified_job_profile}
   </JOB_TITLE>
-  <JOB_DESCRIPTION>
+  <JOB_CRITERIA>
   ${job_description}
-  </JOB_DESCRIPTION>
+  </JOB_CRITERIA>
   
-  Please read through the resume and job description carefully. Once you have reviewed them, I would like you to evaluate the resume on the following criteria:
+  Please read through the resume and job criteria carefully. Once you have reviewed them, I would like you to evaluate the resume on the following criteria:
   - Relevant technical skills the applicant possesses based on the job requirements. 
   - Difficulty, complexity and impact of projects the applicant has completed that are relevant to the role. Give high rating only if worked on complex projects.
 
-  Give a rating of more than 5 only if candidate has worked on complex projects and has worked on multiple complex projects.
+  Give a rating of more than 5 only if candidate has worked on complex projects and has worked on multiple complex projects related to job criteria.
 
   For each of the projects, please write a analysis inside <PROJECT_ANALYSIS> tags that examines how technically difficult is the project. Cite specific examples from the resume and job description in your analysis.
 
