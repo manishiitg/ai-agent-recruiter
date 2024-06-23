@@ -17,7 +17,7 @@ export const extractInfo = async (
   <conversation>${conversation}</conversation>  
   
   Information To Extract:
-  1. CANDIDATE_ACCEPTED_INTERVIEW: if we have asked the candidate to conduct interview on whatsapp and he is agreed to them same
+  1. CANDIDATE_ACCEPTED_INTERVIEW: if we have asked the candidate to conduct interview specifically on whatsapp and he is agreed to them same
   2. CANDIDATE_REJECTED_INTERVIEW: if doesn't want to do interview on whatsapp
   3. CANDIATE_COMPLETED_INTRODUCTION: if candidate has completed his introduction and sent his introduction recordingds on whatsapp
   4. CANDIATE_COMPLETED_FIRST_TECH_QUESTION: if candidate has completed the first technical question asked
