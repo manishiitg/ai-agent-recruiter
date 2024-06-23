@@ -74,6 +74,12 @@ export const conduct_interview = async (
   console.log("interview", interview);
 
   const info = await extractInfo(phoneNo, creds.name, convertConversationToText(conversation));
+  if (interview.interview.debug) {
+    interview.interview.debug.push(info.llm_output);
+  } else {
+    interview.interview.debug = [info.llm_output];
+  }
+  await saveCandidateInterviewToDB(interview);
   if (info.start_interview) {
     if (interview.interview.interview_info) {
       interview.interview.interview_info.is_interview_ok = info.start_interview as 0 | 1 | -1;

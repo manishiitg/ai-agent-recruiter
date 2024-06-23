@@ -7,7 +7,7 @@ export const extractInfo = async (
   me: string,
   conversation: string,
   type: "gmail" | "linkedin" | "whatsapp" = "whatsapp"
-): Promise<{ start_interview: number; introduction_done: number; first_tech_done: number; second_tech_done: number; reject_interview: number }> => {
+): Promise<{ llm_output: string; start_interview: number; introduction_done: number; first_tech_done: number; second_tech_done: number; reject_interview: number }> => {
   const prompt = `You are an HR recruiter on ${type}.
   You are having a conversation with a person on ${type}. 
 
@@ -107,5 +107,5 @@ export const extractInfo = async (
     }
   }
 
-  return { start_interview, introduction_done, first_tech_done, second_tech_done, reject_interview };
+  return { llm_output, start_interview, introduction_done, first_tech_done, second_tech_done, reject_interview };
 };

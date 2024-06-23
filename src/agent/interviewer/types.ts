@@ -6,6 +6,7 @@ export interface Interview {
     started_at: Date;
     stage: string;
     info?: CandidateInfo;
+    debug?: string[];
     interview_info: {
       is_interview_ok: 0 | -1 | 1; // default 0, 1 is accepted, -1 is rejected
       is_interview_reject: 0 | -1 | 1; // default 0, 1 is accepted, -1 is rejected
