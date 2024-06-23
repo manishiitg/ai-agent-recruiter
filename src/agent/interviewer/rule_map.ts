@@ -43,8 +43,8 @@ export const STAGE_RULE_MAP: Record<
       response: "Ask candidate if he wants to share any more recordings or if he is completed and ready for the next question",
     },
     general_message: {
-      rule: "If candidate gave a general message like ok, hi etc",
-      response: "respond as per the message",
+      rule: "If candidate gave a general message like ok, yes",
+      response: "reply accordingly a very short answer",
     },
   },
   tech1: {
@@ -61,8 +61,8 @@ export const STAGE_RULE_MAP: Record<
       response: "Ask candidate if he wants to share any more recordings or if he is completed and ready for the next question",
     },
     general_message: {
-      rule: "If candidate gave a general message like ok, hi etc",
-      response: "respond as per the message",
+      rule: "If candidate gave a general message like ok, yes",
+      response: "reply accordingly a very short answer",
     },
   },
   tech2: {
@@ -79,8 +79,8 @@ export const STAGE_RULE_MAP: Record<
       response: "Ask candidate if he wants to share any more recordings or if he is completed and ready for the next question",
     },
     general_message: {
-      rule: "If candidate gave a general message like ok, hi etc",
-      response: "respond as per the message",
+      rule: "If candidate gave a general message like ok, yes",
+      response: "reply accordingly a very short answer",
     },
   },
   completed: {
