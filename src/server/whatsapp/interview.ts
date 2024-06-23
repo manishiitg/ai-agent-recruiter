@@ -37,6 +37,7 @@ export const getInterviewObject = async (phoneNo: string) => {
           is_tech_question1_done: 0,
           is_tech_question2_done: 0,
           is_interview_reject: 0,
+          is_tech_question3_done: 0,
         },
       },
     };
@@ -100,6 +101,11 @@ export const conduct_interview = async (
   if (info.second_tech_done) {
     if (interview.interview.interview_info) {
       interview.interview.interview_info.is_tech_question2_done = info.second_tech_done as 0 | 1 | -1;
+    }
+  }
+  if (info.second_tech_done) {
+    if (interview.interview.interview_info) {
+      interview.interview.interview_info.is_tech_question3_done = info.third_tech_done as 0 | 1 | -1;
     }
   }
   if (info.reject_interview) {

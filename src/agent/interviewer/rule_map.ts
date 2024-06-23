@@ -2,6 +2,7 @@ export const STAGE_NEW = "new";
 export const STAGE_INTRODUCTION = "introduction";
 export const STAGE_TECH_QUES1 = "tech1";
 export const STAGE_TECH_QUES2 = "tech2";
+export const STAGE_TECH_QUES3 = "tech3";
 export const STAGE_COMPLETED = "completed";
 export const STAGE_INTERVIEW_NOT_DONE = "interview_not_done";
 
@@ -66,6 +67,24 @@ export const STAGE_RULE_MAP: Record<
     },
   },
   tech2: {
+    ask_tech_question: {
+      rule: "If candidate has completed introduction",
+      response: "Ask the tech question generated from <tech_question> tag. Explain question if needed.",
+    },
+    candidate_doesnt_understand: {
+      rule: "If candidate doesn't understand how to record on whatsapp",
+      response: "Inform candidate to use the whatsapp voice recording feature and give a short introduction. Also inform he can send multiple recordings as well if needed.",
+    },
+    candidate_sent_recording: {
+      rule: "If candidate has given recording",
+      response: "Ask candidate if he wants to share any more recordings or if he is completed and ready for the next question",
+    },
+    general_message: {
+      rule: "If candidate gave a general message like ok, yes",
+      response: "reply accordingly a very short answer",
+    },
+  },
+  tech3: {
     ask_tech_question: {
       rule: "If candidate has completed introduction",
       response: "Ask the tech question generated from <tech_question> tag. Explain question if needed.",

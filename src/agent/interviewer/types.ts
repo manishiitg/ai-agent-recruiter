@@ -13,6 +13,7 @@ export interface Interview {
       is_intro_done: 0 | -1 | 1; // default 0, 1 is accepted, -1 is rejected
       is_tech_question1_done: 0 | -1 | 1; // default 0, 1 is accepted, -1 is rejected
       is_tech_question2_done: 0 | -1 | 1; // default 0, 1 is accepted, -1 is rejected
+      is_tech_question3_done: 0 | -1 | 1; // default 0, 1 is accepted, -1 is rejected
     };
     conversation_completed?: boolean;
     conversation_completed_reason?: string;

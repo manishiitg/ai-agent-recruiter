@@ -7,7 +7,7 @@ export const extractInfo = async (
   me: string,
   conversation: string,
   type: "gmail" | "linkedin" | "whatsapp" = "whatsapp"
-): Promise<{ llm_output: string; start_interview: number; introduction_done: number; first_tech_done: number; second_tech_done: number; reject_interview: number }> => {
+): Promise<{ llm_output: string; start_interview: number; introduction_done: number; first_tech_done: number; second_tech_done: number; reject_interview: number; third_tech_done: number }> => {
   const prompt = `You are an HR recruiter on ${type}.
   You are having a conversation with a person on ${type}. 
 
@@ -22,6 +22,7 @@ export const extractInfo = async (
   3. CANDIATE_COMPLETED_INTRODUCTION: if candidate has completed his introduction and sent his introduction recordingds on whatsapp
   4. CANDIATE_COMPLETED_FIRST_TECH_QUESTION: if candidate has completed the first technical question asked
   5. CANDIATE_COMPLETED_SECOND_TECH_QUESTION: if candidate has completed the second technical question asked
+  6. CANDIATE_COMPLETED_THIRD_TECH_QUESTION: if candidate has completed the third tehcnical question asked
 
   mention "no" if information doesn't exist, don't make up any information outside the conversion
 
@@ -36,6 +37,7 @@ export const extractInfo = async (
     <CANDIATE_COMPLETED_INTRODUCTION>yes or no</CANDIATE_COMPLETED_INTRODUCTION>
     <CANDIATE_COMPLETED_FIRST_TECH_QUESTION>yes or no</CANDIATE_COMPLETED_FIRST_TECH_QUESTION>
     <CANDIATE_COMPLETED_SECOND_TECH_QUESTION>yes or no</CANDIATE_COMPLETED_SECOND_TECH_QUESTION>
+    <CANDIATE_COMPLETED_THIRD_TECH_QUESTION>yes or no</CANDIATE_COMPLETED_THIRD_TECH_QUESTION>
   </RESPONSE>
   `;
 
@@ -108,5 +110,15 @@ export const extractInfo = async (
     }
   }
 
-  return { llm_output, start_interview, introduction_done, first_tech_done, second_tech_done, reject_interview };
+  let third_tech_done = 0;
+  if ("CANDIATE_COMPLETED_THIRD_TECH_QUESTION" in extractedFields) {
+    if (extractedFields["CANDIATE_COMPLETED_THIRD_TECH_QUESTION"].toLowerCase().includes("yes")) {
+      third_tech_done = 1;
+    }
+    if (extractedFields["CANDIATE_COMPLETED_THIRD_TECH_QUESTION"].toLowerCase().includes("no")) {
+      third_tech_done = -1;
+    }
+  }
+
+  return { llm_output, start_interview, introduction_done, first_tech_done, second_tech_done, third_tech_done, reject_interview };
 };

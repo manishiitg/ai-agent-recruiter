@@ -21,13 +21,15 @@ export const question_to_ask_from_resume = async (resume: string, hiring_for_pro
     The questions should be specifically tailored to the candidate's work experiance and projects mentioned in his resume.
 
     Before providing the questions, please show your step-by-step reasoning and analysis of the resume that led you to select those questions. Provide this reasoning inside <SCRATCHPAD> tags.
-    Then, based on your analysis, generate 2 technical interview questions specifically tailored to assess the candidate's proficiency in the most important skills you identified from their resume. 
+    Then, based on your analysis, generate 3 technical interview questions specifically tailored to assess the candidate's proficiency in the most important skills you identified from their resume. 
+
+    The 3 question should be the most difficult question.
 
     For each question, also provide an example of how the candidate might answer or what a correct answer might contain, inside <EXPECTED_ANSWER_#> tags.
     The answers should not contain any code, but rather should be explained as a candidate might answer over a phone call. 
     Provide clear, detailed and technical answers.
 
-    Then, output each of the 2 questions inside its own XML tags, like this:
+    Then, output each of the 3 questions inside its own XML tags, like this:
     Respond with your full output in this XML format:
     <RESPONSE>            
         <SCRATCHPAD>your step by step reasoning</SCRATCHPAD>
@@ -44,6 +46,13 @@ export const question_to_ask_from_resume = async (resume: string, hiring_for_pro
         <EXPECTED_ANSWER_2>
         Expected answer for question2
         </EXPECTED_ANSWER_2>
+
+        <QUESTION3>
+        Question 3 text 
+        </QUESTION3>
+        <EXPECTED_ANSWER_3>
+        Expected answer for question3
+        </EXPECTED_ANSWER_3>
     </RESPONSE>   
 
     Remember, the questions should assess the key technical competencies based on candidates projects/work experiance mentioned in resume and required for a ${
@@ -76,5 +85,8 @@ export const question_to_ask_from_resume = async (resume: string, hiring_for_pro
   const QUESTION2 = jObj["RESPONSE"]["QUESTION2"];
   const EXPECTED_ANSWER_2 = jObj["RESPONSE"]["EXPECTED_ANSWER_2"];
 
-  return { SCRATCHPAD, QUESTION1, QUESTION2, EXPECTED_ANSWER_1, EXPECTED_ANSWER_2 };
+  const QUESTION3 = jObj["RESPONSE"]["QUESTION3"];
+  const EXPECTED_ANSWER_3 = jObj["RESPONSE"]["EXPECTED_ANSWER_3"];
+
+  return { SCRATCHPAD, QUESTION1, QUESTION2, EXPECTED_ANSWER_1, EXPECTED_ANSWER_2, QUESTION3, EXPECTED_ANSWER_3 };
 };
