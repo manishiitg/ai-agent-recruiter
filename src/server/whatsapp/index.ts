@@ -334,9 +334,9 @@ const schedule_message_to_be_processed = async (fromNumber: string, cred: WhatsA
         (async () => {
           console.log("repling through callback");
           const response = await send_whatsapp_text_reply(reply, fromNumber, cred.phoneNo);
-          const { slack_thread_id } = await get_whatspp_conversations(fromNumber);
+          const { slack_thread_id, channel_id } = await get_whatspp_conversations(fromNumber);
           if (slack_thread_id) {
-            await postMessageToThread(slack_thread_id, `HR: ${reply}.`, process.env.slack_action_channel_id);
+            await postMessageToThread(slack_thread_id, `HR: ${reply}.`, channel_id || process.env.slack_action_channel_id);
           }
           const messageUuid = response.messageUuid;
           await save_whatsapp_conversation("agent", fromNumber, "text", reply, "", "");

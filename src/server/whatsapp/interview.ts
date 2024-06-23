@@ -164,7 +164,7 @@ export const callViaHuman = async (phoneNo: string, interview: Interview) => {
       await postMessageToThread(slack_thread_id, `Question1: ${interview.interview?.tech_questions?.question1}`, channel_id || process.env.slack_action_channel_id);
       await postMessageToThread(slack_thread_id, `Answer1: ${interview.interview?.tech_questions?.answer1}`, channel_id || process.env.slack_action_channel_id);
       await postMessageToThread(slack_thread_id, `Question2: ${interview.interview?.tech_questions?.question2}`, channel_id || process.env.slack_action_channel_id);
-      await postMessageToThread(slack_thread_id, `Answer2: ${interview.interview?.tech_questions?.answer2}`), channel_id || process.env.slack_action_channel_id;
+      await postMessageToThread(slack_thread_id, `Answer2: ${interview.interview?.tech_questions?.answer2}`, channel_id || process.env.slack_action_channel_id);
     } else {
       await postMessage(`HR Screening completed!`, channel_id || process.env.slack_action_channel_id);
     }

@@ -97,7 +97,7 @@ async function postMessageToSlack(token: string, channel: string, text: string):
   return response.data.ts; // Timestamp of the message
 }
 
-export async function postMessageToThread(messageTs: string, text: string, channel_id?: string, reply_broadcast = false) {
+export async function postMessageToThread(messageTs: string, text: string, channel_id: string, reply_broadcast = false) {
   try {
     const token = process.env.slack_token ? process.env.slack_token : "";
     let channel = process.env.slack_channel_id ? process.env.slack_channel_id : "";

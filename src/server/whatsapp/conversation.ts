@@ -302,12 +302,19 @@ export const callViaHuman = async (candidate: Candidate, creds: WhatsAppCreds, p
       await update_slack_thread_id_for_conversion(phoneNo, slack_thread_id, slack_action_channel_id);
     } else {
       let { slack_thread_id } = await get_whatspp_conversations(phoneNo);
-      if (slack_thread_id) {
-        await postMessageToThread(slack_thread_id, `call the candidate ${candidate.id} for job profile ${candidate.conversation?.shortlisted?.job_profile}`, process.env.slack_action_channel_id, true);
-      } else {
-        slack_thread_id = await postMessage(`call the candidate ${candidate.id} for job profile ${candidate.conversation?.shortlisted?.job_profile}`, process.env.slack_action_channel_id);
+      if (process.env.slack_action_channel_id) {
+        if (slack_thread_id) {
+          await postMessageToThread(
+            slack_thread_id,
+            `call the candidate ${candidate.id} for job profile ${candidate.conversation?.shortlisted?.job_profile}`,
+            process.env.slack_action_channel_id,
+            true
+          );
+        } else {
+          slack_thread_id = await postMessage(`call the candidate ${candidate.id} for job profile ${candidate.conversation?.shortlisted?.job_profile}`, process.env.slack_action_channel_id);
+        }
+        if (process.env.slack_action_channel_id) await postMessageToThread(slack_thread_id, context, process.env.slack_action_channel_id);
       }
-      await postMessageToThread(slack_thread_id, context, process.env.slack_action_channel_id);
     }
   }
 };
