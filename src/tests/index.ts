@@ -2,6 +2,7 @@ import sortBy from "lodash/sortBy";
 import {
   get_whatspp_conversations,
   getCandidateDetailsFromDB,
+  getInterviewCandidates,
   getInterviewRemainder,
   getPendingNotCompletedCandidates,
   getSlackTsRead,
@@ -18,26 +19,32 @@ import { getLatestMessagesFromThread } from "../communication/slack";
 (async () => {
   // there is a bug. for ph: 916309891039. he is uploaded his resume but for some reason we havne't processed it so he is stuck in stage New
 
-  const ph = "917871693540";
-  // const candidate = await getCandidateDetailsFromDB(ph)
-  const { slack_thread_id, channel_id } = await get_whatspp_conversations(ph);
-  console.log("channel_id", channel_id);
-  const msgs = await getLatestMessagesFromThread(channel_id, slack_thread_id, 100);
+  const candidates = await getInterviewCandidates();
 
-  for (const msg of msgs) {
-    const text = msg.text;
-    if (text.includes(process.env.bot_user_id || "<@U017T6CK4ET>")) {
-      console.log(msg);
-      console.log("got msg to be sent to user!");
-      if (msg.bot_id) {
-        if (await getSlackTsRead(msg.bot_id)) {
-          //post this msg to user via whatsapp
-          console.log("12313");
-          await saveSlackTsRead(msg.bot_id);
+  for (const candidate of candidates) {
+    const ph = candidate.unique_id;
+    // const candidate = await getCandidateDetailsFromDB(ph)
+    const { slack_thread_id, channel_id } = await get_whatspp_conversations(ph);
+    if (slack_thread_id && channel_id) {
+      const msgs = await getLatestMessagesFromThread(channel_id, slack_thread_id, 100);
+
+      for (const msg of msgs) {
+        const text = msg.text;
+        if (text.includes(process.env.bot_user_id || "<@U017T6CK4ET>")) {
+          console.log(msg);
+          console.log("got msg to be sent to user!");
+          if (msg.bot_id) {
+            if (await getSlackTsRead(msg.bot_id)) {
+              //post this msg to user via whatsapp
+              console.log("12313");
+              // await saveSlackTsRead(msg.bot_id);
+            }
+          }
         }
       }
     }
   }
+  console.log("completed!");
 
   // const interview_remainder = await getInterviewRemainder();
   // console.log("interview_remainder", interview_remainder.length);

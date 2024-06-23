@@ -355,6 +355,7 @@ export async function getLatestMessagesFromThread(channelId: string, ts: string,
     channel: channelId,
     ts: ts,
     inclusive: true,
+    count: count,
   };
   const serializedData = qs.stringify(data);
 
@@ -380,7 +381,7 @@ export async function getLatestMessagesFromThread(channelId: string, ts: string,
         };
       });
     } else {
-      throw new Error(`Error fetching messages: ${response.data.error}`);
+      throw new Error(`Error fetching messages: ${response.data.error} ${channelId} ${ts}`);
     }
   } catch (error) {
     console.error("Error:", error);
