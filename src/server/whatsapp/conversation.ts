@@ -11,14 +11,18 @@ import {
   CONV_CLASSIFY_WISHES_PREFIX,
   extractInfo,
 } from "../../agent/recruiter/extract_info";
-import { get_whatspp_conversations, getCandidateDetailsFromDB, saveCandidateConversationDebugInfoToDB, saveCandidateDetailsToDB } from "../../db/mongo";
-import { Candidate, WhatsAppCreds } from "../../db/types";
+import { get_whatspp_conversations, getCandidateDetailsFromDB, saveCandidateConversationDebugInfoToDB, saveCandidateDetailsToDB, update_slack_thread_id_for_conversion } from "../../db/mongo";
+import { Candidate, WhatsAppConversaion, WhatsAppCreds } from "../../db/types";
 import { summariseResume } from "../../agent/prompts/summary_resume_prompt";
 import { transitionStage } from "../../agent/recruiter/transitions";
 import { ConversationMessage } from "../../agent/recruiter/types/conversation";
 import { askOptionsFromConsole } from "../../communication/console";
 import { rate_resume, shortlist } from "../../agent/prompts/shortlist_prompt";
-import { postMessage, postMessageToThread } from "../../communication/slack";
+import { postAttachment, postMessage, postMessageToThread } from "../../communication/slack";
+import sortBy from "lodash/sortBy";
+import { downloadFile } from "./util";
+import path from "path";
+import { existsSync, mkdirSync } from "fs";
 
 export const getCandidate = async (phoneNo: string) => {
   let candidate: Candidate;
@@ -264,24 +268,37 @@ export const callViaHuman = async (candidate: Candidate, creds: WhatsAppCreds, p
   // context += `Shortlist Reason ${candidate.conversation?.shortlisted?.llm_response} \n`;
   if (creds) context += `Whatsapp Account ${creds.name}`;
 
-  let slack_action_channel_id = process.env.slack_action_channel_id;
+  let slack_action_channel_id = process.env.slack_final_action_channel_id || process.env.slack_action_channel_id;
   if (slack_action_channel_id) {
     if (candidate.conversation && candidate.conversation.resume) {
       const ratingReply = await rate_resume(candidate.id, candidate.conversation);
 
-      let { slack_thread_id } = await get_whatspp_conversations(phoneNo);
-      if (slack_thread_id) {
-        await postMessageToThread(
-          slack_thread_id,
-          `call the candidate ${candidate.id} for job profile ${candidate.conversation?.shortlisted?.job_profile} Resume Rating ${ratingReply.rating}`,
-          process.env.slack_action_channel_id,
-          true
-        );
-      } else {
-        slack_thread_id = await postMessage(`call the candidate ${candidate.id} for job profile ${candidate.conversation?.shortlisted?.job_profile}`, process.env.slack_action_channel_id);
+      let { conversation } = await get_whatspp_conversations(phoneNo);
+      const sortedConversation = sortBy(conversation, (conv: WhatsAppConversaion) => {
+        return conv.created_at;
+      });
+
+      const msg = `call the candidate ${candidate.id} for job profile ${candidate.conversation?.shortlisted?.job_profile} Resume Rating ${ratingReply.rating}`;
+
+      const slack_thread_id = await postMessage(msg, slack_action_channel_id);
+      for (const conv of sortedConversation) {
+        if (conv.messageType == "media" && conv.body) {
+          if ("Media0" in conv.body) {
+            const resume_path = path.join(process.env.dirname ? process.env.dirname : "", phoneNo);
+            if (!existsSync(resume_path)) {
+              mkdirSync(resume_path, { recursive: true });
+            }
+            let resume_file = path.join(resume_path, `${phoneNo}_resume.pdf`);
+            await downloadFile(conv.body.Media0, resume_file);
+            await postAttachment(resume_file, slack_action_channel_id, slack_thread_id);
+          }
+        } else {
+          await postMessageToThread(slack_thread_id, `${conv.userType == "agent" ? "HR" : `${phoneNo}`}:  ${conv.content} `, slack_action_channel_id);
+        }
       }
       // context += `Rating Reason ${ratingReply.reason}`;
-      await postMessageToThread(slack_thread_id, context, process.env.slack_action_channel_id);
+      await postMessageToThread(slack_thread_id, context, slack_action_channel_id);
+      await update_slack_thread_id_for_conversion(phoneNo, slack_thread_id, slack_action_channel_id);
     } else {
       let { slack_thread_id } = await get_whatspp_conversations(phoneNo);
       if (slack_thread_id) {

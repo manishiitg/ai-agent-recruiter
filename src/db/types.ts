@@ -15,7 +15,7 @@ export interface WhatsAppConversaion {
   messageType: string;
   content: string;
   uid: string;
-  body: string;
+  body: any;
   created_at: Date;
   userType: "agent" | "candidate";
 }

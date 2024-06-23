@@ -74,12 +74,12 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
           await send_whatsapp_text_reply("DEBUG: YOUR CONVERSION HISTORY IS DELETED. START FRESH!.", fromNumber, cred.phoneNo);
         } else {
           await save_whatsapp_conversation("candidate", fromNumber, ContentType, text, MessageUUID, req.body);
-          const { slack_thread_id } = await get_whatspp_conversations(fromNumber);
+          const { slack_thread_id, channel_id } = await get_whatspp_conversations(fromNumber);
           if (slack_thread_id) {
-            await postMessageToThread(slack_thread_id, `${fromNumber}: ${text}. Time: ${time}`, process.env.slack_action_channel_id);
+            await postMessageToThread(slack_thread_id, `${fromNumber}: ${text}. Time: ${time}`, channel_id || process.env.slack_action_channel_id);
           } else {
-            const ts = await postMessage(`${fromNumber}: ${text}. Time: ${time}`, process.env.slack_action_channel_id);
-            await update_slack_thread_id_for_conversion(fromNumber, ts);
+            const ts = await postMessage(`${fromNumber}: ${text}. Time: ${time}`, channel_id || process.env.slack_action_channel_id);
+            await update_slack_thread_id_for_conversion(fromNumber, ts, channel_id || process.env.slack_action_channel_id);
           }
 
           if (queue[fromNumber]) {
@@ -87,12 +87,9 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
               console.log("cancelling previous timeout!");
               clearTimeout(queue[fromNumber].ts);
               queue[fromNumber] = {
-                ts: setTimeout(
-                  () => {
-                    schedule_message_to_be_processed(fromNumber, cred);
-                  },
-                  (fromNumber === "919717071555" ? 5 : DEBOUNCE_TIMEOUT) * 1000
-                ),
+                ts: setTimeout(() => {
+                  schedule_message_to_be_processed(fromNumber, cred);
+                }, (fromNumber === "919717071555" ? 5 : DEBOUNCE_TIMEOUT) * 1000),
                 status: "PENDING",
               };
             } else {
@@ -130,13 +127,13 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
               const resume_file = path.join(resume_path, `${fromNumber}_${interviewObj.interview?.stage}_audio.ogg`);
               await downloadFile(Media0, resume_file);
 
-              const { slack_thread_id } = await get_whatspp_conversations(fromNumber);
+              const { slack_thread_id, channel_id } = await get_whatspp_conversations(fromNumber);
               if (slack_thread_id) {
-                await postAttachment(resume_file, process.env.slack_action_channel_id, slack_thread_id);
+                await postAttachment(resume_file, channel_id || process.env.slack_action_channel_id, slack_thread_id);
               } else {
-                const ts = await postMessage(`${fromNumber}: Attachment . Time: ${time}`, process.env.slack_action_channel_id);
-                await update_slack_thread_id_for_conversion(fromNumber, ts);
-                await postAttachment(resume_file, process.env.slack_action_channel_id, ts);
+                const ts = await postMessage(`${fromNumber}: Attachment . Time: ${time}`, channel_id || process.env.slack_action_channel_id);
+                await update_slack_thread_id_for_conversion(fromNumber, ts, channel_id || process.env.slack_action_channel_id);
+                await postAttachment(resume_file, channel_id || process.env.slack_action_channel_id, ts);
               }
 
               queue[fromNumber] = {
@@ -161,13 +158,13 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
             const resume_file = path.join(resume_path, "resume.pdf");
             await downloadFile(Media0, resume_file);
 
-            const { slack_thread_id } = await get_whatspp_conversations(fromNumber);
+            const { slack_thread_id, channel_id } = await get_whatspp_conversations(fromNumber);
             if (slack_thread_id) {
-              await postAttachment(resume_file, process.env.slack_action_channel_id, slack_thread_id);
+              await postAttachment(resume_file, channel_id || process.env.slack_action_channel_id, slack_thread_id);
             } else {
-              const ts = await postMessage(`${fromNumber}: Attachment . Time: ${time}`, process.env.slack_action_channel_id);
-              await update_slack_thread_id_for_conversion(fromNumber, ts);
-              await postAttachment(resume_file, process.env.slack_action_channel_id, ts);
+              const ts = await postMessage(`${fromNumber}: Attachment . Time: ${time}`, channel_id || process.env.slack_action_channel_id);
+              await update_slack_thread_id_for_conversion(fromNumber, ts, channel_id || process.env.slack_action_channel_id);
+              await postAttachment(resume_file, channel_id || process.env.slack_action_channel_id, ts);
             }
 
             // Extract text from the file
@@ -207,7 +204,7 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
                   status: "PENDING",
                 };
               } else {
-                // TODO. need to handle this. user has sent another message in between of process. 
+                // TODO. need to handle this. user has sent another message in between of process.
                 // conversation are not valid any. can we cancel and restart?
                 console.log("previous msg processing started so not queueing again!");
               }
@@ -284,6 +281,10 @@ const schedule_message_to_be_processed = async (fromNumber: string, cred: WhatsA
         (async () => {
           console.log("repling through callback");
           const response = await send_whatsapp_text_reply(reply, fromNumber, cred.phoneNo);
+          const { slack_thread_id } = await get_whatspp_conversations(fromNumber);
+          if (slack_thread_id) {
+            await postMessageToThread(slack_thread_id, `HR: ${reply}.`, process.env.slack_action_channel_id);
+          }
           const messageUuid = response.messageUuid;
           await save_whatsapp_conversation("agent", fromNumber, "text", reply, "", "");
           await add_whatsapp_message_sent_delivery_report(fromNumber, reply, "text", messageUuid);
@@ -299,11 +300,12 @@ const schedule_message_to_be_processed = async (fromNumber: string, cred: WhatsA
     await save_whatsapp_conversation("agent", fromNumber, "text", agentReply.message, "", "");
     await add_whatsapp_message_sent_delivery_report(fromNumber, agentReply.message, "text", messageUuid);
 
+    const { slack_thread_id, channel_id } = await get_whatspp_conversations(fromNumber);
     if (slack_thread_id) {
-      await postMessageToThread(slack_thread_id, `HR: ${agentReply.message}. Action: ${agentReply.action} Stage: ${agentReply.stage}`, process.env.slack_action_channel_id);
+      await postMessageToThread(slack_thread_id, `HR: ${agentReply.message}. Action: ${agentReply.action} Stage: ${agentReply.stage}`, channel_id || process.env.slack_action_channel_id);
     } else {
-      const ts = await postMessage(`HR: ${agentReply.message}. Action: ${agentReply.action} Stage: ${agentReply.stage}`, process.env.slack_action_channel_id);
-      await update_slack_thread_id_for_conversion(fromNumber, ts);
+      const ts = await postMessage(`HR: ${agentReply.message}. Action: ${agentReply.action} Stage: ${agentReply.stage}`, channel_id || process.env.slack_action_channel_id);
+      await update_slack_thread_id_for_conversion(fromNumber, ts, channel_id || process.env.slack_action_channel_id);
     }
   } else {
     console.log("debug!");
@@ -333,7 +335,7 @@ const remind_candidates = async (remainders: boolean) => {
 
       console.log(candidate.unique_id);
       const fromNumber = candidate.unique_id;
-      const { slack_thread_id, conversation } = await get_whatspp_conversations(fromNumber);
+      const { conversation } = await get_whatspp_conversations(fromNumber);
       const sortedConversation = sortBy(conversation, (conv: WhatsAppConversaion) => {
         return conv.created_at;
       });
@@ -370,11 +372,16 @@ const remind_candidates = async (remainders: boolean) => {
           await save_whatsapp_conversation("agent", fromNumber, "text", agentReply.message, "", "");
           await add_whatsapp_message_sent_delivery_report(fromNumber, agentReply.message, "text", messageUuid);
 
+          const { slack_thread_id, channel_id } = await get_whatspp_conversations(fromNumber);
           if (slack_thread_id) {
-            await postMessageToThread(slack_thread_id, `HR: ${agentReply.message}. Action: ${agentReply.action} Stage: ${agentReply.stage}: Remainder`, process.env.slack_action_channel_id);
+            await postMessageToThread(
+              slack_thread_id,
+              `HR: ${agentReply.message}. Action: ${agentReply.action} Stage: ${agentReply.stage}: Remainder`,
+              channel_id || process.env.slack_action_channel_id
+            );
           } else {
-            const ts = await postMessage(`HR: ${agentReply.message}. Action: ${agentReply.action} Stage: ${agentReply.stage}: Remainder`, process.env.slack_action_channel_id);
-            await update_slack_thread_id_for_conversion(fromNumber, ts);
+            const ts = await postMessage(`HR: ${agentReply.message}. Action: ${agentReply.action} Stage: ${agentReply.stage}: Remainder`, channel_id || process.env.slack_action_channel_id);
+            await update_slack_thread_id_for_conversion(fromNumber, ts, channel_id || process.env.slack_action_channel_id);
           }
         }
         await updateRemainderSent(fromNumber);

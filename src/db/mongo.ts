@@ -73,13 +73,13 @@ export const get_whatspp_conversations = async (from: string) => {
     from: from,
   });
   if (doc) {
-    return { slack_thread_id: doc.slack_thread_id, conversation: doc.conversation as WhatsAppConversaion[] };
+    return { slack_thread_id: doc.slack_thread_id, channel_id: doc.channel_id, conversation: doc.conversation as WhatsAppConversaion[] };
   } else {
     return { slack_thread_id: undefined, conversation: [] };
   }
 };
 
-export const update_slack_thread_id_for_conversion = async (from: string, thread_ts: string) => {
+export const update_slack_thread_id_for_conversion = async (from: string, thread_ts: string, channel_id: string) => {
   const client = await connectDB();
   const db = client.db("whatsapp");
   const collection = db.collection("conversation");
@@ -88,6 +88,7 @@ export const update_slack_thread_id_for_conversion = async (from: string, thread
     {
       $set: {
         slack_thread_id: thread_ts,
+        channel_id,
       },
     },
     { upsert: true }
