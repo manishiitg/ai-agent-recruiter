@@ -99,13 +99,7 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
               };
             } else {
               console.log("previous msg processing started so not queueing again!");
-              queue[fromNumber] = {
-                ts: setTimeout(() => {
-                  schedule_message_to_be_processed(fromNumber, cred);
-                }, (fromNumber === ADMIN_PHNO ? 5 : DEBOUNCE_TIMEOUT) * 1000),
-                status: "RUNNING",
-                canDelete: false,
-              };
+              queue[fromNumber].canDelete = false;
             }
           } else {
             console.log("scheduling queue");
@@ -177,13 +171,7 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
                 // TODO. need to handle this. user has sent another message in between of process.
                 // conversation are not valid any. can we cancel and restart?
                 console.log("previous msg processing started so not queueing again!");
-                queue[fromNumber] = {
-                  ts: setTimeout(() => {
-                    schedule_message_to_be_processed(fromNumber, cred);
-                  }, (fromNumber === ADMIN_PHNO ? 5 : DEBOUNCE_TIMEOUT) * 1000),
-                  status: "RUNNING",
-                  canDelete: false,
-                };
+                queue[fromNumber].canDelete = false;
               }
             } else {
               queue[fromNumber] = {
@@ -264,13 +252,7 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
                 // TODO. need to handle this. user has sent another message in between of process.
                 // conversation are not valid any. can we cancel and restart?
                 console.log("previous msg processing started so not queueing again!");
-                queue[fromNumber] = {
-                  ts: setTimeout(() => {
-                    schedule_message_to_be_processed(fromNumber, cred);
-                  }, (fromNumber === ADMIN_PHNO ? 5 : DEBOUNCE_TIMEOUT) * 1000),
-                  status: "RUNNING",
-                  canDelete: false,
-                };
+                queue[fromNumber].canDelete = false;
               }
             } else {
               queue[fromNumber] = {
@@ -381,7 +363,18 @@ export const schedule_message_to_be_processed = async (fromNumber: string, cred:
   } else {
     console.log("debug!");
   }
-  if (queue[fromNumber] && queue[fromNumber].canDelete) delete queue[fromNumber];
+  if (queue[fromNumber] && queue[fromNumber].canDelete) {
+    delete queue[fromNumber];
+  } else {
+    //when we get resume/text when previous message is already processing, we set canDelete = false
+    queue[fromNumber] = {
+      ts: setTimeout(() => {
+        schedule_message_to_be_processed(fromNumber, cred);
+      }, (fromNumber === ADMIN_PHNO ? 5 : DEBOUNCE_TIMEOUT) * 1000),
+      status: "PENDING",
+      canDelete: true,
+    };
+  }
 };
 
 export const whatsapp_callback = async (req: Request, res: Response) => {
