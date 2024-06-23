@@ -47,7 +47,7 @@ export const getCandidate = async (phoneNo: string) => {
         process_message: `${new Date().getTime()}`,
       },
     };
-    console.error("candidate mongo", error);
+    // console.error("candidate mongo", error);
   }
   await saveCandidateDetailsToDB(candidate);
   return candidate;

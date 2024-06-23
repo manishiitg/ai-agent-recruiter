@@ -249,7 +249,10 @@ const schedule_message_to_be_processed = async (fromNumber: string, cred: WhatsA
     action: string;
     stage: string;
   };
-  if (fromNumber == "919717071555") {
+
+  const candidateObj = await getCandidate(fromNumber);
+
+  if (candidateObj.conversation?.conversation_completed_reason == "got_shortlisted.do_call_via_human" && fromNumber == "919717071555") {
     agentReply = await conduct_interview(
       fromNumber,
       sortedConversation.map((conv) => {
