@@ -427,9 +427,6 @@ setInterval(() => {
   })();
 }, 1000 * 60 * 30); //30min
 
-remind_candidates(false);
-remind_candidates(true);
-
 const get_pending_hr_screening_candidates = async () => {
   const candidates = await getShortlistedCandidates();
   for (const candidate of candidates) {
@@ -445,3 +442,7 @@ const get_pending_hr_screening_candidates = async () => {
     }
   }
 };
+
+get_pending_hr_screening_candidates();
+remind_candidates(false);
+remind_candidates(true);
