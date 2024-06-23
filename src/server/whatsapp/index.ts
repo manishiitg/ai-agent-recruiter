@@ -127,56 +127,35 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
           if (req.body.MimeType.includes("audio")) {
             // TODO: audio files only accept when interview starts not before it
 
-            if (fromNumber == ADMIN_PHNO) {
-              const interviewObj = await getInterviewObject(fromNumber);
-              const resume_path = path.join(process.env.dirname ? process.env.dirname : "", fromNumber);
-              if (!existsSync(resume_path)) {
-                mkdirSync(resume_path, { recursive: true });
-              }
-              queue[fromNumber] = {
-                ts: setTimeout(() => {}, 1000),
-                status: "RUNNING",
-                canDelete: true,
-              };
+            const interviewObj = await getInterviewObject(fromNumber);
+            const resume_path = path.join(process.env.dirname ? process.env.dirname : "", fromNumber);
+            if (!existsSync(resume_path)) {
+              mkdirSync(resume_path, { recursive: true });
+            }
+            queue[fromNumber] = {
+              ts: setTimeout(() => {}, 1000),
+              status: "RUNNING",
+              canDelete: true,
+            };
 
-              const resume_file = path.join(resume_path, `${fromNumber}_${interviewObj.interview?.stage}_audio.ogg`);
-              await downloadFile(Media0, resume_file);
+            const resume_file = path.join(resume_path, `${fromNumber}_${interviewObj.interview?.stage}_audio.ogg`);
+            await downloadFile(Media0, resume_file);
 
-              const { slack_thread_id, channel_id } = await get_whatspp_conversations(fromNumber);
-              if (slack_thread_id) {
-                await postAttachment(resume_file, channel_id || process.env.slack_action_channel_id, slack_thread_id);
-              } else {
-                const ts = await postMessage(`${fromNumber}: Attachment . Time: ${time}`, channel_id || process.env.slack_action_channel_id);
-                await update_slack_thread_id_for_conversion(fromNumber, ts, channel_id || process.env.slack_action_channel_id);
-                await postAttachment(resume_file, channel_id || process.env.slack_action_channel_id, ts);
-              }
+            const { slack_thread_id, channel_id } = await get_whatspp_conversations(fromNumber);
+            if (slack_thread_id) {
+              await postAttachment(resume_file, channel_id || process.env.slack_action_channel_id, slack_thread_id);
+            } else {
+              const ts = await postMessage(`${fromNumber}: Attachment . Time: ${time}`, channel_id || process.env.slack_action_channel_id);
+              await update_slack_thread_id_for_conversion(fromNumber, ts, channel_id || process.env.slack_action_channel_id);
+              await postAttachment(resume_file, channel_id || process.env.slack_action_channel_id, ts);
+            }
 
-              await save_whatsapp_conversation("candidate", fromNumber, ContentType, "Please find attached my recording", MessageUUID, req.body);
+            await save_whatsapp_conversation("candidate", fromNumber, ContentType, "Please find attached my recording", MessageUUID, req.body);
 
-              if (queue[fromNumber]) {
-                if (queue[fromNumber].status == "PENDING") {
-                  console.log("cancelling previous timeout!");
-                  clearTimeout(queue[fromNumber].ts);
-                  queue[fromNumber] = {
-                    ts: setTimeout(() => {
-                      schedule_message_to_be_processed(fromNumber, cred);
-                    }, (fromNumber === ADMIN_PHNO ? 5 : DEBOUNCE_TIMEOUT) * 1000),
-                    status: "PENDING",
-                    canDelete: true,
-                  };
-                } else {
-                  // TODO. need to handle this. user has sent another message in between of process.
-                  // conversation are not valid any. can we cancel and restart?
-                  console.log("previous msg processing started so not queueing again!");
-                  queue[fromNumber] = {
-                    ts: setTimeout(() => {
-                      schedule_message_to_be_processed(fromNumber, cred);
-                    }, (fromNumber === ADMIN_PHNO ? 5 : DEBOUNCE_TIMEOUT) * 1000),
-                    status: "RUNNING",
-                    canDelete: false,
-                  };
-                }
-              } else {
+            if (queue[fromNumber]) {
+              if (queue[fromNumber].status == "PENDING") {
+                console.log("cancelling previous timeout!");
+                clearTimeout(queue[fromNumber].ts);
                 queue[fromNumber] = {
                   ts: setTimeout(() => {
                     schedule_message_to_be_processed(fromNumber, cred);
@@ -184,9 +163,26 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
                   status: "PENDING",
                   canDelete: true,
                 };
+              } else {
+                // TODO. need to handle this. user has sent another message in between of process.
+                // conversation are not valid any. can we cancel and restart?
+                console.log("previous msg processing started so not queueing again!");
+                queue[fromNumber] = {
+                  ts: setTimeout(() => {
+                    schedule_message_to_be_processed(fromNumber, cred);
+                  }, (fromNumber === ADMIN_PHNO ? 5 : DEBOUNCE_TIMEOUT) * 1000),
+                  status: "RUNNING",
+                  canDelete: false,
+                };
               }
             } else {
-              await send_whatsapp_text_reply("Only PDF Files are accepted.", fromNumber, cred.phoneNo);
+              queue[fromNumber] = {
+                ts: setTimeout(() => {
+                  schedule_message_to_be_processed(fromNumber, cred);
+                }, (fromNumber === ADMIN_PHNO ? 5 : DEBOUNCE_TIMEOUT) * 1000),
+                status: "PENDING",
+                canDelete: true,
+              };
             }
           } else if (req.body.MimeType.includes("pdf")) {
             const resume_path = path.join(process.env.dirname ? process.env.dirname : "", fromNumber);
@@ -307,7 +303,7 @@ const schedule_message_to_be_processed = async (fromNumber: string, cred: WhatsA
 
   const candidateObj = await getCandidate(fromNumber);
 
-  if (candidateObj.conversation?.conversation_completed_reason == "got_shortlisted.do_call_via_human") {
+  if (candidateObj.conversation?.conversation_completed_reason === "got_shortlisted.do_call_via_human") {
     agentReply = await conduct_interview(
       fromNumber,
       sortedConversation.map((conv) => {

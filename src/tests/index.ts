@@ -10,7 +10,7 @@ import { conduct_interview } from "../server/whatsapp/interview";
 
   // there is a bug. for ph: 916309891039. he is uploaded his resume but for some reason we havne't processed it so he is stuck in stage New
 
-  const fromNumber = "919717071555";
+  const fromNumber = "919919350969";
 
   // await save_whatsapp_conversation("candidate", fromNumber, "text", `i am ready for the next question`, "", {});
 
