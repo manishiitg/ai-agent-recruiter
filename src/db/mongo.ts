@@ -274,7 +274,6 @@ export async function getPendingNotCompletedCandidates(remainders: boolean) {
           },
         }
       )
-      .limit(50)
       .toArray();
   } else {
     return await db

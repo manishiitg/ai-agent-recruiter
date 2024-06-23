@@ -383,7 +383,7 @@ export const whatsapp_callback = async (req: Request, res: Response) => {
 
 const remind_candidates = async (remainders: boolean) => {
   const candidates = await getPendingNotCompletedCandidates(remainders);
-  console.log(candidates.length);
+  console.log("getPendingNotCompletedCandidates", candidates.length);
   for (const candidate of candidates) {
     console.log(convertToIST(candidate.conversation.started_at));
     const date = convertToIST(candidate.conversation.started_at) as Date;
@@ -429,6 +429,7 @@ setInterval(() => {
 
 const get_pending_hr_screening_candidates = async () => {
   const candidates = await getShortlistedCandidates();
+  console.log("get_pending_hr_screening_candidates", candidates.length);
   for (const candidate of candidates) {
     const unique_id = candidate.unique_id;
     if (!(await isInterviewStarted(unique_id))) {
