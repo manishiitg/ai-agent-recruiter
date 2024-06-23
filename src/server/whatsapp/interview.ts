@@ -183,13 +183,13 @@ export const callViaHuman = async (phoneNo: string, interview: Interview) => {
   if (slack_action_channel_id) {
     let { slack_thread_id, channel_id } = await get_whatspp_conversations(phoneNo);
     if (slack_thread_id) {
-      await postMessageToThread(slack_thread_id, `HR Screening completed!`, channel_id || process.env.slack_action_channel_id, true);
       await postMessageToThread(slack_thread_id, `Question1: ${interview.interview?.tech_questions?.question1}`, channel_id || process.env.slack_action_channel_id);
       await postMessageToThread(slack_thread_id, `Answer1: ${interview.interview?.tech_questions?.answer1}`, channel_id || process.env.slack_action_channel_id);
       await postMessageToThread(slack_thread_id, `Question2: ${interview.interview?.tech_questions?.question2}`, channel_id || process.env.slack_action_channel_id);
       await postMessageToThread(slack_thread_id, `Answer2: ${interview.interview?.tech_questions?.answer2}`, channel_id || process.env.slack_action_channel_id);
       await postMessageToThread(slack_thread_id, `Question3: ${interview.interview?.tech_questions?.question3}`, channel_id || process.env.slack_action_channel_id);
       await postMessageToThread(slack_thread_id, `Answer3: ${interview.interview?.tech_questions?.answer3}`, channel_id || process.env.slack_action_channel_id);
+      await postMessageToThread(slack_thread_id, `HR Screening completed!`, channel_id || process.env.slack_action_channel_id, true);
     } else {
       await postMessage(`HR Screening completed!`, channel_id || process.env.slack_action_channel_id);
     }
