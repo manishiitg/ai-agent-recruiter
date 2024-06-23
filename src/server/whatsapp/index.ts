@@ -87,9 +87,12 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
               console.log("cancelling previous timeout!");
               clearTimeout(queue[fromNumber].ts);
               queue[fromNumber] = {
-                ts: setTimeout(() => {
-                  schedule_message_to_be_processed(fromNumber, cred);
-                }, DEBOUNCE_TIMEOUT * 1000),
+                ts: setTimeout(
+                  () => {
+                    schedule_message_to_be_processed(fromNumber, cred);
+                  },
+                  (fromNumber === "919717071555" ? 5 : DEBOUNCE_TIMEOUT) * 1000
+                ),
                 status: "PENDING",
               };
             } else {
@@ -100,7 +103,7 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
             queue[fromNumber] = {
               ts: setTimeout(() => {
                 schedule_message_to_be_processed(fromNumber, cred);
-              }, DEBOUNCE_TIMEOUT * 1000),
+              }, (fromNumber === "919717071555" ? 5 : DEBOUNCE_TIMEOUT) * 1000),
               status: "PENDING",
             };
           }
@@ -139,7 +142,7 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
               queue[fromNumber] = {
                 ts: setTimeout(() => {
                   schedule_message_to_be_processed(fromNumber, cred);
-                }, DEBOUNCE_TIMEOUT * 1000),
+                }, (fromNumber === "919717071555" ? 5 : DEBOUNCE_TIMEOUT) * 1000),
                 status: "PENDING",
               };
             } else {
@@ -200,7 +203,7 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
                 queue[fromNumber] = {
                   ts: setTimeout(() => {
                     schedule_message_to_be_processed(fromNumber, cred);
-                  }, DEBOUNCE_TIMEOUT * 1000),
+                  }, (fromNumber === "919717071555" ? 5 : DEBOUNCE_TIMEOUT) * 1000),
                   status: "PENDING",
                 };
               } else {
@@ -210,7 +213,7 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
               queue[fromNumber] = {
                 ts: setTimeout(() => {
                   schedule_message_to_be_processed(fromNumber, cred);
-                }, DEBOUNCE_TIMEOUT * 1000),
+                }, (fromNumber === "919717071555" ? 5 : DEBOUNCE_TIMEOUT) * 1000),
                 status: "PENDING",
               };
             }
