@@ -1,7 +1,9 @@
 import ffmpeg from "fluent-ffmpeg";
-import { join, resolve } from "path";
 import { createReadStream, createWriteStream } from "fs";
-import { reject } from "lodash";
+
+import { createRequire } from "module";
+// @ts-ignore
+const require = createRequire(import.meta.url);
 
 // Ensure the path to ffmpeg is set correctly
 const ffmpegPath = require("@ffmpeg-installer/ffmpeg").path;
