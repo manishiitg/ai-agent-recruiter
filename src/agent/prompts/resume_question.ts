@@ -1,7 +1,7 @@
 import { parseStringPromise } from "xml2js";
 import { callDeepkSeek, DEEP_SEEK_V2_CODER } from "./../../llms/deepkseek";
 
-export const question_to_ask_from_resume = async (resume: string, hiring_for_profile: string) => {
+export const question_to_ask_from_resume = async (resume: string, hiring_for_profile: string, job_criteria: string) => {
   let llm_output = "";
 
   const prompt = `Here is the resume of a candidate for a ${hiring_for_profile.length ? `${hiring_for_profile}` : "software development role"}:
@@ -15,8 +15,10 @@ export const question_to_ask_from_resume = async (resume: string, hiring_for_pro
     Then, based on your analysis of the resume, please generate 3 technical interview questions that would allow you to assess the candidate's proficiency in the most important technical skills required for a ${
       hiring_for_profile.length ? `${hiring_for_profile}` : "software development"
     } role. 
-    The questions should be specifically tailored to the candidate's work experiance and projects mentioned in his resume.
 
+    ${job_criteria.length > 0 ? `Question should judge candidate on the critira <job_criteria>${job_criteria}</job_criteria>` : ""}
+
+    The questions should be specifically tailored to the candidate's work experiance and projects mentioned in his resume.
 
     Before providing the questions, please show your step-by-step reasoning and analysis of the resume that led you to select those questions. Provide this reasoning inside <SCRATCHPAD> tags.
     Then, based on your analysis, generate 3 technical interview questions specifically tailored to assess the candidate's proficiency in the most important skills you identified from their resume. 
@@ -61,7 +63,6 @@ export const question_to_ask_from_resume = async (resume: string, hiring_for_pro
 
   const QUESTION2 = jObj["RESPONSE"]["QUESTION2"];
   // const EXPECTED_ANSWER_2 = jObj["RESPONSE"]["EXPECTED_ANSWER_2"];
-
 
   return { QUESTION1, QUESTION2 };
 };

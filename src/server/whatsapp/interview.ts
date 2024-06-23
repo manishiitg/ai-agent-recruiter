@@ -8,6 +8,7 @@ import { extractInfo } from "../../agent/interviewer/extract_info";
 import { convertConversationToText } from "../../agent/interviewer/helper";
 import { transitionStage } from "../../agent/interviewer/transitions";
 import { question_to_ask_from_resume } from "../../agent/prompts/resume_question";
+import { linkedJobProfileRules } from "../../agent/recruiter/jobconfig";
 
 export const getInterviewObject = async (phoneNo: string) => {
   let interview: Interview;
@@ -114,7 +115,18 @@ export const conduct_interview = async (
   }
 
   if (interview.interview.stage == STAGE_TECH_QUES1 && !interview.interview.tech_questions) {
-    const questionsReply = await question_to_ask_from_resume(interview.interview.resume?.full_resume_text, interview.interview.info?.suitable_job_profile || "");
+    let job_criteria = "";
+    if (interview.interview.info?.suitable_job_profile) {
+      for (const k in linkedJobProfileRules) {
+        if (linkedJobProfileRules[k].is_open)
+          if (interview.interview.info?.suitable_job_profile.includes(k) || k == interview.interview.info?.suitable_job_profile) {
+            job_criteria += `Job Profile: ${k} \n Shortlisting Criteria: ${linkedJobProfileRules[k].full_criteria} \n\n`;
+            break;
+          }
+      }
+    }
+
+    const questionsReply = await question_to_ask_from_resume(interview.interview.resume?.full_resume_text, interview.interview.info?.suitable_job_profile || "", job_criteria);
     interview.interview.tech_questions = {
       question1: questionsReply.QUESTION1,
       question2: questionsReply.QUESTION2,
