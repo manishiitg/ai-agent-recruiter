@@ -19,9 +19,9 @@ import { getLatestMessagesFromThread, postAttachment, postMessage, postMessageTo
 import path from "path";
 import { existsSync, mkdirSync } from "fs";
 import { createRequire } from "module";
-import { send_whatsapp_text_reply } from "./plivo";
+import { send_whatsapp_text_reply } from "../../integrations/plivo";
 import { conduct_interview, getInterviewObject } from "./interview";
-import { converToMp3 } from "./mp3";
+import { converToMp3 } from "../../integrations/mp3";
 // @ts-ignore
 const require = createRequire(import.meta.url);
 var textract = require("textract");

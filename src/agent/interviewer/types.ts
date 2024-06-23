@@ -4,7 +4,7 @@ export interface Interview {
   id: string;
   interview?: {
     started_at: Date;
-    updated_at: Date; 
+    updated_at: Date;
     stage: string;
     info?: CandidateInfo;
     debug?: string[];
@@ -33,6 +33,21 @@ export interface Interview {
       answer2: string;
       question3: string;
       answer3: string;
+    };
+    transcribe?: [
+      {
+        uid: string;
+        text: string;
+      }
+    ];
+    transcribe_completed?: boolean;
+    interview_rating?: {
+      SCRATCHPAD: any;
+      COMMUNICATION_SKILLS_RATING: any;
+      HR_QUESTION_RATING: any;
+      TECH_QUESTION1_RATING: any;
+      TECH_QUESTION2_RATING: any;
+      TECH_QUESTION3_RATING: any;
     };
   };
 }

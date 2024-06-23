@@ -14,5 +14,5 @@ export const transribe_file = async (file_url: string) => {
   };
 
   const transcript = await client.transcripts.transcribe(data);
-  console.log(transcript.text);
+  return transcript;
 };

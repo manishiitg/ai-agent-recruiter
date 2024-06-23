@@ -460,3 +460,38 @@ export const getInterviewCandidates = async () => {
     )
     .toArray();
 };
+
+export const update_interview_transcript = async (ph: string, uid: string, text: string) => {
+  const client = await connectDB();
+  const db = client.db("whatsapp");
+  await db.collection("interviews").updateOne(
+    {
+      id: ph,
+    },
+    {
+      //@ts-ignore
+      $push: {
+        "interview.transcribe": {
+          uid: uid,
+          text,
+        },
+      },
+    }
+  );
+};
+
+export const update_interview_transcript_completed = async (ph: string) => {
+  const client = await connectDB();
+  const db = client.db("whatsapp");
+  const resp = await db.collection("interviews").updateOne(
+    {
+      id: ph,
+    },
+    {
+      $set: {
+        "interview.transcribe_completed": true,
+      },
+    }
+  );
+  console.log(resp);
+};

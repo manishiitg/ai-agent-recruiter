@@ -7,15 +7,19 @@ import {
   getPendingNotCompletedCandidates,
   getSlackTsRead,
   save_whatsapp_conversation,
+  saveCandidateInterviewToDB,
   saveSlackTsRead,
+  update_interview_transcript,
+  update_interview_transcript_completed,
   updateRemainderSent,
 } from "../db/mongo";
 import { WhatsAppConversaion, WhatsAppCreds } from "../db/types";
 import { getCandidate, process_whatsapp_conversation } from "../server/whatsapp/conversation";
 import { convertToIST, sleep } from "../server/whatsapp/util";
 import { conduct_interview, getInterviewObject } from "../server/whatsapp/interview";
-import { getLatestMessagesFromThread } from "../communication/slack";
-import { transribe_file } from "../server/whatsapp/assembly";
+import { getLatestMessagesFromThread, postMessageToThread } from "../communication/slack";
+import { transribe_file } from "../integrations/assembly";
+import { rate_interview } from "../agent/prompts/rate_interview";
 
 (async () => {
   // there is a bug. for ph: 916309891039. he is uploaded his resume but for some reason we havne't processed it so he is stuck in stage New
@@ -25,7 +29,7 @@ import { transribe_file } from "../server/whatsapp/assembly";
     const ph = candidate.unique_id;
 
     const inter = await getInterviewObject(ph);
-    if (inter.interview?.conversation_completed) {
+    if (inter.interview?.conversation_completed && !inter.interview.transcribe_completed) {
       const { conversation } = await get_whatspp_conversations(ph);
       const audioConversation = conversation.filter((conv) => {
         if (conv.messageType == "media" && conv.body) {
@@ -37,13 +41,54 @@ import { transribe_file } from "../server/whatsapp/assembly";
         }
         return false;
       });
+      // console.log("audioConversation", audioConversation.length);
+
+      let no_trans = 0;
       for (const conv of audioConversation) {
         if (conv.messageType == "media" && conv.body) {
-          const text = await transribe_file(conv.body.Media0);
-          console.log(text);
-          await sleep(10000000);
+          const idx = inter.interview.transcribe?.findIndex((file) => file.uid === conv.uid);
+          console.log("idx", idx, conv.uid);
+          if (idx == -1 || idx === undefined) {
+            const MessageUUID = conv.uid;
+            const text = await transribe_file(conv.body.Media0);
+            console.log("text", text.text);
+            console.log(ph);
+            if (text.text) {
+              await update_interview_transcript(ph, MessageUUID, text.text);
+              const { slack_thread_id, channel_id } = await get_whatspp_conversations(ph);
+              if (slack_thread_id) {
+                await postMessageToThread(slack_thread_id, `Transcription: ${text.text}.`, channel_id || process.env.slack_action_channel_id);
+                no_trans++;
+              }
+            }
+          } else {
+            no_trans++;
+          }
         }
       }
+      console.log("no_trans == audioConversation.length", no_trans, audioConversation.length);
+      if (no_trans == audioConversation.length && no_trans != 0) {
+        let inter = await getInterviewObject(ph);
+        await update_interview_transcript_completed(ph);
+        const interviewRating = await rate_interview(ph, inter);
+        if (inter.interview) {
+          inter.interview.interview_rating = interviewRating;
+        }
+        console.log(interviewRating);
+        await saveCandidateInterviewToDB(inter);
+        const { slack_thread_id, channel_id } = await get_whatspp_conversations(ph);
+        if (slack_thread_id) {
+          await postMessageToThread(
+            slack_thread_id,
+            `COMMUNICATION_SKILLS_RATING: ${interviewRating.COMMUNICATION_SKILLS_RATING} HR_QUESTION_RATING: ${interviewRating.HR_QUESTION_RATING} TECH_QUESTION1_RATING: ${interviewRating.TECH_QUESTION1_RATING} TECH_QUESTION2_RATING: ${interviewRating.TECH_QUESTION2_RATING} TECH_QUESTION3_RATING ${interviewRating.TECH_QUESTION3_RATING}`,
+            channel_id || process.env.slack_action_channel_id,
+            true
+          );
+          await postMessageToThread(slack_thread_id, `HR Interview Rating Reason: ${JSON.stringify(interviewRating.SCRATCHPAD)}`, channel_id || process.env.slack_action_channel_id);
+          no_trans++;
+        }
+      }
+      console.log("completed ph");
     }
   }
 

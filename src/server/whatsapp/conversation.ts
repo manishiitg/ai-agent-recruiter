@@ -17,12 +17,13 @@ import { summariseResume } from "../../agent/prompts/summary_resume_prompt";
 import { transitionStage } from "../../agent/recruiter/transitions";
 import { ConversationMessage } from "../../agent/recruiter/types/conversation";
 import { askOptionsFromConsole } from "../../communication/console";
-import { rate_resume, shortlist } from "../../agent/prompts/shortlist_prompt";
+import { shortlist } from "../../agent/prompts/shortlist_prompt";
 import { postAttachment, postMessage, postMessageToThread } from "../../communication/slack";
 import sortBy from "lodash/sortBy";
 import { downloadFile } from "./util";
 import path from "path";
 import { existsSync, mkdirSync } from "fs";
+import { rate_resume } from "../../agent/prompts/rate_resume";
 
 export const getCandidate = async (phoneNo: string) => {
   let candidate: Candidate;

@@ -65,7 +65,7 @@ export const STAGE_RULE_MAP: Record<
   got_resume: {
     ask_job_profile: {
       rule: "If candidate has not provided the job profile he is looking for and we don't have a suitable job profile",
-      response: "ask candidate about job profile he wants to apply for and tell him the open job profiles",
+      response: "ask candidate about job profile he wants to apply for and tell him the open job",
     },
     ask_ctc_location: {
       rule: "If candidate has not provided his expected CTC, we need to ask him",
