@@ -25,6 +25,7 @@ import { existsSync, mkdirSync } from "fs";
 import { createRequire } from "module";
 import { send_whatsapp_text_reply } from "./plivo";
 import { conduct_interview, getInterviewObject } from "./interview";
+import { converToMp3 } from "./mp3";
 // @ts-ignore
 const require = createRequire(import.meta.url);
 var textract = require("textract");
@@ -142,7 +143,6 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
 
             const resume_file = path.join(resume_path, `${fromNumber}_${interviewObj.interview?.stage}_audio.ogg`);
             await downloadFile(Media0, resume_file);
-
             const { slack_thread_id, channel_id } = await get_whatspp_conversations(fromNumber);
             if (slack_thread_id) {
               await postAttachment(resume_file, channel_id || process.env.slack_action_channel_id, slack_thread_id);
@@ -150,6 +150,14 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
               const ts = await postMessage(`${fromNumber}: Attachment . Time: ${time}`, channel_id || process.env.slack_action_channel_id);
               await update_slack_thread_id_for_conversion(fromNumber, ts, channel_id || process.env.slack_action_channel_id);
               await postAttachment(resume_file, channel_id || process.env.slack_action_channel_id, ts);
+            }
+            try {
+              const mp3_path = await converToMp3(resume_file);
+              if (slack_thread_id) {
+                await postAttachment(mp3_path, channel_id || process.env.slack_action_channel_id, slack_thread_id);
+              }
+            } catch (error) {
+              console.error(error);
             }
 
             await save_whatsapp_conversation("candidate", fromNumber, ContentType, "Please find attached my recording", MessageUUID, req.body);
@@ -404,7 +412,7 @@ const remind_candidates = async (remainders: boolean) => {
       }
 
       if (should_continue) {
-        await schedule_message_to_be_processed(fromNumber, cred);        
+        await schedule_message_to_be_processed(fromNumber, cred);
         await updateRemainderSent(fromNumber);
         await sleep(5000);
       }
@@ -434,7 +442,7 @@ const get_pending_hr_screening_candidates = async () => {
   console.log("interview_remainder", interview_remainder.length);
   for (const candidate of interview_remainder) {
     const unique_id = candidate.unique_id;
-    console.log(candidate)
+    console.log(candidate);
     console.log(convertToIST(candidate.interview.started_at));
     const date = convertToIST(candidate.interview.started_at) as Date;
     const now = convertToIST(new Date());
