@@ -33,5 +33,19 @@ Keep sending status to recrutiers on slack
 Agent Architecture
 ======================
 
-TODO
+Agent has a STATE (s) , STATE TRANSITION (s) and RULE (s)
+
+- Based on the conversation I extract certain key information regarding by agent using LLMs. this can be seen in extractInfo()
+
+- Based on this information, we do STATE Transition and move user to a specific state. these states can be seen in rule_map
+
+- For every state, based on the conversation there are rules defined which allow agent to generated specific output
+
+- Agent generates a specific output which is sent to the user and also generations an action
+
+- Based on the action I update state. 
+
+- User responds 
+
+- This LOOP is repeated
 
