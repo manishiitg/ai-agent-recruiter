@@ -207,6 +207,8 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
                   status: "PENDING",
                 };
               } else {
+                // TODO. need to handle this. user has sent another message in between of process. 
+                // conversation are not valid any. can we cancel and restart?
                 console.log("previous msg processing started so not queueing again!");
               }
             } else {

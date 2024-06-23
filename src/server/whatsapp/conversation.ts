@@ -264,7 +264,8 @@ export const callViaHuman = async (candidate: Candidate, creds: WhatsAppCreds, p
   // context += `Shortlist Reason ${candidate.conversation?.shortlisted?.llm_response} \n`;
   if (creds) context += `Whatsapp Account ${creds.name}`;
 
-  if (process.env.slack_action_channel_id) {
+  let slack_action_channel_id = process.env.slack_action_channel_id;
+  if (slack_action_channel_id) {
     if (candidate.conversation && candidate.conversation.resume) {
       const ratingReply = await rate_resume(candidate.id, candidate.conversation);
 
@@ -292,6 +293,3 @@ export const callViaHuman = async (candidate: Candidate, creds: WhatsAppCreds, p
     }
   }
 };
-
-
-
