@@ -12,7 +12,7 @@ import { conduct_interview } from "../server/whatsapp/interview";
 
   const fromNumber = "919717071555";
 
-  await save_whatsapp_conversation("candidate", fromNumber, "text", `i am ready for the next question`, "", {});
+  // await save_whatsapp_conversation("candidate", fromNumber, "text", `i am ready for the next question`, "", {});
 
   const { slack_thread_id, conversation } = await get_whatspp_conversations(fromNumber);
   const sortedConversation = sortBy(conversation, (conv: WhatsAppConversaion) => {
