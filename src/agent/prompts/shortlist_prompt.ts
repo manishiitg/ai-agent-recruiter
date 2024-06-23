@@ -13,7 +13,7 @@ export const rate_resume = async (profileID: string, conversationObj: Conversati
     for (const k in linkedJobProfileRules) {
       if (linkedJobProfileRules[k].is_open)
         if (classified_job_profile.includes(k) || k == classified_job_profile) {
-          job_description = linkedJobProfileRules[k].job_description;
+          job_description = linkedJobProfileRules[k].full_criteria;
           break;
         }
     }
