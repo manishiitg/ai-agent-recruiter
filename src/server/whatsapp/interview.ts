@@ -152,6 +152,13 @@ export const conduct_interview = async (
   let action = llm.action;
   let reply = llm.reply;
 
+  if (interview.interview.debug) {
+    interview.interview.debug.push(llm.output);
+  } else {
+    interview.interview.debug = [llm.output];
+  }
+  await saveCandidateInterviewToDB(interview);
+
   return { message: reply, action: action, stage: interview.interview?.stage || "" };
 };
 

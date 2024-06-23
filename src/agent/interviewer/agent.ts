@@ -14,6 +14,7 @@ export const generateConversationReply = async (
   action: string;
   reply: string;
   reason: string;
+  output: string;
 }> => {
   const stage = conversationObj.interview?.stage || STAGE_NEW;
   const actions_taken = conversationObj.interview?.actions_taken || [];
@@ -185,7 +186,7 @@ Remember to check all rules before selecting the final one, and ensure that your
   console.log("got final action", action);
   console.log("actions taken", actions_taken);
   console.log("got candidate stage", stage);
-  return { action, reply, reason };
+  return { action, reply, reason, output: llm_output };
 };
 
 export const get_context = (conversationObj: Interview) => {
