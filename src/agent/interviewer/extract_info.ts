@@ -20,9 +20,9 @@ export const extractInfo = async (
   1. CANDIDATE_ACCEPTED_INTERVIEW: if we have asked the candidate to conduct interview specifically on whatsapp and he is agreed to them same. Candidate would already have agreed to interview over phone, but need to check specifically for whatsapp.
   2. CANDIDATE_REJECTED_INTERVIEW: if doesn't want to do interview on whatsapp
   3. CANDIATE_COMPLETED_INTRODUCTION: if candidate has completed his introduction and sent his introduction recordingds on whatsapp
-  4. CANDIATE_COMPLETED_FIRST_TECH_QUESTION: if candidate has completed the first technical question asked
-  5. CANDIATE_COMPLETED_SECOND_TECH_QUESTION: if candidate has completed the second technical question asked
-  6. CANDIATE_COMPLETED_THIRD_TECH_QUESTION: if candidate has completed the third tehcnical question asked
+  4. CANDIATE_COMPLETED_FIRST_TECH_QUESTION: if candidate has sent audio recording the first technical question asked
+  5. CANDIATE_COMPLETED_SECOND_TECH_QUESTION: if candidate has sent audio recording for the second technical question asked
+  6. CANDIATE_COMPLETED_THIRD_TECH_QUESTION: if candidate has has sent audio recording the third tehcnical question asked
 
   mention "no" if information doesn't exist, don't make up any information outside the conversion
 
