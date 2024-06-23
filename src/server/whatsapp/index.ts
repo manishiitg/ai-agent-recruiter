@@ -147,20 +147,24 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
             const resume_file = path.join(resume_path, `${fromNumber}_${interviewObj.interview?.stage}_audio.ogg`);
             await downloadFile(Media0, resume_file);
             const { slack_thread_id, channel_id } = await get_whatspp_conversations(fromNumber);
-            if (slack_thread_id) {
-              await postAttachment(resume_file, channel_id || process.env.slack_action_channel_id, slack_thread_id);
-            } else {
-              const ts = await postMessage(`${fromNumber}: Attachment . Time: ${time}`, channel_id || process.env.slack_action_channel_id);
-              await update_slack_thread_id_for_conversion(fromNumber, ts, channel_id || process.env.slack_action_channel_id);
-              await postAttachment(resume_file, channel_id || process.env.slack_action_channel_id, ts);
-            }
             try {
               const mp3_path = await converToMp3(resume_file);
               if (slack_thread_id) {
                 await postAttachment(mp3_path, channel_id || process.env.slack_action_channel_id, slack_thread_id);
+              } else {
+                const ts = await postMessage(`${fromNumber}: Attachment . Time: ${time}`, channel_id || process.env.slack_action_channel_id);
+                await update_slack_thread_id_for_conversion(fromNumber, ts, channel_id || process.env.slack_action_channel_id);
+                await postAttachment(mp3_path, channel_id || process.env.slack_action_channel_id, ts);
               }
             } catch (error) {
               console.error(error);
+              if (slack_thread_id) {
+                await postAttachment(resume_file, channel_id || process.env.slack_action_channel_id, slack_thread_id);
+              } else {
+                const ts = await postMessage(`${fromNumber}: Attachment . Time: ${time}`, channel_id || process.env.slack_action_channel_id);
+                await update_slack_thread_id_for_conversion(fromNumber, ts, channel_id || process.env.slack_action_channel_id);
+                await postAttachment(resume_file, channel_id || process.env.slack_action_channel_id, ts);
+              }
             }
 
             await save_whatsapp_conversation("candidate", fromNumber, ContentType, "Please find attached my recording", MessageUUID, req.body);
