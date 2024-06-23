@@ -263,6 +263,7 @@ export const callViaHuman = async (candidate: Candidate, creds: WhatsAppCreds, p
   if (info?.years_of_experiance && info.years_of_experiance != "no") context += `Year of Experiance ${info.years_of_experiance} \n`;
   if (info?.phone_no && info.phone_no != "no") context += `Phone No ${info.phone_no} \n`;
   if (info?.location && info.location != "no") context += `Current Location ${info.location} \n`;
+  if (info?.name && info.name != "no") context += `Name ${info.name} \n`;
 
   // context += `Resume Summary ${candidate.resume?.resume_summary} \n`;
   // context += `Shortlist Reason ${candidate.conversation?.shortlisted?.llm_response} \n`;
