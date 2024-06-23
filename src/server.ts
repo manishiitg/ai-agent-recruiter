@@ -5,6 +5,7 @@ import { fileURLToPath } from "url";
 import { whatsapp_callback, whatsapp_webhook } from "./server/whatsapp";
 import { deleteFolderRecursive } from "./server/whatsapp/util";
 import { mkdirSync } from "fs";
+import { start_cron } from "./server/whatsapp/cron";
 
 //@ts-ignore
 const __filename = fileURLToPath(import.meta.url);
@@ -37,3 +38,5 @@ app.listen(port, () => {
 });
 
 console.log(`server started ${port}`);
+
+start_cron();
