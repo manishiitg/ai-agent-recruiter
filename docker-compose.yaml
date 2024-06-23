@@ -6,7 +6,7 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./images:/usr/src/app/src/images
+      - ./src/images:/usr/src/app/src/images
     environment:
       - NODE_ENV=production
     restart: always
