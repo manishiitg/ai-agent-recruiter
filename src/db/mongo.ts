@@ -357,6 +357,27 @@ export async function getPendingNotCompletedCandidates(remainders: boolean) {
   }
 }
 
+export async function saveSlackTsRead(ts: string) {
+  const client = await connectDB();
+  const db = client.db("whatsapp");
+  await db.collection("slack_channel_temp").insertOne({
+    ts,
+  });
+}
+
+export async function getSlackTsRead(ts: string) {
+  const client = await connectDB();
+  const db = client.db("whatsapp");
+  const row = await db.collection("slack_channel_temp").findOne({
+    ts,
+  });
+  if (!row) {
+    return false;
+  } else {
+    return true;
+  }
+}
+
 export const getShortlistedCandidates = async () => {
   const client = await connectDB();
   const db = client.db("whatsapp");
@@ -398,4 +419,39 @@ export const isInterviewStarted = async (phoneNo: string) => {
   })) > 0
     ? true
     : false;
+};
+
+export const getInterviewCandidates = async () => {
+  const client = await connectDB();
+  const db = client.db("whatsapp");
+
+  // Get the current date
+  let currentDate = new Date();
+
+  // Set the time to the start of the day (00:00:00.000)
+  let startOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
+
+  // Set the time to the start of the next day (00:00:00.000)
+  let startOfNextDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + 1);
+
+  return await db
+    .collection("interviews")
+    .find(
+      {
+        "interview.started_at": {
+          $gte: startOfDay,
+          $lt: startOfNextDay,
+        },
+      },
+      {
+        projection: {
+          unique_id: 1,
+          "interview.started_at": 1,
+        },
+        sort: {
+          "interview.started_at": -1,
+        },
+      }
+    )
+    .toArray();
 };

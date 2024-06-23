@@ -343,3 +343,47 @@ export async function getLatestMessagesFromSlackChannel(channelId: string, count
     throw error; // Rethrow the error to be handled by the caller
   }
 }
+
+export async function getLatestMessagesFromThread(channelId: string, ts: string, count = 100): Promise<SlackMessage[]> {
+  const slackToken = process.env.slack_token ? process.env.slack_token : "";
+  const url = `https://slack.com/api/conversations.replies`;
+  const headers = {
+    Authorization: `Bearer ${slackToken}`,
+    "Content-Type": "application/x-www-form-urlencoded",
+  };
+  const data = {
+    channel: channelId,
+    ts: ts,
+    inclusive: true,
+  };
+  const serializedData = qs.stringify(data);
+
+  try {
+    const response = await axios.post(url, serializedData, { headers });
+    if (response.data.ok) {
+      const messages = response.data.messages;
+      return messages.map((message: any) => {
+        return {
+          text: message.text,
+          user: message.user,
+          type: message.type,
+          ts: message.ts,
+          time: convertSlackTimestampToDate(message.ts),
+          bot_id: message.bot_id,
+          files: message.files?.map((file: any) => {
+            return {
+              id: file.id,
+              name: file.name,
+            };
+          }),
+          // Map other properties as needed
+        };
+      });
+    } else {
+      throw new Error(`Error fetching messages: ${response.data.error}`);
+    }
+  } catch (error) {
+    console.error("Error:", error);
+    throw error; // Rethrow the error to be handled by the caller
+  }
+}

@@ -1,25 +1,57 @@
 import sortBy from "lodash/sortBy";
-import { get_whatspp_conversations, getInterviewRemainder, getPendingNotCompletedCandidates, save_whatsapp_conversation, updateRemainderSent } from "../db/mongo";
+import {
+  get_whatspp_conversations,
+  getCandidateDetailsFromDB,
+  getInterviewRemainder,
+  getPendingNotCompletedCandidates,
+  getSlackTsRead,
+  save_whatsapp_conversation,
+  saveSlackTsRead,
+  updateRemainderSent,
+} from "../db/mongo";
 import { WhatsAppConversaion, WhatsAppCreds } from "../db/types";
 import { getCandidate, process_whatsapp_conversation } from "../server/whatsapp/conversation";
 import { convertToIST } from "../server/whatsapp/util";
 import { conduct_interview } from "../server/whatsapp/interview";
+import { getLatestMessagesFromThread } from "../communication/slack";
 
 (async () => {
   // there is a bug. for ph: 916309891039. he is uploaded his resume but for some reason we havne't processed it so he is stuck in stage New
-  const interview_remainder = await getInterviewRemainder();
-  console.log("interview_remainder", interview_remainder.length);
-  for (const candidate of interview_remainder) {
-    const unique_id = candidate.unique_id;
-    console.log(candidate);
-    console.log(convertToIST(candidate.interview.started_at));
-    const date = candidate.interview.started_at as Date;
-    const now = new Date();
 
-    if (now.getTime() - date.getTime() > 1000 * 60 * 30) {
-      console.log("shortlisted ", unique_id);
+  const ph = "917871693540";
+  // const candidate = await getCandidateDetailsFromDB(ph)
+  const { slack_thread_id, channel_id } = await get_whatspp_conversations(ph);
+  console.log("channel_id", channel_id);
+  const msgs = await getLatestMessagesFromThread(channel_id, slack_thread_id, 100);
+
+  for (const msg of msgs) {
+    const text = msg.text;
+    if (text.includes(process.env.bot_user_id || "<@U017T6CK4ET>")) {
+      console.log(msg);
+      console.log("got msg to be sent to user!");
+      if (msg.bot_id) {
+        if (await getSlackTsRead(msg.bot_id)) {
+          //post this msg to user via whatsapp
+          console.log("12313");
+          await saveSlackTsRead(msg.bot_id);
+        }
+      }
     }
   }
+
+  // const interview_remainder = await getInterviewRemainder();
+  // console.log("interview_remainder", interview_remainder.length);
+  // for (const candidate of interview_remainder) {
+  //   const unique_id = candidate.unique_id;
+  //   console.log(candidate);
+  //   console.log(convertToIST(candidate.interview.started_at));
+  //   const date = candidate.interview.started_at as Date;
+  //   const now = new Date();
+
+  //   if (now.getTime() - date.getTime() > 1000 * 60 * 30) {
+  //     console.log("shortlisted ", unique_id);
+  //   }
+  // }
 
   // const candidates = await getPendingNotCompletedCandidates(false);
   // console.log("getPendingNotCompletedCandidates", candidates.length);
