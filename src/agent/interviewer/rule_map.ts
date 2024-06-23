@@ -22,8 +22,10 @@ export const STAGE_RULE_MAP: Record<
   new: {
     ask_for_interview: {
       rule: "Ask candidate to conduct interview on whatsapp",
-      response:
-        "Inform the candidate you would like to conduct basic HR screening on whatsapp itself. This would require candidate to answer some basic HR and technical question via whatsapp audio recording. If he okey with the same, reply yes.",
+      response: `Inform the candidate you would like to conduct basic HR screening on whatsapp itself. 
+        This would require candidate to answer some basic HR and technical question via whatsapp audio recording. 
+        Also inform candidate can they can send multiple audio recording to answer their question and but keep the recordings short.
+        If he okey with the same, reply yes.`,
     },
   },
   introduction: {
@@ -40,6 +42,10 @@ export const STAGE_RULE_MAP: Record<
       rule: "If candidate has given recording",
       response: "Ask candidate if he wants to share any more recordings or if he is completed and ready for the next question",
     },
+    general_message: {
+      rule: "If candidate gave a general message like ok, hi etc",
+      response: "respond as per the message",
+    },
   },
   tech1: {
     ask_tech_question: {
@@ -54,6 +60,10 @@ export const STAGE_RULE_MAP: Record<
       rule: "If candidate has given recording",
       response: "Ask candidate if he wants to share any more recordings or if he is completed and ready for the next question",
     },
+    general_message: {
+      rule: "If candidate gave a general message like ok, hi etc",
+      response: "respond as per the message",
+    },
   },
   tech2: {
     ask_tech_question: {
@@ -67,6 +77,10 @@ export const STAGE_RULE_MAP: Record<
     candidate_sent_recording: {
       rule: "If candidate has given recording",
       response: "Ask candidate if he wants to share any more recordings or if he is completed and ready for the next question",
+    },
+    general_message: {
+      rule: "If candidate gave a general message like ok, hi etc",
+      response: "respond as per the message",
     },
   },
   completed: {
