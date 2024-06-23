@@ -1,4 +1,4 @@
-import { linkedJobProfileRules } from "./jobconfig";
+import { linkedJobProfileRules } from "../jobconfig";
 import { callDeepkSeek, callDeepseekViaMessages, DEEP_SEEK_V2_CHAT, DEEP_SEEK_V2_CODER } from "../../llms/deepkseek";
 import { STAGE_RULE_MAP } from "./rule_map";
 import { parseStringPromise } from "xml2js";

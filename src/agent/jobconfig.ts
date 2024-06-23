@@ -7,7 +7,6 @@ export const linkedJobProfileRules: Record<
     full_criteria: string;
     is_open: boolean;
     job_description: string;
-    basic_criteria: string;
   }
 > = {
   "Jr HR Executive": {
@@ -16,7 +15,6 @@ export const linkedJobProfileRules: Record<
     Manage day to day operation tasks like onboarding, employee engagement, inventory management, documentations, exit formalities.
     Coordinate with the technical leads for hiring requirements
     Handle social media profiles`,
-    basic_criteria: "for freshers with basic knowledge in recruitment, talent acquisition",
     full_criteria: `Rule 1. Candidate location should be any of ${near_location}. 
     Rule 2. Candidate should not belong to locations ${exclude_location_rule}
     Rule 3. Candidate should have maximum salary of 40,000 per month. If candidates salary is not mentioned, assume he passes this criteria.
@@ -29,7 +27,6 @@ export const linkedJobProfileRules: Record<
     is_open: true,
     job_description: `Good Knowledge in expressjs or typescript or other nodejs frameworks.
     Worked with databases like mongodb or mysql or postgresql`,
-    basic_criteria: "should have knowledge of nodejs/expressjs",
     full_criteria: `Rule 1. Candidate should not belong to locations ${exclude_location_rule}
     Rule 2. Candidate should have maximum salary of 40,000 per month. If candidates salary is not mentioned, assume he passes this criteria.
     Rule 3. Candidate should have done multiple experiance/projects/internship related to nodejs. This is an important rule.
@@ -39,7 +36,6 @@ export const linkedJobProfileRules: Record<
     is_open: false,
     job_description: `This opening is only for candidates from 0 to 1 year of experience.
     Good Knowledge in javascript, reactjs or vuejs`,
-    basic_criteria: "should have worked in javascript or reactjs or vuejs",
     full_criteria: `Rule 1. Candidate location should be any of ${near_location}.
     Rule 2. Candidate should not belong to locations ${exclude_location_rule}
     Rule 3. Candidate should have maximum salary of 40,000 per month. If candidates salary is not mentioned, assume he passes this criteria.
@@ -49,7 +45,6 @@ export const linkedJobProfileRules: Record<
     is_open: false,
     job_description: `This opening is only for candidates from 0 to 1 year of experience.
     Good Knowledge in javascript, reactjs`,
-    basic_criteria: "should have worked in reactjs",
     full_criteria: `Rule 1. Candidate location should be ${near_location}.
     Rule 2. Candidate should not belong to locations ${exclude_location_rule}
     Rule 3. Candidate should have maximum salary of 40,000 per month. If candidates salary is not mentioned, assume he passes this criteria.
@@ -59,7 +54,6 @@ export const linkedJobProfileRules: Record<
     is_open: false,
     job_description: `This opening is only for candidates from 0 to 1 year of experience.
     Good Knowledge in vuejs`,
-    basic_criteria: "should have worked in javascript or reactjs or vuejs",
     full_criteria: `Rule 1. Candidate location should be ${near_location}.
     Rule 2. Candidate should not belong to locations ${exclude_location_rule}
     Rule 3. Candidate should have maximum salary of 40,000 per month. If candidates salary is not mentioned, assume he passes this criteria.
@@ -70,7 +64,6 @@ export const linkedJobProfileRules: Record<
     is_open: true,
     job_description: `Good Knowledge in django or flask
     Worked with databases like mongodb or mysql or postgresql`,
-    basic_criteria: "should have worked in python and database",
     full_criteria: `Rule 1. Candidate should have maximum salary of 40,000 per month. If candidates salary is not mentioned, assume he passes this criteria.
     Rule 2. Candidate should not belong to locations ${exclude_location_rule}
     Rule 4. Candidate should have done multiple work/projects/internship related python and flask/django. This is an important rule.`,
@@ -79,7 +72,6 @@ export const linkedJobProfileRules: Record<
     is_open: false,
     job_description: `This opening is only for candidates from 0 to 1 year of experience.
     Good Knowledge in php`,
-    basic_criteria: "should have worked in php",
     full_criteria: `Rule 1. Candidate location should be ${near_location}.
     Rule 2. Candidate should not belong to locations ${exclude_location_rule}
     Rule 3. Candidate should have maximum salary of 40,000 per month. If candidates salary is not mentioned, assume he passes this criteria.
@@ -89,7 +81,6 @@ export const linkedJobProfileRules: Record<
     is_open: false,
     job_description: `This opening is only for candidates from 0 to 1 year of experience.
     Good Knowledge in php`,
-    basic_criteria: "should have worked in php",
     full_criteria: `Rule 1. Candidate location should be ${near_location}.
     Rule 2. Candidate should not belong to locations ${exclude_location_rule}
     Rule 3. Candidate should have maximum salary of 40,000 per month. If candidates salary is not mentioned, assume he passes this criteria.
@@ -103,7 +94,6 @@ export const linkedJobProfileRules: Record<
     - Sales Analysis, Prospecting, Cold Calling, Presentation, Follow up, Consulting
     - Client Acquisition, Bid Management, Account conversion and Client servicing
     `,
-    basic_criteria: "should have worked in online bidding, linkedin, upwork",
     full_criteria: `Rule 1. Candidate location should be any of ${near_location}.
     Rule 2. Candidate should not belong to locations ${exclude_location_rule}
     Rule 3. Candidate should have maximum salary of 100,000 per month. If candidates salary is not mentioned, assume he passes this criteria.

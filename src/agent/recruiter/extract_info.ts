@@ -1,6 +1,6 @@
 import { callDeepkSeek, DEEP_SEEK_V2_CODER } from "../../llms/deepkseek";
 import { parseStringPromise } from "xml2js";
-import { linkedJobProfileRules } from "./jobconfig";
+import { linkedJobProfileRules } from "../jobconfig";
 import { CandidateInfo } from "./types/conversation";
 import { validateEmail } from "./helper";
 

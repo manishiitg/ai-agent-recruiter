@@ -1,23 +1,16 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 import { Request, Response } from "express";
-import { convertToIST, deleteFolderRecursive, downloadFile, sleep } from "./util";
+import { downloadFile } from "./util";
 import {
   add_whatsapp_message_sent_delivery_report,
   check_whatsapp_convsation_exists,
   deleteDataForCandidateToDebug,
   get_whatspp_conversations,
-  getInterviewCandidates,
-  getInterviewRemainder,
-  getPendingNotCompletedCandidates,
-  getShortlistedCandidates,
-  getSlackTsRead,
-  isInterviewStarted,
   save_whatsapp_conversation,
   saveCandidateDetailsToDB,
-  saveSlackTsRead,
   update_slack_thread_id_for_conversion,
-  update_whatsapp_message_sent_delivery_report,
-  updateInterviewRemainderSent,
-  updateRemainderSent,
 } from "../../db/mongo";
 import sortBy from "lodash/sortBy";
 import { WhatsAppConversaion, WhatsAppCreds } from "../../db/types";

@@ -1,4 +1,3 @@
-import exp from "constants";
 import { generateConversationReply } from "../../agent/interviewer/agent";
 import { STAGE_COMPLETED, STAGE_INTERVIEW_NOT_DONE, STAGE_NEW, STAGE_TECH_QUES1 } from "../../agent/interviewer/rule_map";
 import { ConversationMessage, Interview } from "../../agent/interviewer/types";
@@ -8,7 +7,7 @@ import { extractInfo } from "../../agent/interviewer/extract_info";
 import { convertConversationToText } from "../../agent/interviewer/helper";
 import { transitionStage } from "../../agent/interviewer/transitions";
 import { question_to_ask_from_resume } from "../../agent/prompts/resume_question";
-import { linkedJobProfileRules } from "../../agent/recruiter/jobconfig";
+import { linkedJobProfileRules } from "../../agent/jobconfig";
 import { postMessage, postMessageToThread } from "../../communication/slack";
 
 export const getInterviewObject = async (phoneNo: string) => {

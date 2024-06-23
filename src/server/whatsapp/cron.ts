@@ -1,9 +1,9 @@
-import { Request, Response } from "express";
-import { convertToIST, deleteFolderRecursive, downloadFile, sleep } from "./util";
+import dotenv from "dotenv";
+dotenv.config();
+
+import { convertToIST, sleep } from "./util";
 import {
   add_whatsapp_message_sent_delivery_report,
-  check_whatsapp_convsation_exists,
-  deleteDataForCandidateToDebug,
   get_whatspp_conversations,
   getInterviewCandidates,
   getInterviewRemainder,
@@ -12,10 +12,7 @@ import {
   getSlackTsRead,
   isInterviewStarted,
   save_whatsapp_conversation,
-  saveCandidateDetailsToDB,
   saveSlackTsRead,
-  update_slack_thread_id_for_conversion,
-  update_whatsapp_message_sent_delivery_report,
   updateInterviewRemainderSent,
   updateRemainderSent,
 } from "../../db/mongo";
@@ -95,12 +92,14 @@ const get_pending_hr_screening_candidates = async () => {
 
 const check_slack_thread_for_manual_msgs = async () => {
   const candidates = await getInterviewCandidates();
+  console.log("interview candidates", candidates.length, process.env.bot_user_id);
 
   for (const candidate of candidates) {
     const fromNumber = candidate.unique_id;
     const { slack_thread_id, channel_id } = await get_whatspp_conversations(candidate.unique_id);
     if (slack_thread_id && channel_id) {
       const msgs = await getLatestMessagesFromThread(channel_id, slack_thread_id, 100);
+      console.log(`got msgs from slack for ${fromNumber} ${msgs.length}`);
 
       for (const msg of msgs) {
         const text = msg.text;
@@ -124,23 +123,22 @@ const check_slack_thread_for_manual_msgs = async () => {
         }
       }
     }
-    await sleep(5000);
+    await sleep(1000);
   }
 };
 
 export const start_cron = () => {
-  get_pending_hr_screening_candidates();
-  remind_candidates(false);
-  remind_candidates(true);
+  //   get_pending_hr_screening_candidates();
+  //   remind_candidates(false);
+  //   remind_candidates(true);
   check_slack_thread_for_manual_msgs();
 
   setInterval(() => {
     //send remainders to candidate on same day
-    (() => {
-      remind_candidates(false);
-      remind_candidates(true);
-      get_pending_hr_screening_candidates();
-      check_slack_thread_for_manual_msgs();
-    })();
+
+    //   remind_candidates(false);
+    //   remind_candidates(true);
+    //   get_pending_hr_screening_candidates();
+    check_slack_thread_for_manual_msgs();
   }, 1000 * 60 * 30); //30min
 };
