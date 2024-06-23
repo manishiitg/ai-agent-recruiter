@@ -491,10 +491,10 @@ check_slack_thread_for_manual_msgs();
 
 setInterval(() => {
   //send remainders to candidate on same day
-  (async () => {
-    await remind_candidates(false);
-    await remind_candidates(true);
-    await get_pending_hr_screening_candidates();
-    await check_slack_thread_for_manual_msgs();
+  (() => {
+    remind_candidates(false);
+    remind_candidates(true);
+    get_pending_hr_screening_candidates();
+    check_slack_thread_for_manual_msgs();
   })();
 }, 1000 * 60 * 30); //30min
