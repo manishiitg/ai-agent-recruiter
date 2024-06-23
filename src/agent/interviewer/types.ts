@@ -30,6 +30,8 @@ export interface Interview {
       answer1: string;
       question2: string;
       answer2: string;
+      question3: string;
+      answer3: string;
     };
   };
 }

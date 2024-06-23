@@ -121,7 +121,15 @@ export const conduct_interview = async (
     await saveCandidateInterviewToDB(interview);
   }
 
-  if (interview.interview.stage == STAGE_TECH_QUES1 && !interview.interview.tech_questions) {
+  let generate_tech_question = interview.interview.stage == STAGE_TECH_QUES1 && !interview.interview.tech_questions;
+  if (interview.interview.tech_questions) {
+    if (!interview.interview.tech_questions.question3) {
+      generate_tech_question = true;
+      // one time code, for old candidates to generate 3 questions
+    }
+  }
+
+  if (generate_tech_question) {
     let job_criteria = "";
     if (interview.interview.info?.suitable_job_profile) {
       for (const k in linkedJobProfileRules) {
@@ -138,8 +146,10 @@ export const conduct_interview = async (
       scratchpad: questionsReply.SCRATCHPAD,
       question1: questionsReply.QUESTION1,
       question2: questionsReply.QUESTION2,
+      question3: questionsReply.QUESTION3,
       answer1: questionsReply.EXPECTED_ANSWER_1,
       answer2: questionsReply.EXPECTED_ANSWER_2,
+      answer3: questionsReply.EXPECTED_ANSWER_3,
     };
     await saveCandidateInterviewToDB(interview);
   }
