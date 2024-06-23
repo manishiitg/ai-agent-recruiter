@@ -33,6 +33,8 @@ const cred: WhatsAppCreds = {
   phoneNo: "917011749960",
 };
 
+const ADMIN_PHNO = "919717071555";
+
 const queue: Record<
   string,
   {
@@ -89,7 +91,7 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
               queue[fromNumber] = {
                 ts: setTimeout(() => {
                   schedule_message_to_be_processed(fromNumber, cred);
-                }, (fromNumber === "919717071555" ? 5 : DEBOUNCE_TIMEOUT) * 1000),
+                }, (fromNumber === ADMIN_PHNO ? 5 : DEBOUNCE_TIMEOUT) * 1000),
                 status: "PENDING",
               };
             } else {
@@ -100,7 +102,7 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
             queue[fromNumber] = {
               ts: setTimeout(() => {
                 schedule_message_to_be_processed(fromNumber, cred);
-              }, (fromNumber === "919717071555" ? 5 : DEBOUNCE_TIMEOUT) * 1000),
+              }, (fromNumber === ADMIN_PHNO ? 5 : DEBOUNCE_TIMEOUT) * 1000),
               status: "PENDING",
             };
           }
@@ -113,7 +115,7 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
           if (req.body.MimeType.includes("audio")) {
             // TODO: audio files only accept when interview starts not before it
 
-            if (fromNumber == "919717071555") {
+            if (fromNumber == ADMIN_PHNO) {
               const interviewObj = await getInterviewObject(fromNumber);
               const resume_path = path.join(process.env.dirname ? process.env.dirname : "", fromNumber);
               if (!existsSync(resume_path)) {
@@ -136,12 +138,31 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
                 await postAttachment(resume_file, channel_id || process.env.slack_action_channel_id, ts);
               }
 
-              queue[fromNumber] = {
-                ts: setTimeout(() => {
-                  schedule_message_to_be_processed(fromNumber, cred);
-                }, (fromNumber === "919717071555" ? 5 : DEBOUNCE_TIMEOUT) * 1000),
-                status: "PENDING",
-              };
+              await save_whatsapp_conversation("candidate", fromNumber, ContentType, "Please find attached my recording", MessageUUID, req.body);
+
+              if (queue[fromNumber]) {
+                if (queue[fromNumber].status == "PENDING") {
+                  console.log("cancelling previous timeout!");
+                  clearTimeout(queue[fromNumber].ts);
+                  queue[fromNumber] = {
+                    ts: setTimeout(() => {
+                      schedule_message_to_be_processed(fromNumber, cred);
+                    }, (fromNumber === ADMIN_PHNO ? 5 : DEBOUNCE_TIMEOUT) * 1000),
+                    status: "PENDING",
+                  };
+                } else {
+                  // TODO. need to handle this. user has sent another message in between of process.
+                  // conversation are not valid any. can we cancel and restart?
+                  console.log("previous msg processing started so not queueing again!");
+                }
+              } else {
+                queue[fromNumber] = {
+                  ts: setTimeout(() => {
+                    schedule_message_to_be_processed(fromNumber, cred);
+                  }, (fromNumber === ADMIN_PHNO ? 5 : DEBOUNCE_TIMEOUT) * 1000),
+                  status: "PENDING",
+                };
+              }
             } else {
               await send_whatsapp_text_reply("Only PDF Files are accepted.", fromNumber, cred.phoneNo);
             }
@@ -200,7 +221,7 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
                 queue[fromNumber] = {
                   ts: setTimeout(() => {
                     schedule_message_to_be_processed(fromNumber, cred);
-                  }, (fromNumber === "919717071555" ? 5 : DEBOUNCE_TIMEOUT) * 1000),
+                  }, (fromNumber === ADMIN_PHNO ? 5 : DEBOUNCE_TIMEOUT) * 1000),
                   status: "PENDING",
                 };
               } else {
@@ -212,7 +233,7 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
               queue[fromNumber] = {
                 ts: setTimeout(() => {
                   schedule_message_to_be_processed(fromNumber, cred);
-                }, (fromNumber === "919717071555" ? 5 : DEBOUNCE_TIMEOUT) * 1000),
+                }, (fromNumber === ADMIN_PHNO ? 5 : DEBOUNCE_TIMEOUT) * 1000),
                 status: "PENDING",
               };
             }
@@ -254,7 +275,7 @@ const schedule_message_to_be_processed = async (fromNumber: string, cred: WhatsA
 
   const candidateObj = await getCandidate(fromNumber);
 
-  if (candidateObj.conversation?.conversation_completed_reason == "got_shortlisted.do_call_via_human" && fromNumber == "919717071555") {
+  if (candidateObj.conversation?.conversation_completed_reason == "got_shortlisted.do_call_via_human" && fromNumber == ADMIN_PHNO) {
     agentReply = await conduct_interview(
       fromNumber,
       sortedConversation.map((conv) => {
@@ -311,7 +332,7 @@ const schedule_message_to_be_processed = async (fromNumber: string, cred: WhatsA
     if (agentReply.action == "do_call_via_human") {
       setTimeout(() => {
         schedule_message_to_be_processed(fromNumber, cred);
-      }, (fromNumber === "919717071555" ? 5 : DEBOUNCE_TIMEOUT) * 1000);
+      }, (fromNumber === ADMIN_PHNO ? 5 : DEBOUNCE_TIMEOUT) * 1000);
     }
   } else {
     console.log("debug!");
