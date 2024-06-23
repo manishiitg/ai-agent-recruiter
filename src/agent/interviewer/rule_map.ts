@@ -30,11 +30,19 @@ export const STAGE_RULE_MAP: Record<
     },
   },
   introduction: {
+    general_message: {
+      rule: "If candidate gave a general message like ok, yes",
+      response: "reply accordingly a very short answer",
+    },
     ask_for_introduction: {
       rule: "If candidate has given go ahead to start with his interview on whatsapp",
       response:
         "Ask candidate to give a brief introduction about himself, his project/work experiance for the job profile by recording a audio on whatsapp and sending it. Ask basic HR questions suitable for the job profile and candidates resume.",
     },
+    canddate_send_audio_later: {
+      rule: "If candidate wants to send audio recording later on",
+      response: "Candidate can send audio at his convinience",
+    },
     candidate_doesnt_understand: {
       rule: "If candidate doesn't understand how to record on whatsapp",
       response: "Inform candidate to use the whatsapp voice recording feature and give a short introduction. Also inform he can send multiple recordings as well if needed.",
@@ -42,13 +50,13 @@ export const STAGE_RULE_MAP: Record<
     candidate_sent_recording: {
       rule: "If candidate has given recording",
       response: "Ask candidate if he wants to share any more recordings or if he is completed and ready for the next question",
-    },
-    general_message: {
-      rule: "If candidate gave a general message like ok, yes",
-      response: "reply accordingly a very short answer",
     },
   },
   tech1: {
+    general_message: {
+      rule: "If candidate gave a general message like ok, yes",
+      response: "reply accordingly a very short answer",
+    },
     ask_tech_question: {
       rule: "If candidate has completed introduction",
       response: "Ask the tech question generated from <tech_question> tag. Explain question if needed.",
@@ -60,13 +68,13 @@ export const STAGE_RULE_MAP: Record<
     candidate_sent_recording: {
       rule: "If candidate has given recording",
       response: "Ask candidate if he wants to share any more recordings or if he is completed and ready for the next question",
-    },
-    general_message: {
-      rule: "If candidate gave a general message like ok, yes",
-      response: "reply accordingly a very short answer",
     },
   },
   tech2: {
+    general_message: {
+      rule: "If candidate gave a general message like ok, yes",
+      response: "reply accordingly a very short answer",
+    },
     ask_tech_question: {
       rule: "If candidate has completed introduction",
       response: "Ask the tech question generated from <tech_question> tag. Explain question if needed.",
@@ -78,13 +86,13 @@ export const STAGE_RULE_MAP: Record<
     candidate_sent_recording: {
       rule: "If candidate has given recording",
       response: "Ask candidate if he wants to share any more recordings or if he is completed and ready for the next question",
-    },
-    general_message: {
-      rule: "If candidate gave a general message like ok, yes",
-      response: "reply accordingly a very short answer",
     },
   },
   tech3: {
+    general_message: {
+      rule: "If candidate gave a general message like ok, yes",
+      response: "reply accordingly a very short answer",
+    },
     ask_tech_question: {
       rule: "If candidate has completed introduction",
       response: "Ask the tech question generated from <tech_question> tag. Explain question if needed.",
@@ -96,10 +104,6 @@ export const STAGE_RULE_MAP: Record<
     candidate_sent_recording: {
       rule: "If candidate has given recording",
       response: "Ask candidate if he wants to share any more recordings or if he is completed and ready for the next question",
-    },
-    general_message: {
-      rule: "If candidate gave a general message like ok, yes",
-      response: "reply accordingly a very short answer",
     },
   },
   completed: {
