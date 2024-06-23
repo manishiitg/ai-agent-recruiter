@@ -42,7 +42,7 @@ const remind_candidates = async (remainders: boolean) => {
     const date = convertToIST(candidate.conversation.started_at) as Date;
     const now = convertToIST(new Date());
 
-    if (now.getTime() - date.getTime() > 1000 * 60 * 30) {
+    if (now.getTime() - date.getTime() > 1000 * 60 * 60 * 2) {
       //no response in 1hr
       console.log(candidate.unique_id);
       const fromNumber = candidate.unique_id;
@@ -85,7 +85,7 @@ const get_pending_hr_screening_candidates = async () => {
     const date = convertToIST(candidate.interview.started_at) as Date;
     const now = convertToIST(new Date());
 
-    if (now.getTime() - date.getTime() > 1000 * 60 * 30) {
+    if (now.getTime() - date.getTime() > 1000 * 60 * 60 * 2) {
       await schedule_message_to_be_processed(unique_id, cred);
       await updateInterviewRemainderSent(unique_id);
       await sleep(5000);
