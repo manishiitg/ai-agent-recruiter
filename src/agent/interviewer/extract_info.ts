@@ -30,8 +30,7 @@ export const extractInfo = async (
   Reply in xml format below:
 
   <RESPONSE>
-    <REASON>your step by step reasoning</REASON>
-    <REASON_FOR_CANDIDATE_ACCEPTED_INTERVIEW>step by step reasoning for candidate accepted interview</REASON_FOR_CANDIDATE_ACCEPTED_INTERVIEW>
+    <REASON>your step by step reasoning for every information you extract.</REASON>
     <CANDIDATE_ACCEPTED_INTERVIEW>yes or no if candidate accepted to start the interview</CANDIDATE_ACCEPTED_INTERVIEW>
     <CANDIDATE_REJECTED_INTERVIEW>yes or no if candidate rejected to start the interview</CANDIDATE_REJECTED_INTERVIEW>
     <CANDIATE_COMPLETED_INTRODUCTION>yes or no</CANDIATE_COMPLETED_INTRODUCTION>
