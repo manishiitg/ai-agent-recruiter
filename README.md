@@ -4,6 +4,8 @@ Building an AI Agent which can talk to candidate on whatsapp, process his resume
 
 This agent is live, try it out by sending "Hi" at 91-7011749960
 
+If you want to test diffrent flows, send whatsapp message "CLEAR" this will delete all memory of user and start afresh!
+
 Stack
 
 - Using LLM's (DeepSeekV2, Claude (in-progress))
