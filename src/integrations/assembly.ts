@@ -6,7 +6,7 @@ const client = new AssemblyAI({
   apiKey: process.env.assembly_ai_api_key ? process.env.assembly_ai_api_key : "",
 });
 
-export const transribe_file = async (file_url: string) => {
+export const transribe_file_assembly_ai = async (file_url: string) => {
   // You can also transcribe a local file by passing in a file path
   // const FILE_URL = './path/to/file.mp3';
   const data = {
@@ -14,5 +14,5 @@ export const transribe_file = async (file_url: string) => {
   };
 
   const transcript = await client.transcripts.transcribe(data);
-  return transcript;
+  return transcript.text;
 };

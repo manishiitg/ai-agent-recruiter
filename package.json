@@ -16,6 +16,7 @@
     "@anthropic-ai/bedrock-sdk": "^0.10.0",
     "@anthropic-ai/sdk": "^0.22.0",
     "@anthropic-ai/vertex-sdk": "^0.4.0",
+    "@deepgram/sdk": "^3.3.5",
     "@ffmpeg-installer/ffmpeg": "^1.1.0",
     "@inquirer/prompts": "^4.3.2",
     "@sentry/cli": "^2.31.2",

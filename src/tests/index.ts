@@ -18,7 +18,8 @@ import { getCandidate, process_whatsapp_conversation } from "../server/whatsapp/
 import { convertToIST, sleep } from "../server/whatsapp/util";
 import { conduct_interview, getInterviewObject } from "../server/whatsapp/interview";
 import { getLatestMessagesFromThread, postMessageToThread } from "../communication/slack";
-import { transribe_file } from "../integrations/assembly";
+import { transribe_file_assembly_ai } from "../integrations/assembly";
+import { transcribe_file_deepgram } from "../integrations/deepgram";
 import { rate_interview } from "../agent/prompts/rate_interview";
 
 (async () => {
@@ -50,14 +51,23 @@ import { rate_interview } from "../agent/prompts/rate_interview";
           console.log("idx", idx, conv.uid);
           if (idx == -1 || idx === undefined) {
             const MessageUUID = conv.uid;
-            const text = await transribe_file(conv.body.Media0);
-            console.log("text", text.text);
+            let ai_model = "";
+            let text: string | null | undefined = null;
+            if (new Date().getHours() % 2 === 0) {
+              ai_model = "deepgram";
+              text = await transcribe_file_deepgram(conv.body.Media0);
+            } else {
+              ai_model = "assemblyai";
+              text = await transribe_file_assembly_ai(conv.body.Media0);
+            }
+
+            console.log("text", text);
             console.log(ph);
-            if (text.text) {
-              await update_interview_transcript(ph, MessageUUID, text.text);
+            if (text) {
+              await update_interview_transcript(ph, MessageUUID, text);
               const { slack_thread_id, channel_id } = await get_whatspp_conversations(ph);
               if (slack_thread_id) {
-                await postMessageToThread(slack_thread_id, `Transcription: ${text.text}.`, channel_id || process.env.slack_action_channel_id);
+                await postMessageToThread(slack_thread_id, `Transcription: ${text} Model ${ai_model}`, channel_id || process.env.slack_action_channel_id);
                 no_trans++;
               }
             }
