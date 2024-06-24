@@ -165,13 +165,17 @@ export const evaluate_hr_screen_interview = async () => {
             const MessageUUID = conv.uid;
             let ai_model = "";
             let text: string | null | undefined = null;
-            if (new Date().getHours() % 2 === 0) {
-              ai_model = "deepgram";
-              console.log(conv.body.Media0);
-              text = await transcribe_file_deepgram(conv.body.Media0);
-            } else {
-              ai_model = "assemblyai";
-              text = await transribe_file_assembly_ai(conv.body.Media0);
+            try {
+              if (new Date().getHours() % 2 === 0) {
+                ai_model = "deepgram";
+                console.log(conv.body.Media0);
+                text = await transcribe_file_deepgram(conv.body.Media0);
+              } else {
+                ai_model = "assemblyai";
+                text = await transribe_file_assembly_ai(conv.body.Media0);
+              }
+            } catch (error) {
+              console.error(error);
             }
 
             console.log("text", text, ai_model);
@@ -183,6 +187,8 @@ export const evaluate_hr_screen_interview = async () => {
                 await postMessageToThread(slack_thread_id, `Transcription: ${text} Model ${ai_model}`, channel_id || process.env.slack_action_channel_id);
                 no_trans++;
               }
+            } else {
+              await update_interview_transcript(ph, MessageUUID, "");
             }
           } else {
             no_trans++;

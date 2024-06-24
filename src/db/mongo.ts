@@ -430,23 +430,21 @@ export const getInterviewCompletedCandidates = async () => {
   const client = await connectDB();
   const db = client.db("whatsapp");
   // Get the current date
-  let currentDate = new Date();
-
-  // Set the time to the start of the day (00:00:00.000)
-  let startOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
-
-  // Set the time to the start of the next day (00:00:00.000)
-  let startOfNextDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + 1);
+  // let currentDate = new Date();
+  // // Set the time to the start of the day (00:00:00.000)
+  // let startOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
+  // // Set the time to the start of the next day (00:00:00.000)
+  // let startOfNextDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + 1);
 
   return await db
     .collection("interviews")
     .find(
       {
         "interview.conversation_completed_reason": "completed",
-        "interview.started_at": {
-          $gte: startOfDay,
-          $lt: startOfNextDay,
-        },
+        //   "interview.started_at": {
+        //     $gte: startOfDay,
+        //     $lt: startOfNextDay,
+        //   },
       },
       {
         projection: {
