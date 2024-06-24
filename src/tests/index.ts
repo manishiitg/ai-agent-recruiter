@@ -21,9 +21,12 @@ import { getLatestMessagesFromThread, postMessageToThread } from "../communicati
 import { transribe_file_assembly_ai } from "../integrations/assembly";
 import { transcribe_file_deepgram } from "../integrations/deepgram";
 import { rate_interview } from "../agent/prompts/rate_interview";
+import { evaluate_hr_screen_interview } from "../server/whatsapp/cron";
 
 (async () => {
   // there is a bug. for ph: 916309891039. he is uploaded his resume but for some reason we havne't processed it so he is stuck in stage New
+
+  await evaluate_hr_screen_interview();
 
   // for (const candidate of candidates) {
   //   const ph = candidate.unique_id;

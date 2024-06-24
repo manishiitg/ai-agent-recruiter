@@ -167,15 +167,16 @@ export const evaluate_hr_screen_interview = async () => {
             let text: string | null | undefined = null;
             if (new Date().getHours() % 2 === 0) {
               ai_model = "deepgram";
+              console.log(conv.body.Media0);
               text = await transcribe_file_deepgram(conv.body.Media0);
             } else {
               ai_model = "assemblyai";
               text = await transribe_file_assembly_ai(conv.body.Media0);
             }
 
-            console.log("text", text);
+            console.log("text", text, ai_model);
             console.log(ph);
-            if (text) {
+            if (text?.length) {
               await update_interview_transcript(ph, MessageUUID, text);
               const { slack_thread_id, channel_id } = await get_whatspp_conversations(ph);
               if (slack_thread_id) {

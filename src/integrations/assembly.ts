@@ -14,5 +14,6 @@ export const transribe_file_assembly_ai = async (file_url: string) => {
   };
 
   const transcript = await client.transcripts.transcribe(data);
+  console.log("transcript", transcript);
   return transcript.text;
 };
