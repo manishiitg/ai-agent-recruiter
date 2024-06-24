@@ -228,6 +228,7 @@ export const evaluate_hr_screen_interview = async () => {
 };
 
 export const start_cron = () => {
+  evaluate_hr_screen_interview();
   get_pending_hr_screening_candidates();
   remind_candidates(false);
   remind_candidates(true);
