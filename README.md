@@ -12,6 +12,7 @@ Stack
 - Langfuse for observability
 - Plivo for whatsapp
 - MongoDB for database
+- AssemlyAI/Deepgram for Voice to Text
 
 It will reach out the candidate on whatsapp based on this resume and phone no.
 Do END-END shortlisting and conduct a basic whatsapp audio based interview
