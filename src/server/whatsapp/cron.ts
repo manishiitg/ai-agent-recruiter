@@ -6,6 +6,7 @@ import {
   add_whatsapp_message_sent_delivery_report,
   get_whatspp_conversations,
   getInterviewCandidates,
+  getInterviewCompletedCandidates,
   getInterviewRemainder,
   getPendingNotCompletedCandidates,
   getShortlistedCandidates,
@@ -136,7 +137,7 @@ const check_slack_thread_for_manual_msgs = async () => {
 };
 
 export const evaluate_hr_screen_interview = async () => {
-  const candidates = await getInterviewCandidates();
+  const candidates = await getInterviewCompletedCandidates();
   for (const candidate of candidates) {
     const ph = candidate.unique_id;
 

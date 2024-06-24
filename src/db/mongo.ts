@@ -426,6 +426,29 @@ export const isInterviewStarted = async (phoneNo: string) => {
     : false;
 };
 
+export const getInterviewCompletedCandidates = async () => {
+  const client = await connectDB();
+  const db = client.db("whatsapp");
+
+  return await db
+    .collection("interviews")
+    .find(
+      {
+        "interview.conversation_completed_reason": "completed",
+      },
+      {
+        projection: {
+          unique_id: 1,
+          "interview.started_at": 1,
+        },
+        sort: {
+          "interview.started_at": -1,
+        },
+      }
+    )
+    .toArray();
+};
+
 export const getInterviewCandidates = async () => {
   const client = await connectDB();
   const db = client.db("whatsapp");
