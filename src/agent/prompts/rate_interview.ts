@@ -59,12 +59,6 @@ For each question, follow these steps:
 4. Provide a detailed reasoning for your rating in the <scratchpad> section.
 5. Assign a final rating from 0 to 10.
 
-For the communication skills rating, consider the following:
-1. Clarity and coherence of the candidate's responses
-2. Use of appropriate technical language and terminology
-3. Ability to explain complex concepts simply
-4. Overall structure and organization of their answers
-
 After completing your evaluation, provide your response in the following XML format:
 
 <RESPONSE>
@@ -75,7 +69,6 @@ After completing your evaluation, provide your response in the following XML for
   <TECH_QUESTION1_RATING>final rating</TECH_QUESTION1_RATING>
   <TECH_QUESTION2_RATING>final rating</TECH_QUESTION2_RATING>
   <TECH_QUESTION3_RATING>final rating</TECH_QUESTION3_RATING>
-  <COMMUNICATION_SKILLS_RATING>final rating</COMMUNICATION_SKILLS_RATING>
 </RESPONSE>
 
 Remember to provide thorough reasoning in the <SCRATCHPAD> section before giving your final ratings. Your evaluation should be fair, objective, and based solely on the information provided.`;
@@ -98,11 +91,10 @@ Remember to provide thorough reasoning in the <SCRATCHPAD> section before giving
     throw new Error("response not found!");
   }
   const SCRATCHPAD = jObj["RESPONSE"]["SCRATCHPAD"];
-  const COMMUNICATION_SKILLS_RATING = jObj["RESPONSE"]["COMMUNICATION_SKILLS_RATING"];
   const HR_QUESTION_RATING = jObj["RESPONSE"]["HR_QUESTION_RATING"];
   const TECH_QUESTION1_RATING = jObj["RESPONSE"]["TECH_QUESTION1_RATING"];
   const TECH_QUESTION2_RATING = jObj["RESPONSE"]["TECH_QUESTION2_RATING"];
   const TECH_QUESTION3_RATING = jObj["RESPONSE"]["TECH_QUESTION3_RATING"];
 
-  return { SCRATCHPAD, COMMUNICATION_SKILLS_RATING, HR_QUESTION_RATING, TECH_QUESTION1_RATING, TECH_QUESTION2_RATING, TECH_QUESTION3_RATING };
+  return { SCRATCHPAD, HR_QUESTION_RATING, TECH_QUESTION1_RATING, TECH_QUESTION2_RATING, TECH_QUESTION3_RATING };
 };

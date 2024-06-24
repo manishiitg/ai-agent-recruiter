@@ -203,7 +203,6 @@ export const evaluate_hr_screen_interview = async () => {
         let interviewRating:
           | {
               SCRATCHPAD: any;
-              COMMUNICATION_SKILLS_RATING: any;
               HR_QUESTION_RATING: any;
               TECH_QUESTION1_RATING: any;
               TECH_QUESTION2_RATING: any;
@@ -223,7 +222,7 @@ export const evaluate_hr_screen_interview = async () => {
             await postMessageToThread(slack_thread_id, `HR Interview Rating Reason: ${JSON.stringify(interviewRating.SCRATCHPAD)}`, channel_id || process.env.slack_action_channel_id);
             await postMessageToThread(
               slack_thread_id,
-              `COMMUNICATION_SKILLS_RATING: ${interviewRating.COMMUNICATION_SKILLS_RATING} HR_QUESTION_RATING: ${interviewRating.HR_QUESTION_RATING} TECH_QUESTION1_RATING: ${interviewRating.TECH_QUESTION1_RATING} TECH_QUESTION2_RATING: ${interviewRating.TECH_QUESTION2_RATING} TECH_QUESTION3_RATING ${interviewRating.TECH_QUESTION3_RATING}`,
+              `HR_QUESTION_RATING: ${interviewRating.HR_QUESTION_RATING} TECH_QUESTION1_RATING: ${interviewRating.TECH_QUESTION1_RATING} TECH_QUESTION2_RATING: ${interviewRating.TECH_QUESTION2_RATING} TECH_QUESTION3_RATING ${interviewRating.TECH_QUESTION3_RATING}`,
               channel_id || process.env.slack_action_channel_id,
               true
             );

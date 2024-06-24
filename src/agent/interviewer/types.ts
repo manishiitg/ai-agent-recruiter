@@ -43,7 +43,6 @@ export interface Interview {
     transcribe_completed?: boolean;
     interview_rating?: {
       SCRATCHPAD: any;
-      COMMUNICATION_SKILLS_RATING: any;
       HR_QUESTION_RATING: any;
       TECH_QUESTION1_RATING: any;
       TECH_QUESTION2_RATING: any;
