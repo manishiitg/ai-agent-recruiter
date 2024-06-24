@@ -88,13 +88,13 @@ import { rate_interview } from "../agent/prompts/rate_interview";
         await saveCandidateInterviewToDB(inter);
         const { slack_thread_id, channel_id } = await get_whatspp_conversations(ph);
         if (slack_thread_id) {
+          await postMessageToThread(slack_thread_id, `HR Interview Rating Reason: ${JSON.stringify(interviewRating.SCRATCHPAD)}`, channel_id || process.env.slack_action_channel_id);
           await postMessageToThread(
             slack_thread_id,
             `COMMUNICATION_SKILLS_RATING: ${interviewRating.COMMUNICATION_SKILLS_RATING} HR_QUESTION_RATING: ${interviewRating.HR_QUESTION_RATING} TECH_QUESTION1_RATING: ${interviewRating.TECH_QUESTION1_RATING} TECH_QUESTION2_RATING: ${interviewRating.TECH_QUESTION2_RATING} TECH_QUESTION3_RATING ${interviewRating.TECH_QUESTION3_RATING}`,
             channel_id || process.env.slack_action_channel_id,
             true
           );
-          await postMessageToThread(slack_thread_id, `HR Interview Rating Reason: ${JSON.stringify(interviewRating.SCRATCHPAD)}`, channel_id || process.env.slack_action_channel_id);
           no_trans++;
         }
       }

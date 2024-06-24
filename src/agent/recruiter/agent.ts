@@ -176,6 +176,7 @@ export const generateConversationReply = async (
 - Generate a suitable response based on the selected rule, conversation/context, and the final selected action <response_rule>.
 - Do not mention the context or conversation explicitly in the final response.
 - Whenever possible ask candidate for resume, if you don't have candidate's resume already
+- Keep resume in a human / friendy conversational tone. Keep response maximum to 30 words.
 
   10. Output Structure:
   Provide your response in the following XML format:
