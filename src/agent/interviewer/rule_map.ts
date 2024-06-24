@@ -28,6 +28,10 @@ export const STAGE_RULE_MAP: Record<
         Also inform candidate can they can send multiple audio recording to answer their question and but keep the recordings short.
         If he okey with the same, reply yes.`,
     },
+    remainder: {
+      rule: "If already asked candidate to start interview but candidate has not replied",
+      response: "send a remainder asking to start interview on whatsapp",
+    },
   },
   introduction: {
     general_message: {
@@ -42,6 +46,10 @@ export const STAGE_RULE_MAP: Record<
     canddate_send_audio_later: {
       rule: "If candidate wants to send audio recording later on",
       response: "Candidate can send audio at his convinience",
+    },
+    remainder: {
+      rule: "If already asked candidate about introduction but candidate has not replied",
+      response: "send a remainder asking to give introduction on whatsapp",
     },
     candidate_doesnt_understand: {
       rule: "If candidate doesn't understand how to record on whatsapp",
@@ -61,6 +69,10 @@ export const STAGE_RULE_MAP: Record<
       rule: "If candidate has completed introduction",
       response: "Ask the tech question generated from <tech_question> tag. Explain question if needed.",
     },
+    remainder: {
+      rule: "If already asked candidate about tech question 1 but candidate has not replied",
+      response: "send a remainder asking to reply to tech question",
+    },
     candidate_doesnt_understand: {
       rule: "If candidate doesn't understand how to record on whatsapp",
       response: "Inform candidate to use the whatsapp voice recording feature and give a short introduction. Also inform he can send multiple recordings as well if needed.",
@@ -79,6 +91,10 @@ export const STAGE_RULE_MAP: Record<
       rule: "If candidate has completed introduction",
       response: "Ask the tech question generated from <tech_question> tag. Explain question if needed.",
     },
+    remainder: {
+      rule: "If already asked candidate about tech question 2 but candidate has not replied",
+      response: "send a remainder asking to reply to tech question",
+    },
     candidate_doesnt_understand: {
       rule: "If candidate doesn't understand how to record on whatsapp",
       response: "Inform candidate to use the whatsapp voice recording feature and give a short introduction. Also inform he can send multiple recordings as well if needed.",
@@ -96,6 +112,10 @@ export const STAGE_RULE_MAP: Record<
     ask_tech_question: {
       rule: "If candidate has completed introduction",
       response: "Ask the tech question generated from <tech_question> tag. Explain question if needed.",
+    },
+    remainder: {
+      rule: "If already asked candidate about tech question 3 but candidate has not replied",
+      response: "send a remainder asking to reply to tech question",
     },
     candidate_doesnt_understand: {
       rule: "If candidate doesn't understand how to record on whatsapp",
