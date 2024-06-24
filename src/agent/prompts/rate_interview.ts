@@ -79,7 +79,7 @@ Remember to provide thorough reasoning in the <SCRATCHPAD> section before giving
       strict: false,
     });
     return {
-      RATING: jObj["RESPONSE"]["COMMUNICATION_SKILLS_RATING"],
+      RATING: jObj["RESPONSE"]["TECH_QUESTION1_RATING"],
     };
   });
 

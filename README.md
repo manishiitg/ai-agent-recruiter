@@ -52,3 +52,11 @@ Agent has a STATE (s) , STATE TRANSITION (s) and RULE (s)
 
 - This LOOP is repeated
 
+
+
+Things to work on
+==================
+1. Rejection flow
+2. Assign audio question to round. 
+3. Able to ask questions real time and judge candidate on tech skills properly and provide a rating
+4. Bug where candidate doesn't provide audio, instead just replies via text in interview
