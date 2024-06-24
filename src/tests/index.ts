@@ -26,7 +26,7 @@ import { evaluate_hr_screen_interview } from "../server/whatsapp/cron";
 (async () => {
   // there is a bug. for ph: 916309891039. he is uploaded his resume but for some reason we havne't processed it so he is stuck in stage New
 
-  await evaluate_hr_screen_interview();
+  // await evaluate_hr_screen_interview();
 
   // for (const candidate of candidates) {
   //   const ph = candidate.unique_id;
@@ -51,7 +51,7 @@ import { evaluate_hr_screen_interview } from "../server/whatsapp/cron";
   //     }
   //   }
   // }
-  console.log("completed!");
+  
 
   // const interview_remainder = await getInterviewRemainder();
   // console.log("interview_remainder", interview_remainder.length);
@@ -67,40 +67,40 @@ import { evaluate_hr_screen_interview } from "../server/whatsapp/cron";
   //   }
   // }
 
-  // const candidates = await getPendingNotCompletedCandidates(false);
-  // console.log("getPendingNotCompletedCandidates", candidates.length);
-  // for (const candidate of candidates) {
-  //   console.log(convertToIST(candidate.conversation.started_at));
-  //   const date = convertToIST(candidate.conversation.started_at) as Date;
-  //   const now = convertToIST(new Date());
-  //   if (candidate.unique_id == "918595848117") {
-  //     console.log("found11111", (now.getTime() - date.getTime()) / (1000 * 60), now.getTime() - date.getTime() > 1000 * 60 * 10);
-  //   }
+  const candidates = await getPendingNotCompletedCandidates(false);
+  console.log("getPendingNotCompletedCandidates", candidates.length);
+  for (const candidate of candidates) {
+    console.log(convertToIST(candidate.conversation.started_at));
+    const date = convertToIST(candidate.conversation.started_at) as Date;
+    const now = convertToIST(new Date());
+    if (candidate.unique_id == "919043237743") {
+      console.log("found11111", (now.getTime() - date.getTime()) / (1000 * 60), now.getTime() - date.getTime() > 1000 * 60 * 10);
+    }
 
-  //   if (now.getTime() - date.getTime() > 1000 * 60 * 10) {
-  //     //no response in 1hr
-  //     const fromNumber = candidate.unique_id;
+    if (now.getTime() - date.getTime() > 1000 * 60 * 10) {
+      //no response in 1hr
+      const fromNumber = candidate.unique_id;
 
-  //     const { conversation } = await get_whatspp_conversations(fromNumber);
-  //     const sortedConversation = sortBy(conversation, (conv: WhatsAppConversaion) => {
-  //       return conv.created_at;
-  //     });
+      const { conversation } = await get_whatspp_conversations(fromNumber);
+      const sortedConversation = sortBy(conversation, (conv: WhatsAppConversaion) => {
+        return conv.created_at;
+      });
 
-  //     let should_continue = true;
+      let should_continue = true;
 
-  //     if (sortedConversation[sortedConversation.length - 1].userType == "agent") {
-  //       should_continue = false;
-  //     } else {
-  //       //we can check here if interview/conversion is completed.
-  //       // but that will already be checked so it ineeded?
-  //       console.log("should continue", candidate.unique_id);
-  //       if (candidate.unique_id == "918595848117") {
-  //         console.log("found!!!");
-  //         break;
-  //       }
-  //     }
-  //   }
-  // }
+      if (sortedConversation[sortedConversation.length - 1].userType == "agent") {
+        should_continue = false;
+      } else {
+        //we can check here if interview/conversion is completed.
+        // but that will already be checked so it ineeded?
+        console.log("should continue", candidate.unique_id);
+        if (candidate.unique_id == "919043237743") {
+          console.log("found!!!");
+          break;
+        }
+      }
+    }
+  }
 
   // const fromNumber = "919919350969";
   // const { slack_thread_id, conversation } = await get_whatspp_conversations(fromNumber);
@@ -149,4 +149,5 @@ import { evaluate_hr_screen_interview } from "../server/whatsapp/cron";
   // );
 
   // console.log(agentReply);
+  console.log("completed!");
 })();

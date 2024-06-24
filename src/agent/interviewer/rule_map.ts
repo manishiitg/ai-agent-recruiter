@@ -34,8 +34,8 @@ export const STAGE_RULE_MAP: Record<
     },
   },
   introduction: {
-    general_message: {
-      rule: "If candidate gave a general message like ok, yes",
+    general_message_or_question: {
+      rule: "If candidate gave a general message like ok, yes or asking a question",
       response: "reply accordingly a very short answer",
     },
     ask_for_introduction: {
@@ -61,8 +61,8 @@ export const STAGE_RULE_MAP: Record<
     },
   },
   tech1: {
-    general_message: {
-      rule: "If candidate gave a general message like ok, yes",
+    general_message_or_question: {
+      rule: "If candidate gave a general message like ok, yes or asking a question",
       response: "reply accordingly a very short answer",
     },
     ask_tech_question: {
@@ -83,8 +83,8 @@ export const STAGE_RULE_MAP: Record<
     },
   },
   tech2: {
-    general_message: {
-      rule: "If candidate gave a general message like ok, yes",
+    general_message_or_question: {
+      rule: "If candidate gave a general message like ok, yes or asking a question",
       response: "reply accordingly a very short answer",
     },
     ask_tech_question: {
@@ -105,8 +105,8 @@ export const STAGE_RULE_MAP: Record<
     },
   },
   tech3: {
-    general_message: {
-      rule: "If candidate gave a general message like ok, yes",
+    general_message_or_question: {
+      rule: "If candidate gave a general message like ok, yes or asking a question",
       response: "reply accordingly a very short answer",
     },
     ask_tech_question: {

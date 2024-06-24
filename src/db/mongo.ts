@@ -316,7 +316,11 @@ export async function getPendingNotCompletedCandidates(remainders: boolean) {
       .find(
         {
           "conversation.remainder_sent": { $exists: false },
-          $or: [{ "conversation.conversation_completed": false }, { "conversation.conversation_completed": { $exists: false } }],
+          $or: [
+            { "conversation.conversation_completed": false },
+            { "conversation.conversation_completed": { $exists: false } },
+            { "conversation.conversation_completed_reason": "got_shortlisted.do_call_via_human" }, // need to now check even for interview
+          ],
           "conversation.started_at": {
             $gte: startOfDay,
             $lt: startOfNextDay,
