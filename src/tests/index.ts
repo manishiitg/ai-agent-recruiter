@@ -78,24 +78,37 @@ import { rate_interview } from "../agent/prompts/rate_interview";
       }
       console.log("no_trans == audioConversation.length", no_trans, audioConversation.length);
       if (no_trans == audioConversation.length && no_trans != 0) {
-        let inter = await getInterviewObject(ph);
         await update_interview_transcript_completed(ph);
-        const interviewRating = await rate_interview(ph, inter);
-        if (inter.interview) {
-          inter.interview.interview_rating = interviewRating;
-        }
-        console.log(interviewRating);
-        await saveCandidateInterviewToDB(inter);
-        const { slack_thread_id, channel_id } = await get_whatspp_conversations(ph);
-        if (slack_thread_id) {
-          await postMessageToThread(slack_thread_id, `HR Interview Rating Reason: ${JSON.stringify(interviewRating.SCRATCHPAD)}`, channel_id || process.env.slack_action_channel_id);
-          await postMessageToThread(
-            slack_thread_id,
-            `COMMUNICATION_SKILLS_RATING: ${interviewRating.COMMUNICATION_SKILLS_RATING} HR_QUESTION_RATING: ${interviewRating.HR_QUESTION_RATING} TECH_QUESTION1_RATING: ${interviewRating.TECH_QUESTION1_RATING} TECH_QUESTION2_RATING: ${interviewRating.TECH_QUESTION2_RATING} TECH_QUESTION3_RATING ${interviewRating.TECH_QUESTION3_RATING}`,
-            channel_id || process.env.slack_action_channel_id,
-            true
-          );
-          no_trans++;
+        let inter = await getInterviewObject(ph);
+
+        let interviewRating:
+          | {
+              SCRATCHPAD: any;
+              COMMUNICATION_SKILLS_RATING: any;
+              HR_QUESTION_RATING: any;
+              TECH_QUESTION1_RATING: any;
+              TECH_QUESTION2_RATING: any;
+              TECH_QUESTION3_RATING: any;
+            }
+          | undefined = inter.interview?.interview_rating;
+
+        if (!interviewRating) {
+          interviewRating = await rate_interview(ph, inter);
+          if (inter.interview) {
+            inter.interview.interview_rating = interviewRating;
+          }
+          console.log(interviewRating);
+          await saveCandidateInterviewToDB(inter);
+          const { slack_thread_id, channel_id } = await get_whatspp_conversations(ph);
+          if (slack_thread_id) {
+            await postMessageToThread(slack_thread_id, `HR Interview Rating Reason: ${JSON.stringify(interviewRating.SCRATCHPAD)}`, channel_id || process.env.slack_action_channel_id);
+            await postMessageToThread(
+              slack_thread_id,
+              `COMMUNICATION_SKILLS_RATING: ${interviewRating.COMMUNICATION_SKILLS_RATING} HR_QUESTION_RATING: ${interviewRating.HR_QUESTION_RATING} TECH_QUESTION1_RATING: ${interviewRating.TECH_QUESTION1_RATING} TECH_QUESTION2_RATING: ${interviewRating.TECH_QUESTION2_RATING} TECH_QUESTION3_RATING ${interviewRating.TECH_QUESTION3_RATING}`,
+              channel_id || process.env.slack_action_channel_id,
+              true
+            );
+          }
         }
       }
       console.log("completed ph");

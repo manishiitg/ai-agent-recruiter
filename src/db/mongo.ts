@@ -485,13 +485,14 @@ export const update_interview_transcript_completed = async (ph: string) => {
   const db = client.db("whatsapp");
   const resp = await db.collection("interviews").updateOne(
     {
-      id: ph,
+      unique_id: ph,
     },
     {
       $set: {
         "interview.transcribe_completed": true,
       },
-    }
+    },
+    { upsert: true }
   );
   console.log(resp);
 };
