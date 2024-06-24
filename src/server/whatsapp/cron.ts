@@ -5,6 +5,7 @@ import { convertToIST, sleep } from "./util";
 import {
   add_whatsapp_message_sent_delivery_report,
   get_whatspp_conversations,
+  getCandidateDetailsFromDB,
   getInterviewCandidates,
   getInterviewCompletedCandidates,
   getInterviewRemainder,
@@ -59,6 +60,14 @@ const remind_candidates = async (remainders: boolean) => {
       if (!remainders) {
         if (sortedConversation[sortedConversation.length - 1].userType == "agent") {
           should_continue = false;
+        }
+      }
+      if (!should_continue) {
+        const candObj = await getCandidateDetailsFromDB(candidate.unique_id);
+        if (candObj.conversation?.conversation_completed_reason?.includes("call_via_human")) {
+          if (!(await isInterviewStarted(candidate.unique_id))) {
+            should_continue = true;
+          }
         }
       }
 

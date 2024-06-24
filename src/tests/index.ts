@@ -6,6 +6,7 @@ import {
   getInterviewRemainder,
   getPendingNotCompletedCandidates,
   getSlackTsRead,
+  isInterviewStarted,
   save_whatsapp_conversation,
   saveCandidateInterviewToDB,
   saveSlackTsRead,
@@ -51,7 +52,6 @@ import { evaluate_hr_screen_interview } from "../server/whatsapp/cron";
   //     }
   //   }
   // }
-  
 
   // const interview_remainder = await getInterviewRemainder();
   // console.log("interview_remainder", interview_remainder.length);
@@ -97,6 +97,20 @@ import { evaluate_hr_screen_interview } from "../server/whatsapp/cron";
         if (candidate.unique_id == "919043237743") {
           console.log("found!!!");
           break;
+        }
+      }
+      const candObj = await getCandidateDetailsFromDB(candidate.unique_id);
+      if (candidate.unique_id == "919043237743") {
+        console.log("candObj.conversation?.conversation_completed_reason", candObj.conversation?.conversation_completed_reason);
+      }
+      if (candObj.conversation?.conversation_completed_reason?.includes("call_via_human")) {
+        if (!(await isInterviewStarted(candidate.unique_id))) {
+          should_continue = true;
+          console.log("should continue non interview", candidate.unique_id);
+          if (candidate.unique_id == "919043237743") {
+            console.log("found!!!");
+            break;
+          }
         }
       }
     }
