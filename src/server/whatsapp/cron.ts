@@ -12,7 +12,10 @@ import {
   getSlackTsRead,
   isInterviewStarted,
   save_whatsapp_conversation,
+  saveCandidateInterviewToDB,
   saveSlackTsRead,
+  update_interview_transcript,
+  update_interview_transcript_completed,
   updateInterviewRemainderSent,
   updateRemainderSent,
 } from "../../db/mongo";
@@ -27,6 +30,9 @@ import { send_whatsapp_text_reply } from "../../integrations/plivo";
 import { conduct_interview, getInterviewObject } from "./interview";
 import { converToMp3 } from "../../integrations/mp3";
 import { cred, schedule_message_to_be_processed } from ".";
+import { transcribe_file_deepgram } from "../../integrations/deepgram";
+import { transribe_file_assembly_ai } from "../../integrations/assembly";
+import { rate_interview } from "../../agent/prompts/rate_interview";
 // @ts-ignore
 const require = createRequire(import.meta.url);
 var textract = require("textract");
@@ -129,6 +135,98 @@ const check_slack_thread_for_manual_msgs = async () => {
   }
 };
 
+export const evaluate_hr_screen_interview = async () => {
+  const candidates = await getInterviewCandidates();
+  for (const candidate of candidates) {
+    const ph = candidate.unique_id;
+
+    const inter = await getInterviewObject(ph);
+    if (inter.interview?.conversation_completed && !inter.interview.transcribe_completed) {
+      const { conversation } = await get_whatspp_conversations(ph);
+      const audioConversation = conversation.filter((conv) => {
+        if (conv.messageType == "media" && conv.body) {
+          if ("Media0" in conv.body) {
+            if (conv.body.MimeType.includes("audio")) {
+              return true;
+            }
+          }
+        }
+        return false;
+      });
+      // console.log("audioConversation", audioConversation.length);
+
+      let no_trans = 0;
+      for (const conv of audioConversation) {
+        if (conv.messageType == "media" && conv.body) {
+          const idx = inter.interview.transcribe?.findIndex((file) => file.uid === conv.uid);
+          console.log("idx", idx, conv.uid);
+          if (idx == -1 || idx === undefined) {
+            const MessageUUID = conv.uid;
+            let ai_model = "";
+            let text: string | null | undefined = null;
+            if (new Date().getHours() % 2 === 0) {
+              ai_model = "deepgram";
+              text = await transcribe_file_deepgram(conv.body.Media0);
+            } else {
+              ai_model = "assemblyai";
+              text = await transribe_file_assembly_ai(conv.body.Media0);
+            }
+
+            console.log("text", text);
+            console.log(ph);
+            if (text) {
+              await update_interview_transcript(ph, MessageUUID, text);
+              const { slack_thread_id, channel_id } = await get_whatspp_conversations(ph);
+              if (slack_thread_id) {
+                await postMessageToThread(slack_thread_id, `Transcription: ${text} Model ${ai_model}`, channel_id || process.env.slack_action_channel_id);
+                no_trans++;
+              }
+            }
+          } else {
+            no_trans++;
+          }
+        }
+      }
+      console.log("no_trans == audioConversation.length", no_trans, audioConversation.length);
+      if (no_trans == audioConversation.length && no_trans != 0) {
+        await update_interview_transcript_completed(ph);
+        let inter = await getInterviewObject(ph);
+
+        let interviewRating:
+          | {
+              SCRATCHPAD: any;
+              COMMUNICATION_SKILLS_RATING: any;
+              HR_QUESTION_RATING: any;
+              TECH_QUESTION1_RATING: any;
+              TECH_QUESTION2_RATING: any;
+              TECH_QUESTION3_RATING: any;
+            }
+          | undefined = inter.interview?.interview_rating;
+
+        if (!interviewRating) {
+          interviewRating = await rate_interview(ph, inter);
+          if (inter.interview) {
+            inter.interview.interview_rating = interviewRating;
+          }
+          console.log(interviewRating);
+          await saveCandidateInterviewToDB(inter);
+          const { slack_thread_id, channel_id } = await get_whatspp_conversations(ph);
+          if (slack_thread_id) {
+            await postMessageToThread(slack_thread_id, `HR Interview Rating Reason: ${JSON.stringify(interviewRating.SCRATCHPAD)}`, channel_id || process.env.slack_action_channel_id);
+            await postMessageToThread(
+              slack_thread_id,
+              `COMMUNICATION_SKILLS_RATING: ${interviewRating.COMMUNICATION_SKILLS_RATING} HR_QUESTION_RATING: ${interviewRating.HR_QUESTION_RATING} TECH_QUESTION1_RATING: ${interviewRating.TECH_QUESTION1_RATING} TECH_QUESTION2_RATING: ${interviewRating.TECH_QUESTION2_RATING} TECH_QUESTION3_RATING ${interviewRating.TECH_QUESTION3_RATING}`,
+              channel_id || process.env.slack_action_channel_id,
+              true
+            );
+          }
+        }
+      }
+      console.log("completed ph");
+    }
+  }
+};
+
 export const start_cron = () => {
   get_pending_hr_screening_candidates();
   remind_candidates(false);
@@ -141,5 +239,6 @@ export const start_cron = () => {
     remind_candidates(true);
     get_pending_hr_screening_candidates();
     check_slack_thread_for_manual_msgs();
+    evaluate_hr_screen_interview();
   }, 1000 * 60 * 30); //30min
 };
