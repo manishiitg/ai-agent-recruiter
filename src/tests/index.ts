@@ -23,9 +23,15 @@ import { transribe_file_assembly_ai } from "../integrations/assembly";
 import { transcribe_file_deepgram } from "../integrations/deepgram";
 import { rate_interview } from "../agent/prompts/rate_interview";
 import { evaluate_hr_screen_interview } from "../server/whatsapp/cron";
+import { ask_question_for_tech_interview } from "../agent/prompts/interview_questions";
 
 (async () => {
   // there is a bug. for ph: 916309891039. he is uploaded his resume but for some reason we havne't processed it so he is stuck in stage New
+
+  const ph = "919262378726";
+  const inter = await getInterviewObject(ph);
+
+  const reply = await ask_question_for_tech_interview("jr python developer", "Django");
 
   // await evaluate_hr_screen_interview();
 
@@ -67,54 +73,54 @@ import { evaluate_hr_screen_interview } from "../server/whatsapp/cron";
   //   }
   // }
 
-  const candidates = await getPendingNotCompletedCandidates(false);
-  console.log("getPendingNotCompletedCandidates", candidates.length);
-  for (const candidate of candidates) {
-    console.log(convertToIST(candidate.conversation.started_at));
-    const date = convertToIST(candidate.conversation.started_at) as Date;
-    const now = convertToIST(new Date());
-    if (candidate.unique_id == "919043237743") {
-      console.log("found11111", (now.getTime() - date.getTime()) / (1000 * 60), now.getTime() - date.getTime() > 1000 * 60 * 10);
-    }
+  // const candidates = await getPendingNotCompletedCandidates(false);
+  // console.log("getPendingNotCompletedCandidates", candidates.length);
+  // for (const candidate of candidates) {
+  //   console.log(convertToIST(candidate.conversation.started_at));
+  //   const date = convertToIST(candidate.conversation.started_at) as Date;
+  //   const now = convertToIST(new Date());
+  //   if (candidate.unique_id == "919043237743") {
+  //     console.log("found11111", (now.getTime() - date.getTime()) / (1000 * 60), now.getTime() - date.getTime() > 1000 * 60 * 10);
+  //   }
 
-    if (now.getTime() - date.getTime() > 1000 * 60 * 10) {
-      //no response in 1hr
-      const fromNumber = candidate.unique_id;
+  //   if (now.getTime() - date.getTime() > 1000 * 60 * 10) {
+  //     //no response in 1hr
+  //     const fromNumber = candidate.unique_id;
 
-      const { conversation } = await get_whatspp_conversations(fromNumber);
-      const sortedConversation = sortBy(conversation, (conv: WhatsAppConversaion) => {
-        return conv.created_at;
-      });
+  //     const { conversation } = await get_whatspp_conversations(fromNumber);
+  //     const sortedConversation = sortBy(conversation, (conv: WhatsAppConversaion) => {
+  //       return conv.created_at;
+  //     });
 
-      let should_continue = true;
+  //     let should_continue = true;
 
-      if (sortedConversation[sortedConversation.length - 1].userType == "agent") {
-        should_continue = false;
-      } else {
-        //we can check here if interview/conversion is completed.
-        // but that will already be checked so it ineeded?
-        console.log("should continue", candidate.unique_id);
-        if (candidate.unique_id == "919043237743") {
-          console.log("found!!!");
-          break;
-        }
-      }
-      const candObj = await getCandidateDetailsFromDB(candidate.unique_id);
-      if (candidate.unique_id == "919043237743") {
-        console.log("candObj.conversation?.conversation_completed_reason", candObj.conversation?.conversation_completed_reason);
-      }
-      if (candObj.conversation?.conversation_completed_reason?.includes("call_via_human")) {
-        if (!(await isInterviewStarted(candidate.unique_id))) {
-          should_continue = true;
-          console.log("should continue non interview", candidate.unique_id);
-          if (candidate.unique_id == "919043237743") {
-            console.log("found!!!");
-            break;
-          }
-        }
-      }
-    }
-  }
+  //     if (sortedConversation[sortedConversation.length - 1].userType == "agent") {
+  //       should_continue = false;
+  //     } else {
+  //       //we can check here if interview/conversion is completed.
+  //       // but that will already be checked so it ineeded?
+  //       console.log("should continue", candidate.unique_id);
+  //       if (candidate.unique_id == "919043237743") {
+  //         console.log("found!!!");
+  //         break;
+  //       }
+  //     }
+  //     const candObj = await getCandidateDetailsFromDB(candidate.unique_id);
+  //     if (candidate.unique_id == "919043237743") {
+  //       console.log("candObj.conversation?.conversation_completed_reason", candObj.conversation?.conversation_completed_reason);
+  //     }
+  //     if (candObj.conversation?.conversation_completed_reason?.includes("call_via_human")) {
+  //       if (!(await isInterviewStarted(candidate.unique_id))) {
+  //         should_continue = true;
+  //         console.log("should continue non interview", candidate.unique_id);
+  //         if (candidate.unique_id == "919043237743") {
+  //           console.log("found!!!");
+  //           break;
+  //         }
+  //       }
+  //     }
+  //   }
+  // }
 
   // const fromNumber = "919919350969";
   // const { slack_thread_id, conversation } = await get_whatspp_conversations(fromNumber);

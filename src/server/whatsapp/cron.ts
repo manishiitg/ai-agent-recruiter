@@ -175,7 +175,7 @@ export const evaluate_hr_screen_interview = async () => {
             let ai_model = "";
             let text: string | null | undefined = null;
             try {
-              if (new Date().getHours() % 2 === 0) {
+              if (new Date().getHours() % 2 === 0 || true) {
                 ai_model = "deepgram";
                 console.log(conv.body.Media0);
                 text = await transcribe_file_deepgram(conv.body.Media0);
