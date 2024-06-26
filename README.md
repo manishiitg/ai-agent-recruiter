@@ -57,8 +57,9 @@ Agent has a STATE (s) , STATE TRANSITION (s) and RULE (s)
 Things to work on
 ==================
 1. Rejection flow
-2. Assign audio question to round. 
+2. Assign audio question to round
 3. Able to ask questions real time and judge candidate on tech skills properly and provide a rating
 4. Bug where candidate doesn't provide audio, instead just replies via text in interview
 5. Duplicate questions sent to users
 6. Ask people if they are willing to relocate to noida, if belong to different state.
+7. If candidate are sending message, after status is completed. There should be option for hr to reply manually. they need to get notified about it.

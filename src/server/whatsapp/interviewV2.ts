@@ -3,12 +3,13 @@ import { STAGE_COMPLETED, STAGE_INTERVIEW_NOT_DONE, STAGE_NEW, STAGE_TECH_QUES1 
 import { ConversationMessage, Interview } from "../../agent/interviewer/types";
 import { get_whatspp_conversations, getCandidateDetailsFromDB, getCandidateInterviewFromDB, saveCandidateInterviewToDB } from "../../db/mongo";
 import { WhatsAppCreds } from "../../db/types";
-import { extractInfo } from "../../agent/interviewer/extract_info";
-import { convertConversationToText } from "../../agent/interviewer/helper";
-import { transitionStage } from "../../agent/interviewer/transitions";
+import { extractInfo } from "../../agent/interviewerV2/extract_info";
+import { convertConversationToText } from "../../agent/interviewerV2/helper";
+import { transitionStage } from "../../agent/interviewerV2/transitions";
 import { question_to_ask_from_resume } from "../../agent/prompts/resume_question";
 import { linkedJobProfileRules } from "../../agent/jobconfig";
 import { postMessage, postMessageToThread } from "../../communication/slack";
+import { STAGE_INTRODUCTION } from "../../agent/interviewerV2/rule_map";
 
 export const getInterviewObject = async (phoneNo: string) => {
   let interview: Interview;
@@ -94,21 +95,21 @@ export const conduct_interview = async (
       interview.interview.interview_info.is_intro_done = info.introduction_done as 0 | 1 | -1;
     }
   }
-  if (info.first_tech_done) {
-    if (interview.interview.interview_info) {
-      interview.interview.interview_info.is_tech_question1_done = info.first_tech_done as 0 | 1 | -1;
-    }
-  }
-  if (info.second_tech_done) {
-    if (interview.interview.interview_info) {
-      interview.interview.interview_info.is_tech_question2_done = info.second_tech_done as 0 | 1 | -1;
-    }
-  }
-  if (info.second_tech_done) {
-    if (interview.interview.interview_info) {
-      interview.interview.interview_info.is_tech_question3_done = info.third_tech_done as 0 | 1 | -1;
-    }
-  }
+  // if (info.first_tech_done) {
+  //   if (interview.interview.interview_info) {
+  //     interview.interview.interview_info.is_tech_question1_done = info.first_tech_done as 0 | 1 | -1;
+  //   }
+  // }
+  // if (info.second_tech_done) {
+  //   if (interview.interview.interview_info) {
+  //     interview.interview.interview_info.is_tech_question2_done = info.second_tech_done as 0 | 1 | -1;
+  //   }
+  // }
+  // if (info.second_tech_done) {
+  //   if (interview.interview.interview_info) {
+  //     interview.interview.interview_info.is_tech_question3_done = info.third_tech_done as 0 | 1 | -1;
+  //   }
+  // }
   if (info.reject_interview) {
     if (interview.interview.interview_info) {
       interview.interview.interview_info.is_interview_reject = info.reject_interview as 0 | 1 | -1;
@@ -117,8 +118,11 @@ export const conduct_interview = async (
 
   const newStage = transitionStage(interview);
   console.log("got new stage after transition", newStage);
-  if (newStage.length) {
+  if (newStage.length && newStage != interview.interview.stage) {
     interview.interview.stage = newStage;
+    if (newStage == STAGE_INTRODUCTION) {
+      interview.interview.interview_info.got_audio_file = false;
+    }
     await saveCandidateInterviewToDB(interview);
   }
 
@@ -168,6 +172,30 @@ export const conduct_interview = async (
   const llm = await generateConversationReply(phoneNo, interview, creds.name, conversation);
   let action = llm.action;
   let reply = llm.reply;
+
+  if (interview.interview.stage == STAGE_INTRODUCTION) {
+    let record = false;
+    if (action == "ask_for_introduction") {
+      record = true;
+    }
+    if (record) {
+      if (!interview.interview.interview_questions_asked) {
+        interview.interview.interview_questions_asked = [
+          {
+            stage: interview.interview.stage,
+            question: reply,
+          },
+        ];
+      } else {
+        interview.interview.interview_questions_asked.push(
+          {
+            stage: interview.interview.stage,
+            question: reply,
+          },
+        );
+      }
+    }
+  }
 
   if (interview.interview.debug) {
     interview.interview.debug.push(llm.output);

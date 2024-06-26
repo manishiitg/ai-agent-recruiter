@@ -35,20 +35,6 @@ export interface Interview {
       question3: string;
       answer3: string;
     };
-    interview_questions_asked?: [
-      {
-        stage: string;
-        question: string;
-      }
-    ];
-    audio_file?: [
-      {
-        fileUrl: string;
-        stage: string;
-        transcribe: string;
-        ai: string;
-      }
-    ];
     transcribe?: [
       {
         uid: string;

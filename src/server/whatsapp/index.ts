@@ -10,6 +10,7 @@ import {
   get_whatspp_conversations,
   save_whatsapp_conversation,
   saveCandidateDetailsToDB,
+  saveCandidateInterviewToDB,
   update_slack_thread_id_for_conversion,
 } from "../../db/mongo";
 import sortBy from "lodash/sortBy";
@@ -22,6 +23,8 @@ import { createRequire } from "module";
 import { send_whatsapp_text_reply } from "../../integrations/plivo";
 import { conduct_interview, getInterviewObject } from "./interview";
 import { converToMp3 } from "../../integrations/mp3";
+import { transcribe_file_deepgram } from "../../integrations/deepgram";
+import { transribe_file_assembly_ai } from "../../integrations/assembly";
 // @ts-ignore
 const require = createRequire(import.meta.url);
 var textract = require("textract");
@@ -131,6 +134,51 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
               canDelete: true,
             };
 
+            if (interviewObj.interview && interviewObj.interview.interview_info) {
+              interviewObj.interview.interview_info.got_audio_file = true;
+
+              let ai_model = "";
+              let text = "";
+              try {
+                if (new Date().getHours() % 2 === 0 || true) {
+                  ai_model = "deepgram";
+                  console.log(Media0);
+                  text = await transcribe_file_deepgram(Media0);
+                }
+                // } else {
+                //   ai_model = "assemblyai";
+                //   text = await transribe_file_assembly_ai(Media0);
+                // }
+              } catch (error) {
+                console.error(error);
+              }
+
+              if (text) {
+                await save_whatsapp_conversation("candidate", fromNumber, ContentType, text, MessageUUID, req.body);
+              } else {
+                await save_whatsapp_conversation("candidate", fromNumber, ContentType, `Please find attached by audio recording`, MessageUUID, req.body);
+              }
+              if (!interviewObj.interview.audio_file) {
+                interviewObj.interview.audio_file = [
+                  {
+                    stage: interviewObj.interview.stage,
+                    fileUrl: Media0,
+                    transcribe: text || "",
+                    ai: ai_model,
+                  },
+                ];
+              } else {
+                interviewObj.interview.audio_file.push({
+                  stage: interviewObj.interview.stage,
+                  fileUrl: Media0,
+                  transcribe: text || "",
+                  ai: ai_model,
+                });
+              }
+
+              await saveCandidateInterviewToDB(interviewObj);
+            }
+
             const resume_file = path.join(resume_path, `${fromNumber}_${interviewObj.interview?.stage}_audio.ogg`);
             await downloadFile(Media0, resume_file);
             const { slack_thread_id, channel_id } = await get_whatspp_conversations(fromNumber);
@@ -153,8 +201,6 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
                 await postAttachment(resume_file, channel_id || process.env.slack_action_channel_id, ts);
               }
             }
-
-            await save_whatsapp_conversation("candidate", fromNumber, ContentType, "Please find attached my recording", MessageUUID, req.body);
 
             if (queue[fromNumber]) {
               if (queue[fromNumber].status == "PENDING") {
