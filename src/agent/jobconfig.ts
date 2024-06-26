@@ -27,7 +27,7 @@ export const linkedJobProfileRules: Record<
     - Candidate should have worked on projects/internship related to recruitment, hiring, hr administration.`,
   },
   "Jr NodeJs Developer": {
-    is_open: true,
+    is_open: false,
     job_description: `Good Knowledge in expressjs or typescript or other nodejs frameworks.
     Worked with databases like mongodb or mysql or postgresql`,
     full_criteria: `Rule 1. Candidate should not belong to locations ${exclude_location_rule}
