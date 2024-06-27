@@ -1,5 +1,6 @@
 import sortBy from "lodash/sortBy";
 import {
+  CONVERSION_TYPE_INTERVIEW,
   get_whatspp_conversations,
   getCandidateDetailsFromDB,
   getInterviewCandidates,
@@ -24,14 +25,15 @@ import { transcribe_file_deepgram } from "../integrations/deepgram";
 import { rate_interview } from "../agent/prompts/rate_interview";
 import { evaluate_hr_screen_interview } from "../server/whatsapp/cron";
 import { ask_question_for_tech_interview } from "../agent/prompts/interview_questions";
+import { send_whatsapp_text_reply } from "../integrations/plivo";
 
 (async () => {
   // there is a bug. for ph: 916309891039. he is uploaded his resume but for some reason we havne't processed it so he is stuck in stage New
 
-  const ph = "919262378726";
-  const inter = await getInterviewObject(ph);
+  // const ph = "919262378726";
+  // const inter = await getInterviewObject(ph);
 
-  const reply = await ask_question_for_tech_interview("jr python developer", "Django");
+  // const reply = await ask_question_for_tech_interview("jr python developer", "Django");
 
   // await evaluate_hr_screen_interview();
 
@@ -122,41 +124,18 @@ import { ask_question_for_tech_interview } from "../agent/prompts/interview_ques
   //   }
   // }
 
-  // const fromNumber = "919919350969";
-  // const { slack_thread_id, conversation } = await get_whatspp_conversations(fromNumber);
-  // const sortedConversation = sortBy(conversation, (conv: WhatsAppConversaion) => {
-  //   return conv.created_at;
-  // });
+  let agentReply: {
+    message: string;
+    action: string;
+    stage: string;
+  };
 
-  // let agentReply: {
-  //   message: string;
-  //   action: string;
-  //   stage: string;
-  // };
+  const cred: WhatsAppCreds = {
+    name: "Mahima",
+    phoneNo: "917011749960",
+  };
 
-  // const cred: WhatsAppCreds = {
-  //   name: "Mahima",
-  //   phoneNo: "917011749960",
-  // };
-
-  //   agentReply = await process_whatsapp_conversation(
-  //     fromNumber,
-  //     sortedConversation.map((conv) => {
-  //       return {
-  //         name: conv.userType,
-  //         content: conv.content,
-  //         date: conv.created_at,
-  //       };
-  //     }),
-  //     cred,
-  //     (reply: string) => {
-  //       (async () => {
-  //         console.log("repling through callback");
-  //       })();
-  //     }
-  //   );
-
-  // agentReply = await conduct_interview(
+  // agentReply = await process_whatsapp_conversation(
   //   fromNumber,
   //   sortedConversation.map((conv) => {
   //     return {
@@ -165,9 +144,81 @@ import { ask_question_for_tech_interview } from "../agent/prompts/interview_ques
   //       date: conv.created_at,
   //     };
   //   }),
-  //   cred
+  //   cred,
+  //   (reply: string) => {
+  //     (async () => {
+  //       console.log("repling through callback");
+  //     })();
+  //   }
   // );
 
-  // console.log(agentReply);
+  const fromNumber = "919717071555";
+
+  // await save_whatsapp_conversation("candidate", fromNumber, "", "i am ready", "", "");
+
+  await save_whatsapp_conversation("candidate", fromNumber, "", "<audio_recording>yes my name is manish and i am full stack developer</audio_recording>", "", "");
+  // await save_whatsapp_conversation("candidate", fromNumber, "", "but i have sent you the recording", "", "");
+
+  // await   save_whatsapp_conversation("candidate", fromNumber, "", "yes", "", "");
+
+  await   save_whatsapp_conversation("candidate", fromNumber, "", "no", "", "");
+
+  // await save_whatsapp_conversation("candidate", fromNumber, "", "how does it work?", "", "");
+
+  // const inter = await getInterviewObject(fromNumber);
+  // if (inter.interview && inter.interview.interview_info) {
+  //   inter.interview.interview_info.got_audio_file = true;
+  //   await saveCandidateInterviewToDB(inter);
+  // }
+
+  const { slack_thread_id, conversation } = await get_whatspp_conversations(fromNumber);
+  const sortedConversation = sortBy(conversation, (conv: WhatsAppConversaion) => {
+    return conv.created_at;
+  });
+
+  agentReply = await conduct_interview(
+    fromNumber,
+    sortedConversation
+      .filter((row) => row.conversationType == CONVERSION_TYPE_INTERVIEW)
+      .map((conv) => {
+        return {
+          name: conv.userType,
+          content: conv.content,
+          date: conv.created_at,
+        };
+      }),
+    cred
+  );
+
+  console.log(agentReply);
+  if (agentReply && agentReply.message) {
+    await save_whatsapp_conversation("agent", fromNumber, "text", agentReply.message, "", "");
+
+    if (false) {
+      await save_whatsapp_conversation("candidate", fromNumber, "text", "ok", "", "");
+
+      const { slack_thread_id, conversation } = await get_whatspp_conversations(fromNumber);
+      const sortedConversation = sortBy(conversation, (conv: WhatsAppConversaion) => {
+        return conv.created_at;
+      });
+
+      agentReply = await conduct_interview(
+        fromNumber,
+        sortedConversation
+          .filter((row) => row.conversationType == CONVERSION_TYPE_INTERVIEW)
+          .map((conv) => {
+            return {
+              name: conv.userType,
+              content: conv.content,
+              date: conv.created_at,
+            };
+          }),
+        cred
+      );
+      console.log(agentReply);
+
+      await save_whatsapp_conversation("agent", fromNumber, "text", agentReply.message, "", "");
+    }
+  }
   console.log("completed!");
 })();

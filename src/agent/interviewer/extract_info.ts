@@ -2,12 +2,7 @@ import { callDeepkSeek, DEEP_SEEK_V2_CODER } from "../../llms/deepkseek";
 import { parseStringPromise } from "xml2js";
 import { CandidateInfo } from "./types";
 
-export const extractInfo = async (
-  profileID: string,
-  me: string,
-  conversation: string,
-  type: "gmail" | "linkedin" | "whatsapp" = "whatsapp"
-): Promise<{ llm_output: string; start_interview: number; introduction_done: number; first_tech_done: number; second_tech_done: number; reject_interview: number; third_tech_done: number }> => {
+export const extractInfo = async (profileID: string, me: string, conversation: string, type: "gmail" | "linkedin" | "whatsapp" = "whatsapp") => {
   const prompt = `You are an HR recruiter on ${type}.
   You are having a conversation with a person on ${type}. 
 
@@ -17,12 +12,8 @@ export const extractInfo = async (
   <conversation>${conversation}</conversation>  
   
   Information To Extract:
-  1. CANDIDATE_ACCEPTED_INTERVIEW: if we have asked the candidate to conduct interview specifically on whatsapp and he is agreed to them same. Candidate would already have agreed to interview over phone, but need to check specifically for whatsapp.
+  1. CANDIDATE_ACCEPTED_INTERVIEW: if we have asked the candidate to conduct interview specifically on whatsapp and he is agreed to them same.
   2. CANDIDATE_REJECTED_INTERVIEW: if doesn't want to do interview on whatsapp
-  3. CANDIATE_COMPLETED_INTRODUCTION: if candidate has completed his introduction and sent his introduction recordingds on whatsapp
-  4. CANDIATE_COMPLETED_FIRST_TECH_QUESTION: if candidate has sent audio recording the first technical question asked and he has not sent answer as a text message
-  5. CANDIATE_COMPLETED_SECOND_TECH_QUESTION: if candidate has sent audio recording for the second technical question asked and he has not sent answer as a text message
-  6. CANDIATE_COMPLETED_THIRD_TECH_QUESTION: if candidate has has sent audio recording the third tehcnical question asked and he has not sent answer as a text message
 
   mention "no" if information doesn't exist, don't make up any information outside the conversion
 
@@ -33,10 +24,6 @@ export const extractInfo = async (
     <REASON>your step by step reasoning for every information you extract.</REASON>
     <CANDIDATE_ACCEPTED_INTERVIEW>yes or no if candidate accepted to start the interview</CANDIDATE_ACCEPTED_INTERVIEW>
     <CANDIDATE_REJECTED_INTERVIEW>yes or no if candidate rejected to start the interview</CANDIDATE_REJECTED_INTERVIEW>
-    <CANDIATE_COMPLETED_INTRODUCTION>yes or no</CANDIATE_COMPLETED_INTRODUCTION>
-    <CANDIATE_COMPLETED_FIRST_TECH_QUESTION>yes or no</CANDIATE_COMPLETED_FIRST_TECH_QUESTION>
-    <CANDIATE_COMPLETED_SECOND_TECH_QUESTION>yes or no</CANDIATE_COMPLETED_SECOND_TECH_QUESTION>
-    <CANDIATE_COMPLETED_THIRD_TECH_QUESTION>yes or no</CANDIATE_COMPLETED_THIRD_TECH_QUESTION>
   </RESPONSE>
   `;
 
@@ -80,44 +67,5 @@ export const extractInfo = async (
     }
   }
 
-  let introduction_done = 0;
-  if ("CANDIATE_COMPLETED_INTRODUCTION" in extractedFields) {
-    if (extractedFields["CANDIATE_COMPLETED_INTRODUCTION"].toLowerCase().includes("yes")) {
-      introduction_done = 1;
-    }
-    if (extractedFields["CANDIATE_COMPLETED_INTRODUCTION"].toLowerCase().includes("no")) {
-      introduction_done = -1;
-    }
-  }
-
-  let first_tech_done = 0;
-  if ("CANDIATE_COMPLETED_FIRST_TECH_QUESTION" in extractedFields) {
-    if (extractedFields["CANDIATE_COMPLETED_FIRST_TECH_QUESTION"].toLowerCase().includes("yes")) {
-      first_tech_done = 1;
-    }
-    if (extractedFields["CANDIATE_COMPLETED_FIRST_TECH_QUESTION"].toLowerCase().includes("no")) {
-      first_tech_done = -1;
-    }
-  }
-  let second_tech_done = 0;
-  if ("CANDIATE_COMPLETED_SECOND_TECH_QUESTION" in extractedFields) {
-    if (extractedFields["CANDIATE_COMPLETED_SECOND_TECH_QUESTION"].toLowerCase().includes("yes")) {
-      second_tech_done = 1;
-    }
-    if (extractedFields["CANDIATE_COMPLETED_SECOND_TECH_QUESTION"].toLowerCase().includes("no")) {
-      second_tech_done = -1;
-    }
-  }
-
-  let third_tech_done = 0;
-  if ("CANDIATE_COMPLETED_THIRD_TECH_QUESTION" in extractedFields) {
-    if (extractedFields["CANDIATE_COMPLETED_THIRD_TECH_QUESTION"].toLowerCase().includes("yes")) {
-      third_tech_done = 1;
-    }
-    if (extractedFields["CANDIATE_COMPLETED_THIRD_TECH_QUESTION"].toLowerCase().includes("no")) {
-      third_tech_done = -1;
-    }
-  }
-
-  return { llm_output, start_interview, introduction_done, first_tech_done, second_tech_done, third_tech_done, reject_interview };
+  return { llm_output, start_interview, reject_interview };
 };

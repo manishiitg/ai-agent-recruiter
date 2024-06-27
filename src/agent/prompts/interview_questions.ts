@@ -9,7 +9,9 @@ export const ask_question_for_tech_interview = async (hiring_for_profile: string
     Before providing the question, please show your step-by-step reasoning and analysis of the resume that led you to select those questions. Provide this reasoning inside <SCRATCHPAD> tags.
     Then, based on your analysis, generate 1 short technical interview questions specifically tailored to assess ${interview_question_topic}. 
 
+    Generate a specific question which candidate should be able to answer if he has good knowedge of the topic.
     Candidate would answer this question over voice call, so it shouldn't not involve any code writing.
+    Also the question should be such that answer is short but precise. 
 
     The question should be short and straight forward and directly judge candidates ability on the topic ${interview_question_topic}. 
 

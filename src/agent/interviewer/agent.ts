@@ -1,8 +1,9 @@
 import { callDeepseekViaMessages, DEEP_SEEK_V2_CHAT } from "../../llms/deepkseek";
-import { STAGE_NEW, STAGE_RULE_MAP, STAGE_TECH_QUES1, STAGE_TECH_QUES2 } from "./rule_map";
+import { getRuleMap, STAGE_NEW, STAGE_TECH_QUES } from "./rule_map";
 import { parseStringPromise } from "xml2js";
 import { ConversationMessage, Interview } from "./types";
 import { convertConversationToText } from "./helper";
+import { companyInfo } from "../jobconfig";
 
 export const generateConversationReply = async (
   profileID: string,
@@ -18,11 +19,12 @@ export const generateConversationReply = async (
 }> => {
   const stage = conversationObj.interview?.stage || STAGE_NEW;
   const actions_taken = conversationObj.interview?.actions_taken || [];
-  const extraInfo = conversationObj.interview?.info;
   const context = get_context(conversationObj);
 
+  const RULE_MAP = getRuleMap();
+
   console.log("got candidate stage", stage);
-  if (!STAGE_RULE_MAP[stage]) {
+  if (!RULE_MAP[stage]) {
     throw new Error("stage not found");
   }
 
@@ -30,32 +32,41 @@ export const generateConversationReply = async (
   let other_rules = ``;
 
   const pending_actions: string[] = [];
-  for (const action in STAGE_RULE_MAP[stage]) {
-    let response = STAGE_RULE_MAP[stage][action].response;
-    if (STAGE_RULE_MAP[stage][action].condition_ctc_response) {
-      if (extraInfo?.years_of_experiance?.length) {
-        response = STAGE_RULE_MAP[stage][action].condition_ctc_response.true;
+  for (const action in RULE_MAP[stage]) {
+    let response = RULE_MAP[stage][action].response;
+
+    if (conversationObj.interview?.interview_info.got_audio_file) {
+      if (conversationObj.interview.interview_info.got_audio_file === true) {
+        if (action === "candidate_answered_didnt_send_recording") {
+          console.log("skipping candidate_answered_didnt_send_recording");
+          continue;
+        }
       } else {
-        response = STAGE_RULE_MAP[stage][action].condition_ctc_response.false;
+        if (action === "candidate_answered_sent_recording") {
+          console.log("skipping candidate_answered_sent_recording");
+          continue;
+        }
       }
     }
-    console.log("actions taken", conversationObj.interview?.actions_taken, `${stage}.${action}`, actions_taken.includes(`${stage}.${action}`));
+
+    // console.log("actions taken", conversationObj.interview?.actions_taken, `${stage}.${action}`, actions_taken.includes(`${stage}.${action}`));
     if (actions_taken.includes(`${stage}.${action}`)) {
-      // || actions_taken.includes(`${action}`)
-      console.log("skipping action", action);
-      other_rules += `
+      // console.log("skipping action", action);
+      if (RULE_MAP[stage][action].to_remove_once_used === undefined || RULE_MAP[stage][action].to_remove_once_used === false) {
+        other_rules += `
         <rule_description>
-          <rule>${STAGE_RULE_MAP[stage][action].rule}</rule>
+          <rule>${RULE_MAP[stage][action].rule}</rule>
           <response_rule>${response}</response_rule>
           <action>${action}</action>
         </rule_description>
         `;
+      }
       continue;
     }
 
     priority_rules += `
     <rule_description>
-      <rule>${STAGE_RULE_MAP[stage][action].rule}</rule>
+      <rule>${RULE_MAP[stage][action].rule}</rule>
       <response_rule>${response}</response_rule>
       <action>${action}</action>
     </rule_description>
@@ -64,14 +75,10 @@ export const generateConversationReply = async (
   }
 
   let tech_question_to_ask = "";
-  if (conversationObj.interview?.stage == STAGE_TECH_QUES1) {
-    if (conversationObj.interview?.tech_questions) {
-      tech_question_to_ask = conversationObj.interview.tech_questions.question1;
-    }
-  }
-  if (conversationObj.interview?.stage == STAGE_TECH_QUES2) {
-    if (conversationObj.interview?.tech_questions) {
-      tech_question_to_ask = conversationObj.interview.tech_questions.question2;
+  if (conversationObj.interview?.stage == STAGE_TECH_QUES) {
+    if (conversationObj.interview?.interview_questions_asked) {
+      const last = conversationObj.interview.interview_questions_asked.length;
+      tech_question_to_ask = conversationObj.interview.interview_questions_asked[last - 1].question_generated;
     }
   }
 
@@ -82,8 +89,7 @@ export const generateConversationReply = async (
 
   1. Company Information:
   <company_information>
-  COMPANY NAME: Excellence Technologies
-  COMPANY LOCATION: Noida
+  ${companyInfo}
   </company_information>
     
   2. Context and Conversation History:
@@ -96,11 +102,15 @@ export const generateConversationReply = async (
   ${priority_rules}
   </priority_rules>
 
-  ${tech_question_to_ask.length ? `<tech_question>${tech_question_to_ask}</tech_question>` : ""}
-
   4. Other Rules (if any):
   ${other_rules ? `<other_rules>${other_rules}</other_rules>` : ""}
 
+  ${tech_question_to_ask.length ? `<tech_question>${tech_question_to_ask}</tech_question>` : ""}
+  ${
+    conversationObj.interview?.interview_info.got_audio_file === true
+      ? `<has_sent_recording>Yes candidate has sent recording.<has_sent_recording>`
+      : `<has_sent_recording>No, candidate has not sent any recordings<has_sent_recording>`
+  }
 
   5. Rule Analysis and Selection:
   - Carefully analyze all provided rules priority_rules and other_rules, giving higher priority to recent conversations over older ones.
@@ -110,16 +120,21 @@ export const generateConversationReply = async (
   - Prioritize using the <priority_rules> first, and only use <other_rules> if the priority rules are not applicable.
   - Provide a step-by-step analysis of every rule in the <scratchpad> tag.
   - Give a detailed reason for selecting the final rule in the <FINAL_REASON> tag.
+
+  6. Analyse if candidate has sent audio recording or not only based on the tag <has_sent_recording>.
+  Very Important, Do not look at previous conversion when check if audio recording has been sent.
+  Add your reasoning to <REASON_IF_AUDIO_RECORDING_SENT> tag.
   
-  9. Response Guidelines:
+  7. Response Guidelines:
 - Generate a suitable response based on the selected rule, conversation/context, and the final selected action <response_rule>.
 - Do not mention the context or conversation explicitly in the final response.
 - Use candidate's name to personalise response when available
 
-  10. Output Structure:
+  8. Output Structure:
   Provide your response in the following XML format:
 
 <RESPONSE>
+  <REASON_IF_AUDIO_RECORDING_SENT>analysis of if audio recording is sent or not</REASON_IF_AUDIO_RECORDING_SENT>
   <scratchpad>
   Provide step-by-step analysis of every rule, including rule names in format 
   <action_name></action_name> <rule_condition></rule_condition><analysis>reason if/why action sould be executed</analysis>
@@ -141,16 +156,14 @@ Remember to check all rules before selecting the final one, and ensure that your
     role: "user" | "assistant";
   }[] = [];
 
-  // console.log("prompt", prompt);
+  console.log("prompt", prompt);
 
   messages.push({
     role: "user",
-    content: `Below is the conversation till now. Conversion are sorted from first conversion to most recent. 
-
+    content: `Below is the conversation till now. Conversion are sorted from first conversion to most recent.
       <conversation>
       ${convertConversationToText(conversation)}
       </conversation>
-
       Think step by step.
       `,
   });
@@ -186,7 +199,7 @@ Remember to check all rules before selecting the final one, and ensure that your
   action = `${stage}.${action}`;
 
   console.log("got final action", action);
-  console.log("actions taken", actions_taken);
+  console.log("actions already taken", actions_taken);
   console.log("got candidate stage", stage);
   return { action, reply, reason, output: llm_output };
 };

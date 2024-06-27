@@ -1,14 +1,27 @@
 import { generateConversationReply } from "../../agent/interviewer/agent";
-import { STAGE_COMPLETED, STAGE_INTERVIEW_NOT_DONE, STAGE_NEW, STAGE_TECH_QUES1 } from "../../agent/interviewer/rule_map";
+import {
+  STAGE_COMPLETED,
+  STAGE_GENERATE_QUES,
+  STAGE_INTERVIEW_NOT_DONE,
+  STAGE_NEW,
+  STAGE_TECH_QUES,
+  STAGE_TECH_QUES1,
+  STAGE_TECH_QUES2,
+  STAGE_TECH_QUES3,
+  STAGE_TECH_QUES4,
+  STAGE_TECH_QUES5,
+} from "../../agent/interviewer/rule_map";
 import { ConversationMessage, Interview } from "../../agent/interviewer/types";
 import { get_whatspp_conversations, getCandidateDetailsFromDB, getCandidateInterviewFromDB, saveCandidateInterviewToDB } from "../../db/mongo";
 import { WhatsAppCreds } from "../../db/types";
 import { extractInfo } from "../../agent/interviewer/extract_info";
 import { convertConversationToText } from "../../agent/interviewer/helper";
 import { transitionStage } from "../../agent/interviewer/transitions";
-import { question_to_ask_from_resume } from "../../agent/prompts/resume_question";
+import { question_to_ask_from_resume, single_question_to_ask_from_resume } from "../../agent/prompts/resume_question";
 import { linkedJobProfileRules } from "../../agent/jobconfig";
 import { postMessage, postMessageToThread } from "../../communication/slack";
+import { STAGE_INTRODUCTION } from "../../agent/interviewer/rule_map";
+import { ask_question_for_tech_interview } from "../../agent/prompts/interview_questions";
 
 export const getInterviewObject = async (phoneNo: string) => {
   let interview: Interview;
@@ -75,83 +88,30 @@ export const conduct_interview = async (
     console.log("interview message processing completed", interview.interview.conversation_completed_reason);
     return { message: "", action: "completed", stage: "completed" };
   }
-  console.log("interview", interview);
+  // console.log("interview", interview);
 
-  const info = await extractInfo(phoneNo, creds.name, convertConversationToText(conversation));
-  if (interview.interview.debug) {
-    interview.interview.debug.push(info.llm_output);
-  } else {
-    interview.interview.debug = [info.llm_output];
-  }
-  await saveCandidateInterviewToDB(interview);
-  if (info.start_interview) {
-    if (interview.interview.interview_info) {
-      interview.interview.interview_info.is_interview_ok = info.start_interview as 0 | 1 | -1;
+  if (interview.interview.stage === STAGE_NEW || interview.interview.stage == STAGE_INTRODUCTION) {
+    const info = await extractInfo(phoneNo, creds.name, convertConversationToText(conversation));
+    await saveCandidateInterviewToDB(interview);
+    if (info.start_interview) {
+      if (interview.interview.interview_info) {
+        interview.interview.interview_info.is_interview_ok = info.start_interview as 0 | 1 | -1;
+      }
     }
-  }
-  if (info.introduction_done) {
-    if (interview.interview.interview_info) {
-      interview.interview.interview_info.is_intro_done = info.introduction_done as 0 | 1 | -1;
-    }
-  }
-  if (info.first_tech_done) {
-    if (interview.interview.interview_info) {
-      interview.interview.interview_info.is_tech_question1_done = info.first_tech_done as 0 | 1 | -1;
-    }
-  }
-  if (info.second_tech_done) {
-    if (interview.interview.interview_info) {
-      interview.interview.interview_info.is_tech_question2_done = info.second_tech_done as 0 | 1 | -1;
-    }
-  }
-  if (info.second_tech_done) {
-    if (interview.interview.interview_info) {
-      interview.interview.interview_info.is_tech_question3_done = info.third_tech_done as 0 | 1 | -1;
-    }
-  }
-  if (info.reject_interview) {
-    if (interview.interview.interview_info) {
-      interview.interview.interview_info.is_interview_reject = info.reject_interview as 0 | 1 | -1;
+    if (info.reject_interview) {
+      if (interview.interview.interview_info) {
+        interview.interview.interview_info.is_interview_reject = info.reject_interview as 0 | 1 | -1;
+      }
     }
   }
 
   const newStage = transitionStage(interview);
   console.log("got new stage after transition", newStage);
-  if (newStage.length) {
+  if (newStage.length && newStage != interview.interview.stage) {
     interview.interview.stage = newStage;
-    await saveCandidateInterviewToDB(interview);
-  }
-
-  let generate_tech_question = interview.interview.stage == STAGE_TECH_QUES1 && !interview.interview.tech_questions;
-  if (interview.interview.tech_questions) {
-    if (!interview.interview.tech_questions.question3) {
-      generate_tech_question = true;
-      // one time code, for old candidates to generate 3 questions
+    if (newStage == STAGE_INTRODUCTION) {
+      interview.interview.interview_info.got_audio_file = false;
     }
-  }
-
-  if (generate_tech_question) {
-    let job_criteria = "";
-    if (interview.interview.info?.suitable_job_profile) {
-      for (const k in linkedJobProfileRules) {
-        if (linkedJobProfileRules[k].is_open)
-          if (interview.interview.info?.suitable_job_profile.includes(k) || k == interview.interview.info?.suitable_job_profile) {
-            job_criteria += `Job Profile: ${k} \n Shortlisting Criteria: ${linkedJobProfileRules[k].full_criteria} \n\n`;
-            break;
-          }
-      }
-    }
-
-    const questionsReply = await question_to_ask_from_resume(interview.interview.resume?.full_resume_text, interview.interview.info?.suitable_job_profile || "", job_criteria);
-    interview.interview.tech_questions = {
-      scratchpad: questionsReply.SCRATCHPAD,
-      question1: questionsReply.QUESTION1,
-      question2: questionsReply.QUESTION2,
-      question3: questionsReply.QUESTION3,
-      answer1: questionsReply.EXPECTED_ANSWER_1,
-      answer2: questionsReply.EXPECTED_ANSWER_2,
-      answer3: questionsReply.EXPECTED_ANSWER_3,
-    };
     await saveCandidateInterviewToDB(interview);
   }
 
@@ -165,15 +125,133 @@ export const conduct_interview = async (
     await callViaHuman(phoneNo, interview);
   }
 
-  const llm = await generateConversationReply(phoneNo, interview, creds.name, conversation);
+  let llm = await generateConversationReply(phoneNo, interview, creds.name, conversation);
   let action = llm.action;
   let reply = llm.reply;
 
-  if (interview.interview.debug) {
-    interview.interview.debug.push(llm.output);
+  if (interview.interview.actions_taken) {
+    interview.interview.actions_taken.push(action);
   } else {
-    interview.interview.debug = [llm.output];
+    interview.interview.actions_taken = [action];
   }
+
+  if (action == "ask_for_introduction") {
+    if (!interview.interview.interview_questions_asked) {
+      interview.interview.interview_questions_asked = [
+        {
+          stage: interview.interview.stage,
+          question_asked_to_user: reply,
+          topic: "intro",
+          expected_answer: "",
+          question_generated: "",
+        },
+      ];
+    } else {
+      interview.interview.interview_questions_asked.push({
+        stage: interview.interview.stage,
+        question_asked_to_user: reply,
+        topic: "intro",
+        expected_answer: "",
+        question_generated: "",
+      });
+    }
+  }
+
+  if (action.includes("candidate_ready_next_question") || action.includes("candidate_answered_sent_recording")) {
+    if (interview.interview.stage == STAGE_TECH_QUES5) {
+      interview.interview.stage = STAGE_COMPLETED;
+    } else if (interview.interview.stage === STAGE_TECH_QUES4) {
+      interview.interview.stage = STAGE_TECH_QUES5;
+    } else if (interview.interview.stage === STAGE_TECH_QUES3) {
+      interview.interview.stage = STAGE_TECH_QUES4;
+    } else if (interview.interview.stage === STAGE_TECH_QUES2) {
+      interview.interview.stage = STAGE_TECH_QUES3;
+    } else if (interview.interview.stage === STAGE_TECH_QUES1) {
+      interview.interview.stage = STAGE_TECH_QUES2;
+    } else if (interview.interview.stage === STAGE_TECH_QUES) {
+      interview.interview.stage = STAGE_TECH_QUES1;
+    } else if (interview.interview.stage === STAGE_INTRODUCTION) {
+      interview.interview.stage = STAGE_TECH_QUES;
+    }
+
+    if (interview.interview.stage !== STAGE_COMPLETED) {
+      const classified_job_profile = interview.interview.shortlisted?.job_profile;
+      let question_topics: string[] = [];
+      let job_criteria = ``;
+      if (classified_job_profile) {
+        for (const k in linkedJobProfileRules) {
+          if (linkedJobProfileRules[k])
+            if (classified_job_profile.includes(k) || k == classified_job_profile) {
+              question_topics = linkedJobProfileRules[k].questions_to_ask;
+              job_criteria = linkedJobProfileRules[k].resume_rating;
+              break;
+            }
+        }
+      }
+      let topic_to_ask = "";
+      let tech_question_to_ask = "";
+      let tech_question_expected_answer = "";
+      if (question_topics.length > 0) {
+        const question_left_ask = question_topics.filter((question) => {
+          const index = interview.interview?.interview_questions_asked?.findIndex((row) => {
+            row.topic == question;
+          });
+          if (index === -1) {
+            return true;
+          } else {
+            return false;
+          }
+        });
+        if (question_left_ask.length == 0) {
+          const randomIndex = Math.floor(Math.random() * question_topics.length);
+          topic_to_ask = question_topics[randomIndex];
+        } else {
+          topic_to_ask = question_left_ask[0];
+        }
+
+        const generate_questions = await ask_question_for_tech_interview(classified_job_profile || "", question_left_ask[0]);
+        tech_question_to_ask = generate_questions.QUESTION1;
+        tech_question_expected_answer = generate_questions.EXPECTED_ANSWER_1;
+      } else {
+        topic_to_ask = "resume_question";
+        const generate_questions = await single_question_to_ask_from_resume(interview.interview.resume.full_resume_text, classified_job_profile || "", job_criteria);
+        tech_question_to_ask = generate_questions.QUESTION1;
+        tech_question_expected_answer = generate_questions.EXPECTED_ANSWER_1;
+      }
+
+      llm = await generateConversationReply(phoneNo, interview, creds.name, conversation);
+      let action = llm.action;
+      if (interview.interview.actions_taken) {
+        interview.interview.actions_taken.push(action);
+      } else {
+        interview.interview.actions_taken = [action];
+      }
+      let reply = llm.reply;
+
+      if (!interview.interview.interview_questions_asked) {
+        interview.interview.interview_questions_asked = [
+          {
+            stage: interview.interview.stage,
+            question_asked_to_user: reply,
+            topic: topic_to_ask,
+            expected_answer: tech_question_expected_answer,
+            question_generated: tech_question_to_ask,
+          },
+        ];
+      } else {
+        interview.interview.interview_questions_asked.push({
+          stage: interview.interview.stage,
+          question_asked_to_user: reply,
+          topic: topic_to_ask,
+          expected_answer: tech_question_expected_answer,
+          question_generated: tech_question_to_ask,
+        });
+      }
+
+      await saveCandidateInterviewToDB(interview);
+    }
+  }
+
   await saveCandidateInterviewToDB(interview);
 
   return { message: reply, action: action, stage: interview.interview?.stage || "" };

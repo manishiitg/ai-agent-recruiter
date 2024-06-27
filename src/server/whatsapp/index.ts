@@ -6,6 +6,7 @@ import { downloadFile } from "./util";
 import {
   add_whatsapp_message_sent_delivery_report,
   check_whatsapp_convsation_exists,
+  CONVERSION_TYPE_INTERVIEW,
   deleteDataForCandidateToDebug,
   get_whatspp_conversations,
   save_whatsapp_conversation,
@@ -134,50 +135,53 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
               canDelete: true,
             };
 
-            // if (interviewObj.interview && interviewObj.interview.interview_info) {
-            //   interviewObj.interview.interview_info.got_audio_file = true;
+            if (fromNumber == "919717071555") {
+              if (interviewObj.interview && interviewObj.interview.interview_info) {
+                interviewObj.interview.interview_info.got_audio_file = true;
 
-            //   let ai_model = "";
-            //   let text = "";
-            //   try {
-            //     if (new Date().getHours() % 2 === 0 || true) {
-            //       ai_model = "deepgram";
-            //       console.log(Media0);
-            //       text = await transcribe_file_deepgram(Media0);
-            //     }
-            //     // } else {
-            //     //   ai_model = "assemblyai";
-            //     //   text = await transribe_file_assembly_ai(Media0);
-            //     // }
-            //   } catch (error) {
-            //     console.error(error);
-            //   }
+                let ai_model = "";
+                let text = "";
+                try {
+                  if (new Date().getHours() % 2 === 0 || true) {
+                    ai_model = "deepgram";
+                    console.log(Media0);
+                    text = await transcribe_file_deepgram(Media0);
+                  }
+                  // } else {
+                  //   ai_model = "assemblyai";
+                  //   text = await transribe_file_assembly_ai(Media0);
+                  // }
+                } catch (error) {
+                  console.error(error);
+                }
 
-            //   if (text) {
-            //     await save_whatsapp_conversation("candidate", fromNumber, ContentType, text, MessageUUID, req.body);
-            //   } else {
-            //     await save_whatsapp_conversation("candidate", fromNumber, ContentType, `Please find attached by audio recording`, MessageUUID, req.body);
-            //   }
-            //   if (!interviewObj.interview.audio_file) {
-            //     interviewObj.interview.audio_file = [
-            //       {
-            //         stage: interviewObj.interview.stage,
-            //         fileUrl: Media0,
-            //         transcribe: text || "",
-            //         ai: ai_model,
-            //       },
-            //     ];
-            //   } else {
-            //     interviewObj.interview.audio_file.push({
-            //       stage: interviewObj.interview.stage,
-            //       fileUrl: Media0,
-            //       transcribe: text || "",
-            //       ai: ai_model,
-            //     });
-            //   }
+                if (text) {
+                  text = `<audio_recording>${text}</audio_recording>`;
+                  await save_whatsapp_conversation("candidate", fromNumber, ContentType, text, MessageUUID, req.body);
+                } else {
+                  await save_whatsapp_conversation("candidate", fromNumber, ContentType, `Please find attached by audio recording`, MessageUUID, req.body);
+                }
+                if (!interviewObj.interview.audio_file) {
+                  interviewObj.interview.audio_file = [
+                    {
+                      stage: interviewObj.interview.stage,
+                      fileUrl: Media0,
+                      transcribe: text || "",
+                      ai: ai_model,
+                    },
+                  ];
+                } else {
+                  interviewObj.interview.audio_file.push({
+                    stage: interviewObj.interview.stage,
+                    fileUrl: Media0,
+                    transcribe: text || "",
+                    ai: ai_model,
+                  });
+                }
 
-            //   await saveCandidateInterviewToDB(interviewObj);
-            // }
+                await saveCandidateInterviewToDB(interviewObj);
+              }
+            }
 
             const resume_file = path.join(resume_path, `${fromNumber}_${interviewObj.interview?.stage}_audio.ogg`);
             await downloadFile(Media0, resume_file);
@@ -362,13 +366,15 @@ export const schedule_message_to_be_processed = async (fromNumber: string, cred:
   } else {
     agentReply = await process_whatsapp_conversation(
       fromNumber,
-      sortedConversation.map((conv) => {
-        return {
-          name: conv.userType,
-          content: conv.content,
-          date: conv.created_at,
-        };
-      }),
+      sortedConversation
+        .filter((row) => row.conversationType == CONVERSION_TYPE_INTERVIEW)
+        .map((conv) => {
+          return {
+            name: conv.userType,
+            content: conv.content,
+            date: conv.created_at,
+          };
+        }),
       cred,
       (reply: string) => {
         (async () => {

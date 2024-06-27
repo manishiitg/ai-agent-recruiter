@@ -7,7 +7,6 @@ export interface Interview {
     updated_at: Date;
     stage: string;
     info?: CandidateInfo;
-    debug?: string[];
     interview_info: {
       is_interview_ok: 0 | -1 | 1; // default 0, 1 is accepted, -1 is rejected
       is_interview_reject: 0 | -1 | 1; // default 0, 1 is accepted, -1 is rejected
@@ -38,7 +37,10 @@ export interface Interview {
     interview_questions_asked?: [
       {
         stage: string;
-        question: string;
+        question_asked_to_user: string;
+        topic: string;
+        question_generated: string;
+        expected_answer: string;
       }
     ];
     audio_file?: [

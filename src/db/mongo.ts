@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import { Candidate, WhatsAppConversaion } from "./types";
 import { threadId } from "worker_threads";
 import { Interview } from "../agent/interviewer/types";
+import { getCandidate } from "../server/whatsapp/conversation";
 dotenv.config();
 
 let globalDBConnection: MongoClient | null = null;
@@ -97,6 +98,10 @@ export const update_slack_thread_id_for_conversion = async (from: string, thread
     { upsert: true }
   );
 };
+
+export const CONVERSION_TYPE_INTERVIEW = "interview";
+export const CONVERSION_TYPE_SHORTLIST = "shortlist";
+
 export const save_whatsapp_conversation = async (type: "agent" | "candidate", from: string, messageType: string, content: string, uid: string, body: any) => {
   const client = await connectDB();
   const db = client.db("whatsapp");
@@ -104,6 +109,12 @@ export const save_whatsapp_conversation = async (type: "agent" | "candidate", fr
   // Check if the conversation already exists for the given 'from'
   const existingConversation = await collection.findOne({ from });
 
+  const candidateObj = await getCandidate(from);
+
+  let conversationType = CONVERSION_TYPE_SHORTLIST;
+  if (candidateObj.conversation?.conversation_completed_reason?.includes("do_call_via_human")) {
+    conversationType = CONVERSION_TYPE_INTERVIEW;
+  }
   if (existingConversation) {
     // If the conversation exists, update it by adding the new message
     await collection.updateOne(
@@ -117,6 +128,7 @@ export const save_whatsapp_conversation = async (type: "agent" | "candidate", fr
             uid,
             body,
             userType: type,
+            conversationType: conversationType,
             created_at: new Date(),
           } as WhatsAppConversaion,
         },
@@ -137,6 +149,7 @@ export const save_whatsapp_conversation = async (type: "agent" | "candidate", fr
           uid,
           body,
           userType: type,
+          conversationType: conversationType,
           created_at: new Date(),
         } as WhatsAppConversaion,
       ],

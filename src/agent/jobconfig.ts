@@ -1,6 +1,13 @@
 export const near_location = "Delhi, Noida, Ghaziabad, Meerut, Himachal, Nanital, Faridabad, Jaipur, Agra, Mathura, Prayagraj, Greater Noida, Hapur, Uttar Pradesh, Uttrakhand";
 const exclude_location_rule = "Pune, Hyderabad, Kerela, Bangalore, Chandigarh, Gwalior, Mumbai, Kolkata, Madras, Odisha, Kerala, Indore, Pondicherry, West Bengal, Ahmedabad, Tamil Nadu";
 
+export const companyInfo = `
+Company Name: Excellence Technosoft Pvt Ltd
+Location: Noida
+Work from Office Job
+Alternate Saturdays are Off. 
+`;
+
 export const linkedJobProfileRules: Record<
   string,
   {
@@ -8,6 +15,7 @@ export const linkedJobProfileRules: Record<
     is_open: boolean;
     job_description: string;
     resume_rating: string;
+    questions_to_ask: string[];
   }
 > = {
   "Jr HR Executive": {
@@ -25,6 +33,7 @@ export const linkedJobProfileRules: Record<
     Rule 7. Candidate should only be a female.`,
     resume_rating: `
     - Candidate should have worked on projects/internship related to recruitment, hiring, hr administration.`,
+    questions_to_ask: [`How do you hire candidates from naukri!`, `Whats your apprach to hire candidates from linkedin`],
   },
   "Jr NodeJs Developer": {
     is_open: false,
@@ -36,6 +45,7 @@ export const linkedJobProfileRules: Record<
     resume_rating: `
     - Candidate should have done multiple experiance/projects/internship related to nodejs..
     - Candidate should have worked on projects using expressjs. `,
+    questions_to_ask: [`expressjs middleware`, `interact with mongodb`],
   },
   "Jr Web Developer": {
     is_open: false,
@@ -47,6 +57,7 @@ export const linkedJobProfileRules: Record<
     Rule 4. Candidate should have done multiple experiance/projects/internship related reactjs or vuejs or javascript. This is an important rule.`,
     resume_rating: `
     - Candidate should have done multiple experiance/projects/internship related to reactjs or vuejs.`,
+    questions_to_ask: [`expressjs middleware`, `interact with mongodb`],
   },
   "Jr React Developer": {
     is_open: false,
@@ -58,6 +69,7 @@ export const linkedJobProfileRules: Record<
     Rule 5. Candidate should have done multiple experiance/projects/internship related reactjs. This is an important rule.`,
     resume_rating: `
     - Candidate should have done multiple experiance/projects/internship related to reactjs`,
+    questions_to_ask: [`what is states vs props`],
   },
   "Jr Vuejs Developer": {
     is_open: false,
@@ -70,6 +82,7 @@ export const linkedJobProfileRules: Record<
     Rule 5. Candidate should have done multiple work/projects/internship related vuejs. This is an important rule.`,
     resume_rating: `
     - Candidate should have done multiple experiance/projects/internship related to vuejs`,
+    questions_to_ask: [`what is states vs props`],
   },
   "Jr Python Developer": {
     is_open: true,
@@ -81,6 +94,38 @@ export const linkedJobProfileRules: Record<
     resume_rating: `
     - Candidate should have done multiple experiance/projects/internship related to python and flask/django
     - Candidate should have done multiple experiance/projects/internship related mongodb or mysql database`,
+    questions_to_ask: [
+      `what middleware is in Django`,
+      `how do you create custom middleware in Django`,
+      `use of Django ORM`,
+      `how do you perform raw SQL queries in Django`,
+      `different types of relationships in Django models`,
+      `select_related and prefetch_related`,
+      `Signals in django`,
+      `authentication vs authorization django`,
+    ],
+  },
+  "Python Internship (Cuvette)": {
+    is_open: true,
+    job_description: `Good Knowledge in django or flask
+    Worked with databases like mongodb or mysql or postgresql`,
+    full_criteria: `Rule 1. Candidate should have maximum salary of 40,000 per month. If candidates salary is not mentioned, assume he passes this criteria.
+    Rule 2. Candidate should not belong to locations ${exclude_location_rule}
+    Rule 3. Candidate should not have more than 1year of Experience.
+    Rule 4. Candidate should have done multiple work/projects/internship related python and flask/django. This is an important rule.`,
+    resume_rating: `
+    - Candidate should have done multiple experiance/projects/internship related to python and flask/django
+    - Candidate should have done multiple experiance/projects/internship related mongodb or mysql database`,
+    questions_to_ask: [
+      `what middleware is in Django`,
+      `how do you create custom middleware in Django`,
+      `use of Django ORM`,
+      `how do you perform raw SQL queries in Django`,
+      `different types of relationships in Django models`,
+      `select_related and prefetch_related`,
+      `Signals in django`,
+      `authentication vs authorization django`,
+    ],
   },
   "Jr PHP Developer": {
     is_open: false,
@@ -93,6 +138,7 @@ export const linkedJobProfileRules: Record<
     resume_rating: `
     - Candidate should have done multiple experiance/projects/internship related to laravel.
     - Candidate should have done multiple experiance/projects/internship related mongodb or mysql database`,
+    questions_to_ask: [`what is states vs props`],
   },
   "Jr PHP Developer Intern": {
     is_open: false,
@@ -106,6 +152,7 @@ export const linkedJobProfileRules: Record<
     resume_rating: `
     - Candidate should have done multiple experiance/projects/internship related to laravel.
     - Candidate should have done multiple experiance/projects/internship related mongodb or mysql database`,
+    questions_to_ask: [`what is states vs props`],
   },
   "Business Development Executive": {
     is_open: false,
@@ -122,17 +169,6 @@ export const linkedJobProfileRules: Record<
     Rule 6. Knows about Linkedin or Email Marketing or B2B Sales or Upwork or Lead Generation`,
     resume_rating: `
     - Candidate should have done multiple experiance/projects/internship related to Linkedin or Email Marketing or B2B Sales or Upwork or Lead Generation`,
-  },
-  "Python Internship (Cuvette)": {
-    is_open: true,
-    job_description: `Good Knowledge in django or flask
-    Worked with databases like mongodb or mysql or postgresql`,
-    full_criteria: `Rule 1. Candidate should have maximum salary of 40,000 per month. If candidates salary is not mentioned, assume he passes this criteria.
-    Rule 2. Candidate should not belong to locations ${exclude_location_rule}
-    Rule 3. Candidate should not have more than 1year of Experience.
-    Rule 4. Candidate should have done multiple work/projects/internship related python and flask/django. This is an important rule.`,
-    resume_rating: `
-    - Candidate should have done multiple experiance/projects/internship related to python and flask/django
-    - Candidate should have done multiple experiance/projects/internship related mongodb or mysql database`,
+    questions_to_ask: [`what is states vs props`],
   },
 };
