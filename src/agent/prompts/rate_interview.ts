@@ -3,6 +3,68 @@ import { Conversation } from "../recruiter/types/conversation";
 import { linkedJobProfileRules } from "../jobconfig";
 import { callDeepkSeek, DEEP_SEEK_V2_CHAT, DEEP_SEEK_V2_CODER } from "../../llms/deepkseek";
 import { Interview } from "../interviewer/types";
+import { profile } from "console";
+
+export const rate_tech_answer = async (profileID: string, interviewObj: Interview, question: string, answer: string) => {
+  const classified_job_profile = interviewObj.interview?.info?.suitable_job_profile;
+
+  let llm_output = "";
+  const prompt = `You are an AI assistant tasked with evaluating a job applicant's interview performance. 
+  You will be provided with a question and an answer. 
+  Your goal is to carefully review this information and provide ratings for each answer, as well as an assessment of the candidate's communication skills.
+
+First, review the job details:
+
+  <JOB_TITLE>
+  ${classified_job_profile}
+  </JOB_TITLE>
+  Now, here are the interview questions and their best expected answers:
+
+
+  Question: ${question}
+  Answer: ${answer}
+  
+Your task is to rate the candidate's answers on a scale of 0 to 10, where 0 is completely incorrect or irrelevant, and 10 is a perfect match to the best expected answer. 
+
+For each question, follow these steps:
+1. Consider the relevance, accuracy, and completeness of the candidate's response.
+2. Evaluate how well the answer aligns with the job criteria and requirements.
+3. Provide a detailed reasoning for your rating in the <scratchpad> section.
+4. Assign a final rating from 0 to 10.
+
+After completing your evaluation, provide your response in the following XML format:
+
+<RESPONSE>
+  <SCRATCHPAD>
+    [Provide your step-by-step reasoning for each question here]
+  </SCRATCHPAD>
+  <QUESTION_RATING>final rating</QUESTION_RATING>
+</RESPONSE>
+
+Remember to provide thorough reasoning in the <SCRATCHPAD> section before giving your final ratings. Your evaluation should be fair, objective, and based solely on the information provided.`;
+
+  llm_output = await callDeepkSeek(prompt, profileID, 0, DEEP_SEEK_V2_CHAT, { type: "rate_resume" }, async (llm_output: string): Promise<Record<string, string>> => {
+    const jObj = await parseStringPromise(llm_output, {
+      explicitArray: false,
+      strict: false,
+    });
+    return {
+      RATING: jObj["RESPONSE"]["QUESTION_RATING"],
+    };
+  });
+
+  const jObj = await parseStringPromise(llm_output, {
+    explicitArray: false,
+    strict: false,
+  });
+  if (!("RESPONSE" in jObj)) {
+    throw new Error("response not found!");
+  }
+  const SCRATCHPAD = jObj["RESPONSE"]["SCRATCHPAD"];
+  const QUESTION_RATING = jObj["RESPONSE"]["QUESTION_RATING"];
+
+  return { SCRATCHPAD, QUESTION_RATING };
+};
 
 export const rate_interview = async (profileID: string, interviewObj: Interview) => {
   const classified_job_profile = interviewObj.interview?.info?.suitable_job_profile;

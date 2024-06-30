@@ -393,18 +393,25 @@ export const schedule_message_to_be_processed = async (fromNumber: string, cred:
   }
 
   if (agentReply && agentReply.message) {
-    const response = await send_whatsapp_text_reply(agentReply.message, fromNumber, cred.phoneNo);
-    const messageUuid = response.messageUuid;
-    console.log("got messageUuid", messageUuid);
-    await save_whatsapp_conversation("agent", fromNumber, "text", agentReply.message, "", "");
-    await add_whatsapp_message_sent_delivery_report(fromNumber, agentReply.message, "text", messageUuid);
+    let should_reply = true;
+    if (queue[fromNumber] && queue[fromNumber].canDelete === false) {
+      should_reply = false;
+    }
+    if (should_reply) {
+      //if not can delete, means there is another process in queue which will run and reply to user
+      const response = await send_whatsapp_text_reply(agentReply.message, fromNumber, cred.phoneNo);
+      const messageUuid = response.messageUuid;
+      console.log("got messageUuid", messageUuid);
+      await save_whatsapp_conversation("agent", fromNumber, "text", agentReply.message, "", "");
+      await add_whatsapp_message_sent_delivery_report(fromNumber, agentReply.message, "text", messageUuid);
 
-    const { slack_thread_id, channel_id } = await get_whatspp_conversations(fromNumber);
-    if (slack_thread_id) {
-      await postMessageToThread(slack_thread_id, `HR: ${agentReply.message}. Action: ${agentReply.action} Stage: ${agentReply.stage}`, channel_id || process.env.slack_action_channel_id);
-    } else {
-      const ts = await postMessage(`HR: ${agentReply.message}. Action: ${agentReply.action} Stage: ${agentReply.stage}`, channel_id || process.env.slack_action_channel_id);
-      await update_slack_thread_id_for_conversion(fromNumber, ts, channel_id || process.env.slack_action_channel_id);
+      const { slack_thread_id, channel_id } = await get_whatspp_conversations(fromNumber);
+      if (slack_thread_id) {
+        await postMessageToThread(slack_thread_id, `HR: ${agentReply.message}. Action: ${agentReply.action} Stage: ${agentReply.stage}`, channel_id || process.env.slack_action_channel_id);
+      } else {
+        const ts = await postMessage(`HR: ${agentReply.message}. Action: ${agentReply.action} Stage: ${agentReply.stage}`, channel_id || process.env.slack_action_channel_id);
+        await update_slack_thread_id_for_conversion(fromNumber, ts, channel_id || process.env.slack_action_channel_id);
+      }
     }
     // got_shortlisted.do_call_via_human
     if (agentReply.action == "do_call_via_human") {

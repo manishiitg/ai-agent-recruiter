@@ -14,6 +14,7 @@ export const extractInfo = async (profileID: string, me: string, conversation: s
   Information To Extract:
   1. CANDIDATE_ACCEPTED_INTERVIEW: if we have asked the candidate to conduct interview specifically on whatsapp and he is agreed to them same.
   2. CANDIDATE_REJECTED_INTERVIEW: if doesn't want to do interview on whatsapp
+  3. CANDIDATE_READY_FOR_NEXT_QUESTION: if we have asked candidate if he is ready for next question in the most recent conversation and he has mentioned yes.
 
   mention "no" if information doesn't exist, don't make up any information outside the conversion
 

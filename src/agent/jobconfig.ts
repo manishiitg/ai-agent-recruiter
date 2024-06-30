@@ -1,5 +1,8 @@
 export const near_location = "Delhi, Noida, Ghaziabad, Meerut, Himachal, Nanital, Faridabad, Jaipur, Agra, Mathura, Prayagraj, Greater Noida, Hapur, Uttar Pradesh, Uttrakhand";
-const exclude_location_rule = "Pune, Hyderabad, Kerela, Bangalore, Chandigarh, Gwalior, Mumbai, Kolkata, Madras, Odisha, Kerala, Indore, Pondicherry, West Bengal, Ahmedabad, Tamil Nadu";
+// const exclude_location_rule = "Pune, Hyderabad, Kerela, Bangalore, Chandigarh, Gwalior, Mumbai, Kolkata, Madras, Odisha, Kerala, Indore, Pondicherry, West Bengal, Ahmedabad, Tamil Nadu";
+const exclude_location_rule = "Odisha";
+
+export const NUMBER_OF_INTERVIEW_QUESTIONS = 5;
 
 export const companyInfo = `
 Company Name: Excellence Technosoft Pvt Ltd
@@ -35,18 +38,6 @@ export const linkedJobProfileRules: Record<
     - Candidate should have worked on projects/internship related to recruitment, hiring, hr administration.`,
     questions_to_ask: [`How do you hire candidates from naukri!`, `Whats your apprach to hire candidates from linkedin`],
   },
-  "Jr NodeJs Developer": {
-    is_open: false,
-    job_description: `Good Knowledge in expressjs or typescript or other nodejs frameworks.
-    Worked with databases like mongodb or mysql or postgresql`,
-    full_criteria: `Rule 1. Candidate should not belong to locations ${exclude_location_rule}
-    Rule 2. Candidate should have maximum salary of 40,000 per month. If candidates salary is not mentioned, assume he passes this criteria.
-    Rule 3. Candidate should have done multiple experiance/projects/internship related to nodejs. This is an important rule.`,
-    resume_rating: `
-    - Candidate should have done multiple experiance/projects/internship related to nodejs..
-    - Candidate should have worked on projects using expressjs. `,
-    questions_to_ask: [`expressjs middleware`, `interact with mongodb`],
-  },
   "Jr Web Developer": {
     is_open: false,
     job_description: `This opening is only for candidates from 0 to 1 year of experience.
@@ -60,7 +51,7 @@ export const linkedJobProfileRules: Record<
     questions_to_ask: [`expressjs middleware`, `interact with mongodb`],
   },
   "Jr React Developer": {
-    is_open: false,
+    is_open: true,
     job_description: `This opening is only for candidates from 0 to 1 year of experience.
     Good Knowledge in javascript, reactjs`,
     full_criteria: `Rule 1. Candidate location should be ${near_location}.
@@ -69,10 +60,10 @@ export const linkedJobProfileRules: Record<
     Rule 5. Candidate should have done multiple experiance/projects/internship related reactjs. This is an important rule.`,
     resume_rating: `
     - Candidate should have done multiple experiance/projects/internship related to reactjs`,
-    questions_to_ask: [`what is states vs props`],
+    questions_to_ask: [`candidate introduction about yourself and your projects`, `what is states vs props`, `question about state managment`, `reactjs interview questions`],
   },
   "Jr Vuejs Developer": {
-    is_open: false,
+    is_open: true,
     job_description: `This opening is only for candidates from 0 to 1 year of experience.
     Good Knowledge in vuejs`,
     full_criteria: `Rule 1. Candidate location should be ${near_location}.
@@ -82,7 +73,26 @@ export const linkedJobProfileRules: Record<
     Rule 5. Candidate should have done multiple work/projects/internship related vuejs. This is an important rule.`,
     resume_rating: `
     - Candidate should have done multiple experiance/projects/internship related to vuejs`,
-    questions_to_ask: [`what is states vs props`],
+    questions_to_ask: [`candidate introduction about yourself and your projects`, `what is states vs props`, `question about state managment`, `vuejs interview questions`],
+  },
+  "Jr NodeJs Developer": {
+    is_open: true,
+    job_description: `Good Knowledge in expressjs or typescript or other nodejs frameworks.
+    Worked with databases like mongodb or mysql or postgresql`,
+    full_criteria: `Rule 1. Candidate should not belong to locations ${exclude_location_rule}
+    Rule 2. Candidate should have maximum salary of 40,000 per month. If candidates salary is not mentioned, assume he passes this criteria.
+    Rule 3. Candidate should have done multiple experiance/projects/internship related to nodejs. This is an important rule.`,
+    resume_rating: `
+    - Candidate should have done multiple experiance/projects/internship related to nodejs..
+    - Candidate should have worked on projects using expressjs. `,
+    questions_to_ask: [
+      `candidate introduction about yourself and your projects`,
+      `expressjs middleware`,
+      `interact with mongodb`,
+      `expressjs authentication`,
+      `nodejs async vs promises`,
+      `nodejs event loop`,
+    ],
   },
   "Jr Python Developer": {
     is_open: true,
@@ -95,6 +105,7 @@ export const linkedJobProfileRules: Record<
     - Candidate should have done multiple experiance/projects/internship related to python and flask/django
     - Candidate should have done multiple experiance/projects/internship related mongodb or mysql database`,
     questions_to_ask: [
+      `candidate introduction about yourself and your projects`,
       `what middleware is in Django`,
       `how do you create custom middleware in Django`,
       `use of Django ORM`,
@@ -117,6 +128,7 @@ export const linkedJobProfileRules: Record<
     - Candidate should have done multiple experiance/projects/internship related to python and flask/django
     - Candidate should have done multiple experiance/projects/internship related mongodb or mysql database`,
     questions_to_ask: [
+      `candidate introduction about yourself and your projects`,
       `what middleware is in Django`,
       `how do you create custom middleware in Django`,
       `use of Django ORM`,
@@ -128,7 +140,7 @@ export const linkedJobProfileRules: Record<
     ],
   },
   "Jr PHP Developer": {
-    is_open: false,
+    is_open: true,
     job_description: `This opening is only for candidates from 0 to 1 year of experience.
     Good Knowledge in php`,
     full_criteria: `Rule 1. Candidate location should be ${near_location}.
@@ -138,7 +150,7 @@ export const linkedJobProfileRules: Record<
     resume_rating: `
     - Candidate should have done multiple experiance/projects/internship related to laravel.
     - Candidate should have done multiple experiance/projects/internship related mongodb or mysql database`,
-    questions_to_ask: [`what is states vs props`],
+    questions_to_ask: [`candidate introduction about yourself and your projects`, "questions about php", "questions about laravel"],
   },
   "Jr PHP Developer Intern": {
     is_open: false,

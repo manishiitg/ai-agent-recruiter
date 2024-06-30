@@ -10,6 +10,7 @@ export const generateConversationReply = async (
   conversationObj: Interview,
   me: string,
   conversation: ConversationMessage[],
+  tech_question_to_ask = "",
   type: "gmail" | "linkedin" | "whatsapp" = "whatsapp"
 ): Promise<{
   action: string;
@@ -35,51 +36,49 @@ export const generateConversationReply = async (
   for (const action in RULE_MAP[stage]) {
     let response = RULE_MAP[stage][action].response;
 
-    if (conversationObj.interview?.interview_info.got_audio_file) {
-      if (conversationObj.interview.interview_info.got_audio_file === true) {
-        if (action === "candidate_answered_didnt_send_recording") {
-          console.log("skipping candidate_answered_didnt_send_recording");
-          continue;
-        }
-      } else {
-        if (action === "candidate_answered_sent_recording") {
-          console.log("skipping candidate_answered_sent_recording");
-          continue;
-        }
+    if (RULE_MAP[stage][action].should_render !== undefined) {
+      if (!RULE_MAP[stage][action].should_render(conversationObj, stage, action)) {
+        console.log(`not rendering ${stage}:${action}`);
+        continue;
       }
     }
+    // if (conversationObj.interview?.interview_info.got_audio_file) {
+    //   if (conversationObj.interview.interview_info.got_audio_file === true) {
+    //     if (action === "candidate_answered_didnt_send_recording") {
+    //       console.log("skipping candidate_answered_didnt_send_recording");
+    //       continue;
+    //     }
+    //   } else {
+    //     if (action === "candidate_answered_sent_recording") {
+    //       console.log("skipping candidate_answered_sent_recording");
+    //       continue;
+    //     }
+    //   }
+    // }
 
     // console.log("actions taken", conversationObj.interview?.actions_taken, `${stage}.${action}`, actions_taken.includes(`${stage}.${action}`));
     if (actions_taken.includes(`${stage}.${action}`)) {
       // console.log("skipping action", action);
-      if (RULE_MAP[stage][action].to_remove_once_used === undefined || RULE_MAP[stage][action].to_remove_once_used === false) {
-        other_rules += `
+
+      other_rules += `
         <rule_description>
+        <action>${action}</action>
           <rule>${RULE_MAP[stage][action].rule}</rule>
           <response_rule>${response}</response_rule>
-          <action>${action}</action>
         </rule_description>
         `;
-      }
+
       continue;
     }
 
     priority_rules += `
     <rule_description>
+      <action>${action}</action>
       <rule>${RULE_MAP[stage][action].rule}</rule>
       <response_rule>${response}</response_rule>
-      <action>${action}</action>
     </rule_description>
     `;
     pending_actions.push(action);
-  }
-
-  let tech_question_to_ask = "";
-  if (conversationObj.interview?.stage == STAGE_TECH_QUES) {
-    if (conversationObj.interview?.interview_questions_asked) {
-      const last = conversationObj.interview.interview_questions_asked.length;
-      tech_question_to_ask = conversationObj.interview.interview_questions_asked[last - 1].question_generated;
-    }
   }
 
   const prompt = `

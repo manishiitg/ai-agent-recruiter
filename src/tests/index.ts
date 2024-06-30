@@ -154,22 +154,31 @@ import { send_whatsapp_text_reply } from "../integrations/plivo";
 
   const fromNumber = "919717071555";
 
-  // await save_whatsapp_conversation("candidate", fromNumber, "", "i am ready", "", "");
+  await save_whatsapp_conversation("candidate", fromNumber, "", "i am ready", "", "");
 
-  await save_whatsapp_conversation("candidate", fromNumber, "", "<audio_recording>yes my name is manish and i am full stack developer</audio_recording>", "", "");
+  // await save_whatsapp_conversation("candidate", fromNumber, "", "<audio_recording>yes my name is manish and i am full stack developer</audio_recording>", "", "");
+
+  // await save_whatsapp_conversation("candidate", fromNumber, "", "<audio_recording>i have 3 years of experiance with nodejs projects</audio_recording>", "", "");
+
+  // await save_whatsapp_conversation("candidate", fromNumber, "", "<audio_recording>i dont know what is expressjs middleware</audio_recording>", "", "");
+
+  // await save_whatsapp_conversation("candidate", fromNumber, "", "i dont know the answer", "", "");
+
   // await save_whatsapp_conversation("candidate", fromNumber, "", "but i have sent you the recording", "", "");
 
-  // await   save_whatsapp_conversation("candidate", fromNumber, "", "yes", "", "");
+  // await save_whatsapp_conversation("candidate", fromNumber, "", "ok", "", "");
 
-  await   save_whatsapp_conversation("candidate", fromNumber, "", "no", "", "");
+  // await save_whatsapp_conversation("candidate", fromNumber, "", "yes", "", "");
+
+  // await save_whatsapp_conversation("candidate", fromNumber, "", "no", "", "");
 
   // await save_whatsapp_conversation("candidate", fromNumber, "", "how does it work?", "", "");
 
-  // const inter = await getInterviewObject(fromNumber);
-  // if (inter.interview && inter.interview.interview_info) {
-  //   inter.interview.interview_info.got_audio_file = true;
-  //   await saveCandidateInterviewToDB(inter);
-  // }
+  const inter = await getInterviewObject(fromNumber);
+  if (inter.interview && inter.interview.interview_info) {
+    inter.interview.interview_info.got_audio_file = true;
+    await saveCandidateInterviewToDB(inter);
+  }
 
   const { slack_thread_id, conversation } = await get_whatspp_conversations(fromNumber);
   const sortedConversation = sortBy(conversation, (conv: WhatsAppConversaion) => {
