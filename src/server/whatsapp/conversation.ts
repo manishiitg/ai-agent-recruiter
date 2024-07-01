@@ -89,6 +89,7 @@ export const process_whatsapp_conversation = async (
   // console.log(phoneNo, "candidate", candidate);
 
   if (!candidate.conversation) {
+    console.log("not conversation found!");
     throw new Error("candidate conversion not found!");
   }
 
