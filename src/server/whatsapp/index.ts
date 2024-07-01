@@ -444,7 +444,7 @@ export const whatsapp_callback = async (req: Request, res: Response) => {
   console.log("whatsapp_callback");
   const { MessageUUID, To, From, Type, Status, ConversationExpirationTimestamp, ConversationOrigin, ConversationID, Units, TotalRate, TotalAmount, ErrorCode, QueuedTime, SentTime, Sequence } =
     req.body;
-  console.log("MessageUUID", MessageUUID, "Status", Status, "To", To);
+  console.log("MessageUUID", MessageUUID, "Status", Status, "To", To, "ErrorCode", ErrorCode);
   //   await update_whatsapp_message_sent_delivery_report(MessageUUID, Status);
   res.sendStatus(200);
 };
