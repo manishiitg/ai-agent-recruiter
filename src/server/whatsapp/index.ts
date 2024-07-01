@@ -215,7 +215,7 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
                 queue[fromNumber] = {
                   ts: setTimeout(() => {
                     schedule_message_to_be_processed(fromNumber, cred, "requeue-audio");
-                  }, (fromNumber === ADMIN_PHNO ? 5 : DEBOUNCE_TIMEOUT * 3) * 1000),
+                  }, (fromNumber === ADMIN_PHNO ? 5 : DEBOUNCE_TIMEOUT) * 1000),
                   status: "PENDING",
                   canDelete: true,
                 };
@@ -229,7 +229,7 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
               queue[fromNumber] = {
                 ts: setTimeout(() => {
                   schedule_message_to_be_processed(fromNumber, cred, "first-audio");
-                }, (fromNumber === ADMIN_PHNO ? 5 : DEBOUNCE_TIMEOUT * 3) * 1000),
+                }, (fromNumber === ADMIN_PHNO ? 5 : DEBOUNCE_TIMEOUT) * 1000),
                 status: "PENDING",
                 canDelete: true,
               };
@@ -296,7 +296,7 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
                 queue[fromNumber] = {
                   ts: setTimeout(() => {
                     schedule_message_to_be_processed(fromNumber, cred, "requeue-pdf");
-                  }, (fromNumber === ADMIN_PHNO ? 5 : DEBOUNCE_TIMEOUT * 3) * 1000),
+                  }, (fromNumber === ADMIN_PHNO ? 5 : DEBOUNCE_TIMEOUT) * 1000),
                   status: "PENDING",
                   canDelete: true,
                 };
@@ -310,7 +310,7 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
               queue[fromNumber] = {
                 ts: setTimeout(() => {
                   schedule_message_to_be_processed(fromNumber, cred, "first-audio");
-                }, (fromNumber === ADMIN_PHNO ? 5 : DEBOUNCE_TIMEOUT * 3) * 1000),
+                }, (fromNumber === ADMIN_PHNO ? 5 : DEBOUNCE_TIMEOUT) * 1000),
                 status: "PENDING",
                 canDelete: true,
               };
