@@ -377,7 +377,7 @@ export const schedule_message_to_be_processed = async (fromNumber: string, cred:
     agentReply = await process_whatsapp_conversation(
       fromNumber,
       sortedConversation
-        .filter((row) => row.conversationType == CONVERSION_TYPE_CANDIDATE)
+        // .filter((row) => row.conversationType == CONVERSION_TYPE_CANDIDATE)
         .map((conv) => {
           return {
             name: conv.userType,
