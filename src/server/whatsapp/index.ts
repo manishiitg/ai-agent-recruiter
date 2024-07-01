@@ -430,7 +430,7 @@ export const schedule_message_to_be_processed = async (fromNumber: string, cred:
   } else {
     console.log(fromNumber, "debug!");
   }
-  if (queue[fromNumber] && queue[fromNumber].canDelete) {
+  if ((queue[fromNumber] && queue[fromNumber].canDelete) || scheduled_from.includes("remind")) {
     delete queue[fromNumber];
   } else {
     //when we get resume/text when previous message is already processing, we set canDelete = false
