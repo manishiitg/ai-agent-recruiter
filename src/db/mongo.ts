@@ -100,7 +100,7 @@ export const update_slack_thread_id_for_conversion = async (from: string, thread
 };
 
 export const CONVERSION_TYPE_INTERVIEW = "interview";
-export const CONVERSION_TYPE_SHORTLIST = "shortlist";
+export const CONVERSION_TYPE_CANDIDATE = "candidate";
 
 export const save_whatsapp_conversation = async (type: "agent" | "candidate", from: string, messageType: string, content: string, uid: string, body: any) => {
   const client = await connectDB();
@@ -111,7 +111,7 @@ export const save_whatsapp_conversation = async (type: "agent" | "candidate", fr
 
   const candidateObj = await getCandidate(from);
 
-  let conversationType = CONVERSION_TYPE_SHORTLIST;
+  let conversationType = CONVERSION_TYPE_CANDIDATE;
   if (candidateObj.conversation?.conversation_completed_reason?.includes("do_call_via_human")) {
     conversationType = CONVERSION_TYPE_INTERVIEW;
   }

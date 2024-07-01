@@ -16,6 +16,7 @@ import { downloadFile } from "./util";
 import {
   add_whatsapp_message_sent_delivery_report,
   check_whatsapp_convsation_exists,
+  CONVERSION_TYPE_CANDIDATE,
   CONVERSION_TYPE_INTERVIEW,
   deleteDataForCandidateToDebug,
   get_whatspp_conversations,
@@ -361,20 +362,22 @@ export const schedule_message_to_be_processed = async (fromNumber: string, cred:
   if (candidateObj.conversation?.conversation_completed_reason?.includes("do_call_via_human")) {
     agentReply = await conduct_interview(
       fromNumber,
-      sortedConversation.map((conv) => {
-        return {
-          name: conv.userType,
-          content: conv.content,
-          date: conv.created_at,
-        };
-      }),
+      sortedConversation
+        .filter((row) => row.conversationType == CONVERSION_TYPE_INTERVIEW)
+        .map((conv) => {
+          return {
+            name: conv.userType,
+            content: conv.content,
+            date: conv.created_at,
+          };
+        }),
       cred
     );
   } else {
     agentReply = await process_whatsapp_conversation(
       fromNumber,
       sortedConversation
-        .filter((row) => row.conversationType == CONVERSION_TYPE_INTERVIEW)
+        .filter((row) => row.conversationType == CONVERSION_TYPE_CANDIDATE)
         .map((conv) => {
           return {
             name: conv.userType,
