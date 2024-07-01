@@ -101,7 +101,7 @@ const get_pending_hr_screening_candidates = async () => {
     const date = convertToIST(candidate.interview.started_at) as Date;
     const now = convertToIST(new Date());
 
-    if (now.getTime() - date.getTime() > 1000 * 60 * 30) {
+    if (now.getTime() - date.getTime() > 1000 * 60 * 5) {
       await schedule_message_to_be_processed(unique_id, cred, "pending-hr-interview-remind");
       await updateInterviewRemainderSent(unique_id);
       await sleep(5000);
@@ -256,13 +256,13 @@ export const start_cron = async () => {
 
   setInterval(async () => {
     //send remainders to candidate on same day
-    await get_pending_hr_screening_candidates(); // candidate who's shortlisted i.e do_human_call but interview didn't start
     await check_slack_thread_for_manual_msgs();
     // await evaluate_hr_screen_interview();
   }, 1000 * 60 * 30); //30min
 
   setInterval(() => {
     (async () => {
+      await get_pending_hr_screening_candidates(); // candidate who's shortlisted i.e do_human_call but interview didn't start
       await remind_candidates(false); //send remainder to candidate who's conversation is not completed.. if last message was sent by agent, dont send remainder
       await remind_candidates(true); //send remainder to candidate who's conversation is not completed
     })();
