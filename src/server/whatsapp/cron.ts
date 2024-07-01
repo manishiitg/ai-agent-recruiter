@@ -255,20 +255,19 @@ export const evaluate_hr_screen_interview = async () => {
   }
 };
 
-export const start_cron = () => {
-  evaluate_hr_screen_interview();
-  get_pending_hr_screening_candidates();
-  (async () => {
-    await remind_candidates(false); //send remainder to candidate who's conversation is not completed.. if last message was sent by agent, dont send remainder
-    await remind_candidates(true); //send remainder to candidate who's conversation is not completed
-  })();
-  check_slack_thread_for_manual_msgs();
+export const start_cron = async () => {
+  await evaluate_hr_screen_interview();
+  await get_pending_hr_screening_candidates();
 
-  setInterval(() => {
+  await remind_candidates(false); //send remainder to candidate who's conversation is not completed.. if last message was sent by agent, dont send remainder
+  await remind_candidates(true); //send remainder to candidate who's conversation is not completed
+  await check_slack_thread_for_manual_msgs();
+
+  setInterval(async () => {
     //send remainders to candidate on same day
-    get_pending_hr_screening_candidates(); // candidate who's shortlisted i.e do_human_call but interview didn't start
-    check_slack_thread_for_manual_msgs();
-    evaluate_hr_screen_interview();
+    await get_pending_hr_screening_candidates(); // candidate who's shortlisted i.e do_human_call but interview didn't start
+    await check_slack_thread_for_manual_msgs();
+    await evaluate_hr_screen_interview();
   }, 1000 * 60 * 30); //30min
 
   setInterval(() => {
