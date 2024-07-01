@@ -49,10 +49,13 @@ const remind_candidates = async (remainders: boolean) => {
 
     let shouldContinue = now.getTime() - date.getTime() > 1000 * 60 * 30;
 
+    let from_candidate = false;
     const { slack_thread_id, conversation } = await get_whatspp_conversations(candidate.unique_id);
     if (conversation.length > 0) {
       if (conversation[conversation.length - 1].userType == "candidate") {
         shouldContinue = now.getTime() - conversation[conversation.length - 1].created_at.getTime() > 1000 * 60 * 5;
+        from_candidate = true;
+        //if last conversion was sent by candidate and we didn't reply for 5min
       }
     }
 
@@ -82,7 +85,7 @@ const remind_candidates = async (remainders: boolean) => {
 
       if (should_continue) {
         await schedule_message_to_be_processed(fromNumber, cred, `remind-${remainders}`);
-        await updateRemainderSent(fromNumber);
+        if (!from_candidate) await updateRemainderSent(fromNumber);
         await sleep(5000);
       }
     }
