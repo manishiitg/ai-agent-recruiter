@@ -72,7 +72,7 @@ const remind_candidates = async (remainders: boolean) => {
       }
 
       if (should_continue) {
-        await schedule_message_to_be_processed(fromNumber, cred);
+        await schedule_message_to_be_processed(fromNumber, cred, `remind-${remainders}`);
         await updateRemainderSent(fromNumber);
         await sleep(5000);
       }
@@ -85,7 +85,7 @@ const get_pending_hr_screening_candidates = async () => {
   for (const candidate of candidates) {
     const unique_id = candidate.unique_id;
     if (!(await isInterviewStarted(unique_id))) {
-      await schedule_message_to_be_processed(unique_id, cred);
+      await schedule_message_to_be_processed(unique_id, cred, "pending-hr-screening");
       await sleep(5000);
     }
   }
@@ -99,7 +99,7 @@ const get_pending_hr_screening_candidates = async () => {
     const now = convertToIST(new Date());
 
     if (now.getTime() - date.getTime() > 1000 * 60 * 30) {
-      await schedule_message_to_be_processed(unique_id, cred);
+      await schedule_message_to_be_processed(unique_id, cred, "pending-hr-interview");
       await updateInterviewRemainderSent(unique_id);
       await sleep(5000);
     }

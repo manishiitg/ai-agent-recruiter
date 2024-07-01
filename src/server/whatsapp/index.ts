@@ -96,7 +96,7 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
               clearTimeout(queue[fromNumber].ts);
               queue[fromNumber] = {
                 ts: setTimeout(() => {
-                  schedule_message_to_be_processed(fromNumber, cred);
+                  schedule_message_to_be_processed(fromNumber, cred, "requeue-text-api");
                 }, (fromNumber === ADMIN_PHNO ? 5 : DEBOUNCE_TIMEOUT) * 1000),
                 status: "PENDING",
                 canDelete: true,
@@ -109,7 +109,7 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
             console.log("scheduling queue");
             queue[fromNumber] = {
               ts: setTimeout(() => {
-                schedule_message_to_be_processed(fromNumber, cred);
+                schedule_message_to_be_processed(fromNumber, cred, "first-text-api");
               }, (fromNumber === ADMIN_PHNO ? 5 : DEBOUNCE_TIMEOUT) * 1000),
               status: "PENDING",
               canDelete: true,
@@ -212,7 +212,7 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
                 clearTimeout(queue[fromNumber].ts);
                 queue[fromNumber] = {
                   ts: setTimeout(() => {
-                    schedule_message_to_be_processed(fromNumber, cred);
+                    schedule_message_to_be_processed(fromNumber, cred, "requeue-audio");
                   }, (fromNumber === ADMIN_PHNO ? 5 : DEBOUNCE_TIMEOUT * 3) * 1000),
                   status: "PENDING",
                   canDelete: true,
@@ -226,7 +226,7 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
             } else {
               queue[fromNumber] = {
                 ts: setTimeout(() => {
-                  schedule_message_to_be_processed(fromNumber, cred);
+                  schedule_message_to_be_processed(fromNumber, cred, "first-audio");
                 }, (fromNumber === ADMIN_PHNO ? 5 : DEBOUNCE_TIMEOUT * 3) * 1000),
                 status: "PENDING",
                 canDelete: true,
@@ -293,7 +293,7 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
                 clearTimeout(queue[fromNumber].ts);
                 queue[fromNumber] = {
                   ts: setTimeout(() => {
-                    schedule_message_to_be_processed(fromNumber, cred);
+                    schedule_message_to_be_processed(fromNumber, cred, "requeue-pdf");
                   }, (fromNumber === ADMIN_PHNO ? 5 : DEBOUNCE_TIMEOUT * 3) * 1000),
                   status: "PENDING",
                   canDelete: true,
@@ -307,7 +307,7 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
             } else {
               queue[fromNumber] = {
                 ts: setTimeout(() => {
-                  schedule_message_to_be_processed(fromNumber, cred);
+                  schedule_message_to_be_processed(fromNumber, cred, "first-audio");
                 }, (fromNumber === ADMIN_PHNO ? 5 : DEBOUNCE_TIMEOUT * 3) * 1000),
                 status: "PENDING",
                 canDelete: true,
@@ -335,7 +335,7 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
   }
 };
 
-export const schedule_message_to_be_processed = async (fromNumber: string, cred: WhatsAppCreds) => {
+export const schedule_message_to_be_processed = async (fromNumber: string, cred: WhatsAppCreds, scheduled_from: string) => {
   if (queue[fromNumber]) queue[fromNumber].status = "RUNNING";
   // agent processing starts
   const { slack_thread_id, conversation } = await get_whatspp_conversations(fromNumber);
@@ -407,7 +407,11 @@ export const schedule_message_to_be_processed = async (fromNumber: string, cred:
 
       const { slack_thread_id, channel_id } = await get_whatspp_conversations(fromNumber);
       if (slack_thread_id) {
-        await postMessageToThread(slack_thread_id, `HR: ${agentReply.message}. Action: ${agentReply.action} Stage: ${agentReply.stage}`, channel_id || process.env.slack_action_channel_id);
+        await postMessageToThread(
+          slack_thread_id,
+          `HR: ${agentReply.message}. Action: ${agentReply.action} Stage: ${agentReply.stage} ${scheduled_from}`,
+          channel_id || process.env.slack_action_channel_id
+        );
       } else {
         const ts = await postMessage(`HR: ${agentReply.message}. Action: ${agentReply.action} Stage: ${agentReply.stage}`, channel_id || process.env.slack_action_channel_id);
         await update_slack_thread_id_for_conversion(fromNumber, ts, channel_id || process.env.slack_action_channel_id);
@@ -416,7 +420,7 @@ export const schedule_message_to_be_processed = async (fromNumber: string, cred:
     // got_shortlisted.do_call_via_human
     if (agentReply.action == "do_call_via_human") {
       setTimeout(() => {
-        schedule_message_to_be_processed(fromNumber, cred);
+        schedule_message_to_be_processed(fromNumber, cred, "human-interview-start");
       }, (fromNumber === ADMIN_PHNO ? 5 : DEBOUNCE_TIMEOUT) * 1000);
     }
   } else {
@@ -428,7 +432,7 @@ export const schedule_message_to_be_processed = async (fromNumber: string, cred:
     //when we get resume/text when previous message is already processing, we set canDelete = false
     queue[fromNumber] = {
       ts: setTimeout(() => {
-        schedule_message_to_be_processed(fromNumber, cred);
+        schedule_message_to_be_processed(fromNumber, cred, "canDelete=false");
       }, (fromNumber === ADMIN_PHNO ? 5 : DEBOUNCE_TIMEOUT) * 1000),
       status: "PENDING",
       canDelete: true,
