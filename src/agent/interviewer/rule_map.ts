@@ -231,10 +231,10 @@ const STAGE_RULE_MAP: Record<
     //     return hasAudio ? true : false;
     //   },
     // },
-    general_message_or_question: {
-      rule: "If candidate gave a general message like ok, yes or asking a question",
-      response: "reply accordingly a very short answer",
-    },
+    // general_message_or_question: {
+    //   rule: "If candidate gave a general message like ok, yes or asking a question",
+    //   response: "reply accordingly a very short answer",
+    // },
   },
   interview_not_done: {
     inform: {
