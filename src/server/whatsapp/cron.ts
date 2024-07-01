@@ -47,7 +47,16 @@ const remind_candidates = async (remainders: boolean) => {
     const date = convertToIST(candidate.conversation.started_at) as Date;
     const now = convertToIST(new Date());
 
-    if (now.getTime() - date.getTime() > 1000 * 60 * 30) {
+    let shouldContinue = now.getTime() - date.getTime() > 1000 * 60 * 30;
+
+    const { slack_thread_id, conversation } = await get_whatspp_conversations(candidate.unique_id);
+    if (conversation.length > 0) {
+      if (conversation[conversation.length - 1].userType == "candidate") {
+        shouldContinue = now.getTime() - conversation[conversation.length - 1].created_at.getTime() > 1000 * 60 * 5;
+      }
+    }
+
+    if (shouldContinue) {
       //no response in 1hr
       console.log(candidate.unique_id);
       const fromNumber = candidate.unique_id;
@@ -258,7 +267,7 @@ export const start_cron = () => {
       await remind_candidates(false); //send remainder to candidate who's conversation is not completed.. if last message was sent by agent, dont send remainder
       await remind_candidates(true); //send remainder to candidate who's conversation is not completed
     })();
-    get_pending_hr_screening_candidates();
+    get_pending_hr_screening_candidates(); // candidate who's shortlisted i.e do_human_call but interview didn't start
     check_slack_thread_for_manual_msgs();
     evaluate_hr_screen_interview();
   }, 1000 * 60 * 30); //30min
