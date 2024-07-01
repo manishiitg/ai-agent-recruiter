@@ -430,17 +430,19 @@ export const schedule_message_to_be_processed = async (fromNumber: string, cred:
   } else {
     console.log(fromNumber, "debug!");
   }
-  if ((queue[fromNumber] && queue[fromNumber].canDelete) || scheduled_from.includes("remind")) {
+  if (queue[fromNumber] && queue[fromNumber].canDelete) {
     delete queue[fromNumber];
   } else {
-    //when we get resume/text when previous message is already processing, we set canDelete = false
-    queue[fromNumber] = {
-      ts: setTimeout(() => {
-        schedule_message_to_be_processed(fromNumber, cred, "canDelete=false");
-      }, (fromNumber === ADMIN_PHNO ? 5 : DEBOUNCE_TIMEOUT) * 1000),
-      status: "PENDING",
-      canDelete: true,
-    };
+    if (queue[fromNumber]) {
+      //when we get resume/text when previous message is already processing, we set canDelete = false
+      queue[fromNumber] = {
+        ts: setTimeout(() => {
+          schedule_message_to_be_processed(fromNumber, cred, "canDelete=false");
+        }, (fromNumber === ADMIN_PHNO ? 5 : DEBOUNCE_TIMEOUT) * 1000),
+        status: "PENDING",
+        canDelete: true,
+      };
+    }
   }
 };
 
