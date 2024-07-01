@@ -68,22 +68,13 @@ const remind_candidates = async (remainders: boolean) => {
         return conv.created_at;
       });
 
-      let should_continue = true;
       if (!remainders) {
         if (sortedConversation[sortedConversation.length - 1].userType == "agent") {
-          should_continue = false;
-        }
-      }
-      if (!should_continue) {
-        const candObj = await getCandidateDetailsFromDB(candidate.unique_id);
-        if (candObj.conversation?.conversation_completed_reason?.includes("call_via_human")) {
-          if (!(await isInterviewStarted(candidate.unique_id))) {
-            should_continue = true;
-          }
+          shouldContinue = false;
         }
       }
 
-      if (should_continue) {
+      if (shouldContinue) {
         await schedule_message_to_be_processed(fromNumber, cred, `remind-${remainders}`);
         if (!from_candidate) await updateRemainderSent(fromNumber);
         await sleep(5000);
