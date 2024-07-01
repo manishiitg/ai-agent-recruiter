@@ -130,8 +130,6 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
         logger.info(`Media Message received - From: ${fromNumber}, To: ${toNumber}, Media Attachment: ${Media0}, Caption: ${caption}`);
         if (req.body.MimeType) {
           if (req.body.MimeType.includes("audio")) {
-
-            
             // TODO: audio files only accept when interview starts not before it
 
             const interviewObj = await getInterviewObject(fromNumber);
@@ -170,6 +168,7 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
               } else {
                 await save_whatsapp_conversation("candidate", fromNumber, ContentType, `Please find attached by audio recording`, MessageUUID, req.body);
               }
+              interviewObj.interview.interview_info.got_audio_file = true;
               if (!interviewObj.interview.audio_file) {
                 interviewObj.interview.audio_file = [
                   {

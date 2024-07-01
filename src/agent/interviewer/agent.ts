@@ -115,7 +115,6 @@ export const generateConversationReply = async (
   - Carefully analyze all provided rules priority_rules and other_rules, giving higher priority to recent conversations over older ones.
   - When you analyze ever rule, provide explanation for the rule based on the conditions mentioned.
   - Select the best fitting rule based on the conversation and context.
-  - If no actions are applicable, reply with "no_action" and do not create new actions.
   - Prioritize using the <priority_rules> first, and only use <other_rules> if the priority rules are not applicable.
   - Provide a step-by-step analysis of every rule in the <scratchpad> tag.
   - Give a detailed reason for selecting the final rule in the <FINAL_REASON> tag.
