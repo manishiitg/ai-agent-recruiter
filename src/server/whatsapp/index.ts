@@ -92,7 +92,7 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
 
           if (queue[fromNumber]) {
             if (queue[fromNumber].status == "PENDING") {
-              console.log("cancelling previous timeout!");
+              console.log(fromNumber, "cancelling previous timeout!");
               clearTimeout(queue[fromNumber].ts);
               queue[fromNumber] = {
                 ts: setTimeout(() => {
@@ -102,11 +102,11 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
                 canDelete: true,
               };
             } else {
-              console.log("previous msg processing started so not queueing again!", queue[fromNumber]);
+              console.log(fromNumber, "previous msg processing started so not queueing again!", queue[fromNumber]);
               queue[fromNumber].canDelete = false;
             }
           } else {
-            console.log("scheduling queue");
+            console.log(fromNumber, "scheduling queue");
             queue[fromNumber] = {
               ts: setTimeout(() => {
                 schedule_message_to_be_processed(fromNumber, cred, "first-text-api");
@@ -144,7 +144,7 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
                 try {
                   if (new Date().getHours() % 2 === 0 || true) {
                     ai_model = "deepgram";
-                    console.log(Media0);
+                    console.log(fromNumber, Media0);
                     text = await transcribe_file_deepgram(Media0);
                   }
                   // } else {
@@ -208,7 +208,7 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
 
             if (queue[fromNumber]) {
               if (queue[fromNumber].status == "PENDING") {
-                console.log("cancelling previous timeout!");
+                console.log(fromNumber, "cancelling previous timeout!");
                 clearTimeout(queue[fromNumber].ts);
                 queue[fromNumber] = {
                   ts: setTimeout(() => {
@@ -220,7 +220,7 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
               } else {
                 // TODO. need to handle this. user has sent another message in between of process.
                 // conversation are not valid any. can we cancel and restart?
-                console.log("previous msg processing started so not queueing again!", queue[fromNumber]);
+                console.log(fromNumber, "previous msg processing started so not queueing again!", queue[fromNumber]);
                 queue[fromNumber].canDelete = false;
               }
             } else {
@@ -272,7 +272,7 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
               console.error(error);
             }
 
-            console.log("resume text", resume_text);
+            console.log(fromNumber, "resume text", resume_text);
             if (!resume_text || resume_text.length == 0) {
               await send_whatsapp_text_reply("Unable to open your resume, please share resume which is ATS friendly..", fromNumber, cred.phoneNo);
             }
@@ -289,7 +289,7 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
 
             if (queue[fromNumber]) {
               if (queue[fromNumber].status == "PENDING") {
-                console.log("cancelling previous timeout!");
+                console.log(fromNumber, "cancelling previous timeout!");
                 clearTimeout(queue[fromNumber].ts);
                 queue[fromNumber] = {
                   ts: setTimeout(() => {
@@ -301,7 +301,7 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
               } else {
                 // TODO. need to handle this. user has sent another message in between of process.
                 // conversation are not valid any. can we cancel and restart?
-                console.log("previous msg processing started so not queueing again!", queue[fromNumber]);
+                console.log(fromNumber, "previous msg processing started so not queueing again!", queue[fromNumber]);
                 queue[fromNumber].canDelete = false;
               }
             } else {
@@ -328,10 +328,10 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
 
     if (Context && Context.MessageUUID) {
       const contextMessageUUID = Context.MessageUUID;
-      console.log(`Context Message UUID: ${contextMessageUUID}`);
+      console.log(fromNumber, `Context Message UUID: ${contextMessageUUID}`);
     }
   } else {
-    console.log("already recieved before!");
+    console.log(fromNumber, "already recieved before!");
   }
 };
 
@@ -378,7 +378,7 @@ export const schedule_message_to_be_processed = async (fromNumber: string, cred:
       cred,
       (reply: string) => {
         (async () => {
-          console.log("repling through callback");
+          console.log(fromNumber, "repling through callback");
           const response = await send_whatsapp_text_reply(reply, fromNumber, cred.phoneNo);
           const { slack_thread_id, channel_id } = await get_whatspp_conversations(fromNumber);
           if (slack_thread_id) {
@@ -401,7 +401,7 @@ export const schedule_message_to_be_processed = async (fromNumber: string, cred:
       //if not can delete, means there is another process in queue which will run and reply to user
       const response = await send_whatsapp_text_reply(agentReply.message, fromNumber, cred.phoneNo);
       const messageUuid = response.messageUuid;
-      console.log("got messageUuid", messageUuid);
+      console.log(fromNumber, "got messageUuid", messageUuid);
       await save_whatsapp_conversation("agent", fromNumber, "text", agentReply.message, "", "");
       await add_whatsapp_message_sent_delivery_report(fromNumber, agentReply.message, "text", messageUuid);
 
@@ -424,7 +424,7 @@ export const schedule_message_to_be_processed = async (fromNumber: string, cred:
       }, (fromNumber === ADMIN_PHNO ? 5 : DEBOUNCE_TIMEOUT) * 1000);
     }
   } else {
-    console.log("debug!");
+    console.log(fromNumber, "debug!");
   }
   if (queue[fromNumber] && queue[fromNumber].canDelete) {
     delete queue[fromNumber];
@@ -441,7 +441,6 @@ export const schedule_message_to_be_processed = async (fromNumber: string, cred:
 };
 
 export const whatsapp_callback = async (req: Request, res: Response) => {
-  console.log("whatsapp_callback");
   const { MessageUUID, To, From, Type, Status, ConversationExpirationTimestamp, ConversationOrigin, ConversationID, Units, TotalRate, TotalAmount, ErrorCode, QueuedTime, SentTime, Sequence } =
     req.body;
   console.log("MessageUUID", MessageUUID, "Status", Status, "To", To, "ErrorCode", ErrorCode);

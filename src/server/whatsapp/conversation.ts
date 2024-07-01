@@ -29,7 +29,7 @@ export const getCandidate = async (phoneNo: string) => {
   let candidate: Candidate;
   try {
     candidate = await getCandidateDetailsFromDB(phoneNo);
-    console.log("candidate by profile id");
+    console.log(phoneNo, "candidate by profile id");
     if (!candidate.conversation) {
       candidate.conversation = {
         started_at: new Date(),
@@ -37,7 +37,7 @@ export const getCandidate = async (phoneNo: string) => {
         stage: STAGE_NEW,
         actions_taken: [],
       };
-      console.log("update candidate.current_converstaion_id new conversion 2");
+      console.log(phoneNo, "update candidate.current_converstaion_id new conversion 2");
     }
   } catch (error) {
     // const classifed_to = await classifyConversation(messageFrom ? messageFrom : "", creds.name, convertConversationToText(conversation));
@@ -82,11 +82,11 @@ export const process_whatsapp_conversation = async (
   // }
 
   if (candidate.conversation?.conversation_completed) {
-    console.log("auto message processing completed", candidate.conversation.conversation_completed_reason);
+    console.log(phoneNo, "auto message processing completed", candidate.conversation.conversation_completed_reason);
     return { message: "", action: "completed", stage: "completed" };
   }
 
-  console.log("candidate", candidate);
+  // console.log(phoneNo, "candidate", candidate);
 
   if (!candidate.conversation) {
     throw new Error("candidate conversion not found!");
@@ -119,7 +119,7 @@ export const process_whatsapp_conversation = async (
       await saveCandidateDetailsToDB(candidate);
     }
   }
-  console.log("checking conv category", candidate.conversation?.classifed_to.category);
+  console.log(phoneNo, "checking conv category", candidate.conversation?.classifed_to.category);
   if (!candidate.conversation?.classifed_to.category) {
     throw new Error("classification missing!");
   }
@@ -131,13 +131,13 @@ export const process_whatsapp_conversation = async (
     candidate.conversation?.classifed_to.category.includes(CONV_CLASSIFY_FRIEND) ||
     candidate.conversation?.classifed_to.category.includes(CONV_CLASSIFY_FRIEND_PREFIX)
   ) {
-    console.log("conversation type not supported skipping", candidate.conversation?.classifed_to.category);
+    console.log(phoneNo, "conversation type not supported skipping", candidate.conversation?.classifed_to.category);
     return { message: "Sorry this is only regarding job", action: "classify_non_job", stage: "" };
   }
 
   const new_stage = await transitionStage(candidate.conversation);
   if (new_stage.length) {
-    console.log(`changing stage from ${candidate.conversation.stage} to ${new_stage}`);
+    console.log(phoneNo, `changing stage from ${candidate.conversation.stage} to ${new_stage}`);
     candidate.conversation.stage = new_stage;
     await saveCandidateDetailsToDB(candidate);
   }
@@ -152,10 +152,10 @@ export const process_whatsapp_conversation = async (
     reply = llm.reply;
     reason = llm.reason;
   } else {
-    console.log("do forced shortlist");
+    console.log(phoneNo, "do forced shortlist");
     action = "do_shortlist";
   }
-  console.log("1. action, reply", action, reply);
+  console.log(phoneNo, "1. action, reply", action, reply);
   let has_already_asked_user_input = false;
   let user_input_reply = false;
 
@@ -178,7 +178,7 @@ export const process_whatsapp_conversation = async (
     candidate.conversation.stage = STAGE_GOT_CTC;
     await saveCandidateDetailsToDB(candidate);
   } else if (action.includes("do_shortlist")) {
-    console.log("second time genReply");
+    console.log(phoneNo, "second time genReply");
     let shortlist_reject_text = "";
 
     if (!candidate.conversation.info || !candidate.conversation.info.suitable_job_profile) {
@@ -214,7 +214,7 @@ export const process_whatsapp_conversation = async (
     action = llm.action;
     reply = llm.reply;
     reason = llm.reason;
-    console.log("2. action, reply", action, reply);
+    console.log(phoneNo, "2. action, reply", action, reply);
     if (llm.action != "no_action") {
       candidate.conversation.actions_taken.push(llm.action);
       await saveCandidateDetailsToDB(candidate);
@@ -241,7 +241,7 @@ export const process_whatsapp_conversation = async (
   if (action.includes("do_call_via_human")) {
     callViaHuman(candidate, creds, phoneNo);
   }
-  console.log("final action", action);
+  console.log(phoneNo, "final action", action);
   if (!action.includes("no_action")) {
     if (!has_already_asked_user_input) {
       user_input_reply = true;

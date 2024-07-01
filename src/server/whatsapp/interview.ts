@@ -75,10 +75,10 @@ export const conduct_interview = async (
     throw new Error("interview job profile is required");
   }
   if (interview.interview?.conversation_completed) {
-    console.log("interview message processing completed", interview.interview.conversation_completed_reason);
+    console.log(phoneNo, "interview message processing completed", interview.interview.conversation_completed_reason);
     return { message: "", action: "completed", stage: "completed" };
   }
-  
+
   let llm = await generateConversationReply(phoneNo, interview, creds.name, conversation);
   let action = llm.action;
   let reply = llm.reply;
@@ -139,7 +139,7 @@ export const conduct_interview = async (
     }
   }
   if (stage_transition) {
-    console.log("got new stage after transition", interview.interview.stage);
+    console.log(phoneNo, "got new stage after transition", interview.interview.stage);
   }
 
   if (interview.interview.stage.includes(STAGE_TECH_QUES) && stage_transition) {
@@ -168,7 +168,7 @@ export const conduct_interview = async (
           return false;
         }
       });
-      console.log("question_left_ask", question_left_ask, interview.interview?.interview_questions_asked, question_topics);
+      console.log(phoneNo, "question_left_ask", question_left_ask, interview.interview?.interview_questions_asked, question_topics);
       if (question_left_ask.length == 0) {
         const randomIndex = Math.floor(Math.random() * question_topics.length);
         topic_to_ask = question_topics[randomIndex];

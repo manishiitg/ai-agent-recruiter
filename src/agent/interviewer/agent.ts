@@ -155,7 +155,7 @@ Remember to check all rules before selecting the final one, and ensure that your
     role: "user" | "assistant";
   }[] = [];
 
-  console.log("prompt", prompt);
+  console.log(profileID, "prompt", prompt);
 
   messages.push({
     role: "user",
@@ -167,7 +167,7 @@ Remember to check all rules before selecting the final one, and ensure that your
       `,
   });
 
-  console.log("messages", messages);
+  console.log(profileID, "messages", messages);
 
   const llm_output = await callDeepseekViaMessages(prompt, messages, profileID, 0, DEEP_SEEK_V2_CHAT, { type: "reply_interview" }, async (llm_output: string): Promise<Record<string, string>> => {
     const jObj = await parseStringPromise(llm_output, {
@@ -197,9 +197,9 @@ Remember to check all rules before selecting the final one, and ensure that your
   action = jObj["RESPONSE"]["ACTION"].trim();
   action = `${stage}.${action}`;
 
-  console.log("got final action", action);
-  console.log("actions already taken", actions_taken);
-  console.log("got candidate stage", stage);
+  console.log(profileID, "got final action", action);
+  console.log(profileID, "actions already taken", actions_taken);
+  console.log(profileID, "got candidate stage", stage);
   return { action, reply, reason, output: llm_output };
 };
 

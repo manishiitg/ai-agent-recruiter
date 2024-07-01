@@ -67,7 +67,7 @@ export const generateConversationReply = async (
     }
   }
 
-  console.log("got candidate stage", stage);
+  console.log(profileID, "got candidate stage", stage);
   if (!STAGE_RULE_MAP[stage]) {
     throw new Error("stage not found");
   }
@@ -85,7 +85,7 @@ export const generateConversationReply = async (
         response = STAGE_RULE_MAP[stage][action].condition_ctc_response.false;
       }
     }
-    console.log("actions taken", conversationObj.actions_taken, `${stage}.${action}`, actions_taken.includes(`${stage}.${action}`));
+    console.log(profileID, "actions taken", conversationObj.actions_taken, `${stage}.${action}`, actions_taken.includes(`${stage}.${action}`));
     if (action == "do_call_via_human") {
       const dayOfWeek = new Date().getDay();
       if (dayOfWeek == 0 || dayOfWeek == 6) {
@@ -94,7 +94,7 @@ export const generateConversationReply = async (
     }
     if (actions_taken.includes(`${stage}.${action}`)) {
       // || actions_taken.includes(`${action}`)
-      console.log("skipping action", action);
+      console.log(profileID, "skipping action", action);
       other_rules += `
         <rule_description>
           <rule>${STAGE_RULE_MAP[stage][action].rule}</rule>
@@ -116,7 +116,7 @@ export const generateConversationReply = async (
   }
 
   if (pending_actions.length == 0) {
-    console.log("all possible actions completed!", stage);
+    console.log(profileID, "all possible actions completed!", stage);
     if (stage == STAGE_SHORTLISTED) {
       return { action: `${stage}.do_call_via_human_no_pending_actions`, reply: "", reason: "" };
     } else if (stage == STAGE_GOT_REJECTED) {
