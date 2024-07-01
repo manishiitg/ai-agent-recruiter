@@ -246,14 +246,18 @@ export const evaluate_hr_screen_interview = async () => {
 export const start_cron = () => {
   evaluate_hr_screen_interview();
   get_pending_hr_screening_candidates();
-  remind_candidates(false); //send remainder to candidate who's conversation is not completed.. if last message was sent by agent, dont send remainder
-  remind_candidates(true); //send remainder to candidate who's conversation is not completed
+  (async () => {
+    await remind_candidates(false); //send remainder to candidate who's conversation is not completed.. if last message was sent by agent, dont send remainder
+    await remind_candidates(true); //send remainder to candidate who's conversation is not completed
+  })();
   check_slack_thread_for_manual_msgs();
 
   setInterval(() => {
     //send remainders to candidate on same day
-    remind_candidates(false);
-    remind_candidates(true);
+    (async () => {
+      await remind_candidates(false); //send remainder to candidate who's conversation is not completed.. if last message was sent by agent, dont send remainder
+      await remind_candidates(true); //send remainder to candidate who's conversation is not completed
+    })();
     get_pending_hr_screening_candidates();
     check_slack_thread_for_manual_msgs();
     evaluate_hr_screen_interview();
