@@ -1,5 +1,15 @@
+import { createRequire } from "module";
+// @ts-ignore
+const require = createRequire(import.meta.url);
+
 import dotenv from "dotenv";
 dotenv.config();
+
+require("newrelic");
+const nrPino = require("@newrelic/pino-enricher");
+
+import pino from "pino";
+const logger = pino({});
 
 import { Request, Response } from "express";
 import { downloadFile } from "./util";
@@ -20,14 +30,11 @@ import { getCandidate, process_whatsapp_conversation } from "./conversation";
 import { getLatestMessagesFromThread, postAttachment, postMessage, postMessageToThread } from "../../communication/slack";
 import path from "path";
 import { existsSync, mkdirSync } from "fs";
-import { createRequire } from "module";
 import { send_whatsapp_text_reply } from "../../integrations/plivo";
 import { conduct_interview, getInterviewObject } from "./interview";
 import { converToMp3 } from "../../integrations/mp3";
 import { transcribe_file_deepgram } from "../../integrations/deepgram";
 import { transribe_file_assembly_ai } from "../../integrations/assembly";
-// @ts-ignore
-const require = createRequire(import.meta.url);
 var textract = require("textract");
 
 //find whats app creds bsaed on toNumber, for now only a single cred
@@ -60,7 +67,7 @@ function formatTime(date: Date) {
 
 export const whatsapp_webhook = async (req: Request, res: Response) => {
   const { From, To, ContentType, Context, Button, Media0, Body, MessageUUID } = req.body;
-  console.log(req.body);
+  logger.info(req.body);
 
   const fromNumber = From;
   const toNumber = To;
@@ -70,12 +77,12 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
   res.sendStatus(200);
 
   if (!(await check_whatsapp_convsation_exists(MessageUUID))) {
-    console.log("ContentType", ContentType);
+    logger.info("ContentType", ContentType);
 
     switch (ContentType) {
       case "text":
         const text = Body;
-        console.log(`Text Message received - From: ${fromNumber}, To: ${toNumber}, Text: ${text}`);
+        logger.info(`Text Message received - From: ${fromNumber}, To: ${toNumber}, Text: ${text}`);
         if (text == "CLEAR") {
           // only for debugging/ remove in production
           await deleteDataForCandidateToDebug(fromNumber);
@@ -92,7 +99,7 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
 
           if (queue[fromNumber]) {
             if (queue[fromNumber].status == "PENDING") {
-              console.log(fromNumber, "cancelling previous timeout!");
+              logger.info(fromNumber, "cancelling previous timeout!");
               clearTimeout(queue[fromNumber].ts);
               queue[fromNumber] = {
                 ts: setTimeout(() => {
@@ -102,11 +109,11 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
                 canDelete: true,
               };
             } else {
-              console.log(fromNumber, "previous msg processing started so not queueing again!", queue[fromNumber]);
+              logger.info(fromNumber, "previous msg processing started so not queueing again!", queue[fromNumber]);
               queue[fromNumber].canDelete = false;
             }
           } else {
-            console.log(fromNumber, "scheduling queue");
+            logger.info(fromNumber, "scheduling queue");
             queue[fromNumber] = {
               ts: setTimeout(() => {
                 schedule_message_to_be_processed(fromNumber, cred, "first-text-api");
@@ -119,7 +126,7 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
         break;
       case "media":
         const caption = Body;
-        console.log(`Media Message received - From: ${fromNumber}, To: ${toNumber}, Media Attachment: ${Media0}, Caption: ${caption}`);
+        logger.info(`Media Message received - From: ${fromNumber}, To: ${toNumber}, Media Attachment: ${Media0}, Caption: ${caption}`);
         if (req.body.MimeType) {
           if (req.body.MimeType.includes("audio")) {
             // TODO: audio files only accept when interview starts not before it
@@ -144,7 +151,7 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
                 try {
                   if (new Date().getHours() % 2 === 0 || true) {
                     ai_model = "deepgram";
-                    console.log(fromNumber, Media0);
+                    logger.info(fromNumber, Media0);
                     text = await transcribe_file_deepgram(Media0);
                   }
                   // } else {
@@ -208,7 +215,7 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
 
             if (queue[fromNumber]) {
               if (queue[fromNumber].status == "PENDING") {
-                console.log(fromNumber, "cancelling previous timeout!");
+                logger.info(fromNumber, "cancelling previous timeout!");
                 clearTimeout(queue[fromNumber].ts);
                 queue[fromNumber] = {
                   ts: setTimeout(() => {
@@ -220,7 +227,7 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
               } else {
                 // TODO. need to handle this. user has sent another message in between of process.
                 // conversation are not valid any. can we cancel and restart?
-                console.log(fromNumber, "previous msg processing started so not queueing again!", queue[fromNumber]);
+                logger.info(fromNumber, "previous msg processing started so not queueing again!", queue[fromNumber]);
                 queue[fromNumber].canDelete = false;
               }
             } else {
@@ -272,7 +279,7 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
               console.error(error);
             }
 
-            console.log(fromNumber, "resume text", resume_text);
+            logger.info(fromNumber, "resume text", resume_text);
             if (!resume_text || resume_text.length == 0) {
               await send_whatsapp_text_reply("Unable to open your resume, please share resume which is ATS friendly..", fromNumber, cred.phoneNo);
             }
@@ -289,7 +296,7 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
 
             if (queue[fromNumber]) {
               if (queue[fromNumber].status == "PENDING") {
-                console.log(fromNumber, "cancelling previous timeout!");
+                logger.info(fromNumber, "cancelling previous timeout!");
                 clearTimeout(queue[fromNumber].ts);
                 queue[fromNumber] = {
                   ts: setTimeout(() => {
@@ -301,7 +308,7 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
               } else {
                 // TODO. need to handle this. user has sent another message in between of process.
                 // conversation are not valid any. can we cancel and restart?
-                console.log(fromNumber, "previous msg processing started so not queueing again!", queue[fromNumber]);
+                logger.info(fromNumber, "previous msg processing started so not queueing again!", queue[fromNumber]);
                 queue[fromNumber].canDelete = false;
               }
             } else {
@@ -322,16 +329,16 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
       case "button":
         const buttonText = Button.Text;
         const buttonPayload = Button.Payload;
-        console.log(`Button Message received - From: ${fromNumber}, To: ${toNumber}, Button Text: ${buttonText}, Button Payload: ${buttonPayload}`);
+        logger.info(`Button Message received - From: ${fromNumber}, To: ${toNumber}, Button Text: ${buttonText}, Button Payload: ${buttonPayload}`);
         break;
     }
 
     if (Context && Context.MessageUUID) {
       const contextMessageUUID = Context.MessageUUID;
-      console.log(fromNumber, `Context Message UUID: ${contextMessageUUID}`);
+      logger.info(fromNumber, `Context Message UUID: ${contextMessageUUID}`);
     }
   } else {
-    console.log(fromNumber, "already recieved before!");
+    logger.info(fromNumber, "already recieved before!");
   }
 };
 
@@ -378,7 +385,7 @@ export const schedule_message_to_be_processed = async (fromNumber: string, cred:
       cred,
       (reply: string) => {
         (async () => {
-          console.log(fromNumber, "repling through callback");
+          logger.info(fromNumber, "repling through callback");
           const response = await send_whatsapp_text_reply(reply, fromNumber, cred.phoneNo);
           const { slack_thread_id, channel_id } = await get_whatspp_conversations(fromNumber);
           if (slack_thread_id) {
@@ -401,7 +408,7 @@ export const schedule_message_to_be_processed = async (fromNumber: string, cred:
       //if not can delete, means there is another process in queue which will run and reply to user
       const response = await send_whatsapp_text_reply(agentReply.message, fromNumber, cred.phoneNo);
       const messageUuid = response.messageUuid;
-      console.log(fromNumber, "got messageUuid", messageUuid);
+      logger.info(fromNumber, "got messageUuid", messageUuid);
       await save_whatsapp_conversation("agent", fromNumber, "text", agentReply.message, "", "");
       await add_whatsapp_message_sent_delivery_report(fromNumber, agentReply.message, "text", messageUuid);
 
@@ -424,7 +431,7 @@ export const schedule_message_to_be_processed = async (fromNumber: string, cred:
       }, (fromNumber === ADMIN_PHNO ? 5 : DEBOUNCE_TIMEOUT) * 1000);
     }
   } else {
-    console.log(fromNumber, "debug!");
+    logger.info(fromNumber, "debug!");
   }
   if (queue[fromNumber] && queue[fromNumber].canDelete) {
     delete queue[fromNumber];
@@ -443,7 +450,7 @@ export const schedule_message_to_be_processed = async (fromNumber: string, cred:
 export const whatsapp_callback = async (req: Request, res: Response) => {
   const { MessageUUID, To, From, Type, Status, ConversationExpirationTimestamp, ConversationOrigin, ConversationID, Units, TotalRate, TotalAmount, ErrorCode, QueuedTime, SentTime, Sequence } =
     req.body;
-  console.log("MessageUUID", MessageUUID, "Status", Status, "To", To, "ErrorCode", ErrorCode);
+  logger.info("MessageUUID", MessageUUID, "Status", Status, "To", To, "ErrorCode", ErrorCode);
   //   await update_whatsapp_message_sent_delivery_report(MessageUUID, Status);
   res.sendStatus(200);
 };
