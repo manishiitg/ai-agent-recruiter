@@ -6,6 +6,7 @@ import {
   add_whatsapp_message_sent_delivery_report,
   get_whatspp_conversations,
   getCandidateDetailsFromDB,
+  getCandidateInterviewFromDB,
   getInterviewCandidates,
   getInterviewCompletedCandidates,
   getInterviewRemainder,
@@ -143,6 +144,24 @@ const check_slack_thread_for_manual_msgs = async () => {
               await add_whatsapp_message_sent_delivery_report(fromNumber, fromNumber, "text", messageUuid);
               await postMessageToThread(slack_thread_id, `HR: ${text_to_send}. Action: ${"manual"} Stage: ${"slack"}`, channel_id);
               await saveSlackTsRead(msg.ts);
+
+              try {
+                const candidate = await getCandidateDetailsFromDB(fromNumber);
+                if (candidate.conversation) {
+                  candidate.conversation.conversation_completed = true;
+                  candidate.conversation.conversation_completed_reason = "manual_msg";
+                  await saveCandidateInterviewToDB(candidate);
+                }
+              } catch (error) {}
+
+              try {
+                const interv = await getCandidateInterviewFromDB(fromNumber);
+                if (interv.interview) {
+                  interv.interview.conversation_completed = true;
+                  interv.interview.conversation_completed_reason = "manual_msg";
+                  await saveCandidateInterviewToDB(interv);
+                }
+              } catch (error) {}
             }
           }
         }
