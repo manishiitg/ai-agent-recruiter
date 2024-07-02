@@ -47,7 +47,7 @@ const remind_candidates = async (remainders: boolean) => {
     const date = convertToIST(candidate.conversation.started_at) as Date;
     const now = convertToIST(new Date());
 
-    let shouldContinue = now.getTime() - date.getTime() > 1000 * 60 * 30;
+    let shouldContinue = false;
 
     let from_candidate = false;
     const { slack_thread_id, conversation } = await get_whatspp_conversations(candidate.unique_id);
@@ -56,6 +56,10 @@ const remind_candidates = async (remainders: boolean) => {
         shouldContinue = now.getTime() - conversation[conversation.length - 1].created_at.getTime() > 1000 * 60 * 5;
         from_candidate = true;
         //if last conversion was sent by candidate and we didn't reply for 5min
+      } else {
+        if (now.getTime() - conversation[conversation.length - 1].created_at.getTime() > 1000 * 60 * 30) {
+          shouldContinue = true;
+        }
       }
     }
 
