@@ -61,6 +61,9 @@ export const shortlist = async (
   - In <SHORTLIST> tags, write "YES" if the candidate meets all the rules and should be shortlisted, or "NO" if the candidate fails to meet any of the rules and should be rejected. 
   - In <FINAL_REASON> tags, summarize the key reasons for your decision in 1-2 concise sentences.
   
+  If any information is missing and you are unable to evaluate a critira, that should not result in rejection a candidate.
+  If information is missing, assume the rule gets passed.
+
   Your entire response should be formatted like this, with no extra tags or placeholders:
   <RESPONSE>
     <CTC_CALCULATION>Candidate's expected CTC per month vs. job's CTC criteria</CTC_CALCULATION>

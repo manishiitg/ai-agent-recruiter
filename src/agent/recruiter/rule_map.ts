@@ -153,7 +153,7 @@ export const STAGE_RULE_MAP: Record<
     },
     do_call_via_human: {
       rule: "if candidate has provided his phone number and also provided his availability",
-      response: "mention i will call you in sometime and mention his phone no",
+      response: "mention i will call you later on and mention his phone no",
     },
     tell_job_description: {
       rule: "if candidate is specifically about job description in conversation",
