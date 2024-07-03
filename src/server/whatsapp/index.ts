@@ -162,7 +162,7 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
               if (text) {
                 text = `<audio_recording>${text}</audio_recording>`;
                 await save_whatsapp_conversation("candidate", fromNumber, ContentType, text, MessageUUID, req.body);
-                await update_slack_thread_id_for_conversion(fromNumber, slack_thread_id, channel_id || process.env.slack_action_channel_id);
+                await postMessageToThread(slack_thread_id, text, channel_id);
               } else {
                 await save_whatsapp_conversation("candidate", fromNumber, ContentType, `Please find attached by audio recording`, MessageUUID, req.body);
               }
