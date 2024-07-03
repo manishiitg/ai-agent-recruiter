@@ -54,7 +54,7 @@ export const linkedJobProfileRules: Record<
     is_open: true,
     job_description: `This opening is only for candidates from 0 to 1 year of experience.
     Good Knowledge in javascript, reactjs`,
-    full_criteria: `Rule 1. Candidate location should be ${near_location}.
+    full_criteria: `
     Rule 2. Candidate should not belong to locations ${exclude_location_rule}
     Rule 3. Candidate should have maximum salary of 40,000 per month. If candidates salary is not mentioned, assume he passes this criteria.
     Rule 5. Candidate should have done multiple experiance/projects/internship related reactjs. This is an important rule.`,
@@ -66,8 +66,7 @@ export const linkedJobProfileRules: Record<
     is_open: true,
     job_description: `This opening is only for candidates from 0 to 1 year of experience.
     Good Knowledge in vuejs`,
-    full_criteria: `Rule 1. Candidate location should be ${near_location}.
-    Rule 2. Candidate should not belong to locations ${exclude_location_rule}
+    full_criteria: `Rule 2. Candidate should not belong to locations ${exclude_location_rule}
     Rule 3. Candidate should have maximum salary of 40,000 per month. If candidates salary is not mentioned, assume he passes this criteria.
     Rule 4. Candidate should not have more than 1year of Experience.
     Rule 5. Candidate should have done multiple work/projects/internship related vuejs. This is an important rule.`,
