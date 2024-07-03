@@ -104,7 +104,8 @@ export const shortlist = async (
   } else {
     is_shortlisted = true;
   }
-  reason = `Full Reasoning: ${jObj["RESPONSE"]["REASON"]}. Final Reason: ${jObj["RESPONSE"]["FINAL_REASON"]}`;
+  reason = `<full_rejection_evaluation>${jObj["RESPONSE"]["REASON"]}</full_rejection_evaluation>
+  <final_rejection_reason>${jObj["RESPONSE"]["FINAL_REASON"]}</final_rejection_reason>`;
 
   return { job_profile, is_shortlisted, reason, llm_output };
 };

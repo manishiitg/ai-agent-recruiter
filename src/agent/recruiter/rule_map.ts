@@ -171,7 +171,7 @@ export const STAGE_RULE_MAP: Record<
   got_rejected: {
     rejected: {
       rule: "If Candidate is rejected based on context",
-      response: "Inform candidate he is rejected and also mention reason in a polite way. Don't mention about other job profiles",
+      response: "Inform candidate why is rejected based on reason in <final_rejection_reason> and also mention reason in a polite way. Don't mention about other job profiles",
     },
     rejected_reason: {
       rule: "If candiate is asking for reason for reason",
