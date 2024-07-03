@@ -115,7 +115,7 @@ const get_pending_hr_screening_candidates = async () => {
       return conv.created_at;
     });
 
-    if (now.getTime() - sortedConversation[sortedConversation.length - 1].created_at.getTime() > 1000 * 60 * 10) {
+    if (now.getTime() - sortedConversation[sortedConversation.length - 1].created_at.getTime() > 1000 * 60 * 20) {
       await schedule_message_to_be_processed(unique_id, cred, "pending-hr-interview-remind");
       await updateInterviewRemainderSent(unique_id);
       await sleep(5000);
