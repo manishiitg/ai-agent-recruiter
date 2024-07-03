@@ -48,6 +48,7 @@ Remember to provide thorough reasoning in the <SCRATCHPAD> section before giving
       explicitArray: false,
       strict: false,
     });
+    console.log(llm_output);
     return {
       RATING: jObj["RESPONSE"]["QUESTION_RATING"],
     };
