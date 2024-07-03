@@ -53,12 +53,16 @@ const remind_candidates = async (remainders: boolean) => {
     let from_candidate = false;
     const { slack_thread_id, conversation } = await get_whatspp_conversations(candidate.unique_id);
     if (conversation.length > 0) {
-      if (conversation[conversation.length - 1].userType == "candidate") {
-        shouldContinue = now.getTime() - conversation[conversation.length - 1].created_at.getTime() > 1000 * 60 * 5;
+      const sortedConversation = sortBy(conversation, (conv: WhatsAppConversaion) => {
+        return conv.created_at;
+      });
+
+      if (sortedConversation[sortedConversation.length - 1].userType == "candidate") {
+        shouldContinue = now.getTime() - sortedConversation[sortedConversation.length - 1].created_at.getTime() > 1000 * 60 * 5;
         from_candidate = true;
         //if last conversion was sent by candidate and we didn't reply for 5min
       } else {
-        if (now.getTime() - conversation[conversation.length - 1].created_at.getTime() > 1000 * 60 * 30) {
+        if (now.getTime() - sortedConversation[sortedConversation.length - 1].created_at.getTime() > 1000 * 60 * 30) {
           shouldContinue = true;
         }
       }
@@ -106,7 +110,12 @@ const get_pending_hr_screening_candidates = async () => {
     const date = convertToIST(candidate.interview.started_at) as Date;
     const now = convertToIST(new Date());
 
-    if (now.getTime() - date.getTime() > 1000 * 60 * 5) {
+    const { conversation } = await get_whatspp_conversations(unique_id);
+    const sortedConversation = sortBy(conversation, (conv: WhatsAppConversaion) => {
+      return conv.created_at;
+    });
+
+    if (now.getTime() - sortedConversation[sortedConversation.length - 1].created_at.getTime() > 1000 * 60 * 10) {
       await schedule_message_to_be_processed(unique_id, cred, "pending-hr-interview-remind");
       await updateInterviewRemainderSent(unique_id);
       await sleep(5000);
