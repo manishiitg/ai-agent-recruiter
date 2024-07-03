@@ -275,7 +275,7 @@ export const callViaHuman = async (phoneNo: string, interview: Interview) => {
           await postMessageToThread(slack_thread_id, `Answer Rating: ${rating.QUESTION_RATING}`, channel_id || process.env.slack_action_channel_id);
           ratings.push(rating.QUESTION_RATING);
         }
-        await postMessageToThread(slack_thread_id, `HR Screening completed! Rating ${ratings}`, channel_id || process.env.slack_action_channel_id, true);
+        await postMessageToThread(slack_thread_id, `HR Screening completed! Rating ${ratings.join(",")}`, channel_id || process.env.slack_action_channel_id, true);
       }
 
       // await postMessageToThread(slack_thread_id, `Question1: ${interview.interview?.tech_questions?.question1}`, channel_id || process.env.slack_action_channel_id);
