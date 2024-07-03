@@ -236,6 +236,12 @@ const STAGE_RULE_MAP: Record<
     //   response: "reply accordingly a very short answer",
     // },
   },
+  completed: {
+    inform: {
+      rule: "Inform candidate his interview is completed",
+      response: "Inform candidate his interview is completed and we will get back soon",
+    },
+  },
   interview_not_done: {
     inform: {
       rule: "If candidate is not agreed to take give interview on whatsapp audio",
