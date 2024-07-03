@@ -254,8 +254,7 @@ export const callViaHuman = async (phoneNo: string, interview: Interview) => {
     let { slack_thread_id, channel_id } = await get_whatspp_conversations(phoneNo);
     if (slack_thread_id) {
       if (interview && interview.interview && interview.interview.interview_questions_asked) {
-        let overall_rating = 0;
-        let total_question = 0;
+        let ratings = [];
         for (const question of interview.interview.interview_questions_asked) {
           const audio_files = interview.interview.audio_file;
           const stage = question.stage;
@@ -274,15 +273,9 @@ export const callViaHuman = async (phoneNo: string, interview: Interview) => {
           const rating = await rate_tech_answer(phoneNo, interview, question.question_asked_to_user, answers);
           await postMessageToThread(slack_thread_id, `Rating Reasong:${stage}: ${rating.SCRATCHPAD}`, channel_id || process.env.slack_action_channel_id);
           await postMessageToThread(slack_thread_id, `Answer Rating: ${rating.QUESTION_RATING}`, channel_id || process.env.slack_action_channel_id);
-          overall_rating += parseInt(rating.QUESTION_RATING);
-          total_question += 1;
+          ratings.push(rating.QUESTION_RATING);
         }
-        await postMessageToThread(
-          slack_thread_id,
-          `HR Screening completed! Rating ${total_question > 0 ? overall_rating / total_question : 0}`,
-          channel_id || process.env.slack_action_channel_id,
-          true
-        );
+        await postMessageToThread(slack_thread_id, `HR Screening completed! Rating ${ratings}`, channel_id || process.env.slack_action_channel_id, true);
       }
 
       // await postMessageToThread(slack_thread_id, `Question1: ${interview.interview?.tech_questions?.question1}`, channel_id || process.env.slack_action_channel_id);
