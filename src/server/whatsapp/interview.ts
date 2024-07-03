@@ -272,6 +272,7 @@ export const callViaHuman = async (phoneNo: string, interview: Interview) => {
           }
 
           const rating = await rate_tech_answer(phoneNo, interview, question.question_asked_to_user, answers);
+          await postMessageToThread(slack_thread_id, `Rating Reasong:${stage}: ${rating.SCRATCHPAD}`, channel_id || process.env.slack_action_channel_id);
           await postMessageToThread(slack_thread_id, `Answer Rating: ${rating.QUESTION_RATING}`, channel_id || process.env.slack_action_channel_id);
           overall_rating += rating.QUESTION_RATING;
           total_question += 1;
