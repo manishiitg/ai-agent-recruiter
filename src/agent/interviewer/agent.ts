@@ -3,7 +3,7 @@ import { getRuleMap, STAGE_NEW, STAGE_TECH_QUES } from "./rule_map";
 import { parseStringPromise } from "xml2js";
 import { ConversationMessage, Interview } from "./types";
 import { convertConversationToText } from "./helper";
-import { companyInfo } from "../jobconfig";
+import { companyInfo, NUMBER_OF_INTERVIEW_QUESTIONS } from "../jobconfig";
 
 export const generateConversationReply = async (
   profileID: string,
@@ -22,10 +22,11 @@ export const generateConversationReply = async (
   const actions_taken = conversationObj.interview?.actions_taken || [];
   const context = get_context(conversationObj);
 
-  const RULE_MAP = getRuleMap();
+  const RULE_MAP = getRuleMap(NUMBER_OF_INTERVIEW_QUESTIONS);
 
   console.log("got candidate stage", stage);
   if (!RULE_MAP[stage]) {
+    console.log("got candidate stage", stage, RULE_MAP);
     throw new Error("stage not found");
   }
 
