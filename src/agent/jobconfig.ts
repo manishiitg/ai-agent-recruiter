@@ -54,10 +54,11 @@ export const linkedJobProfileRules: Record<
     is_open: true,
     job_description: `This opening is only for candidates from 0 to 1 year of experience.
     Good Knowledge in javascript, reactjs`,
-    full_criteria: `
-    Rule 2. Candidate should not belong to locations ${exclude_location_rule}
-    Rule 3. Candidate should have maximum salary of 40,000 per month. If candidates salary is not mentioned, assume he passes this criteria.
-    Rule 5. Candidate should have done multiple experiance/projects/internship related reactjs. This is an important rule.`,
+    // full_criteria: `
+    // Rule 2. Candidate should not belong to locations ${exclude_location_rule}
+    // Rule 3. Candidate should have maximum salary of 40,000 per month. If candidates salary is not mentioned, assume he passes this criteria.
+    // Rule 5. Candidate should have done multiple experiance/projects/internship related reactjs. This is an important rule.`,
+    full_criteria: `Candidate should have done multiple experiance/projects/internship related reactjs. This is an important rule.`,
     resume_rating: `
     - Candidate should have done multiple experiance/projects/internship related to reactjs`,
     questions_to_ask: [
@@ -72,10 +73,11 @@ export const linkedJobProfileRules: Record<
     is_open: true,
     job_description: `This opening is only for candidates from 0 to 1 year of experience.
     Good Knowledge in vuejs`,
-    full_criteria: `Rule 2. Candidate should not belong to locations ${exclude_location_rule}
-    Rule 3. Candidate should have maximum salary of 40,000 per month. If candidates salary is not mentioned, assume he passes this criteria.
-    Rule 4. Candidate should not have more than 1year of Experience.
-    Rule 5. Candidate should have done multiple work/projects/internship related vuejs. This is an important rule.`,
+    // full_criteria: `Rule 2. Candidate should not belong to locations ${exclude_location_rule}
+    // Rule 3. Candidate should have maximum salary of 40,000 per month. If candidates salary is not mentioned, assume he passes this criteria.
+    // Rule 4. Candidate should not have more than 1year of Experience.
+    // Rule 5. Candidate should have done multiple work/projects/internship related vuejs. This is an important rule.`,
+    full_criteria: `Candidate should have done multiple work/projects/internship related vuejs/javascript. This is an important rule.`,
     resume_rating: `
     - Candidate should have done multiple experiance/projects/internship related to vuejs`,
     questions_to_ask: [`candidate introduction about yourself and your projects`, `what is states vs props`, `question about state managment`, `vuejs interview questions`],
@@ -84,9 +86,10 @@ export const linkedJobProfileRules: Record<
     is_open: true,
     job_description: `Good Knowledge in expressjs or typescript or other nodejs frameworks.
     Worked with databases like mongodb or mysql or postgresql`,
-    full_criteria: `Rule 1. Candidate should not belong to locations ${exclude_location_rule}
-    Rule 2. Candidate should have maximum salary of 40,000 per month. If candidates salary is not mentioned, assume he passes this criteria.
-    Rule 3. Candidate should have done multiple experiance/projects/internship related to nodejs. This is an important rule.`,
+    // full_criteria: `Rule 1. Candidate should not belong to locations ${exclude_location_rule}
+    // Rule 2. Candidate should have maximum salary of 40,000 per month. If candidates salary is not mentioned, assume he passes this criteria.
+    // Rule 3. Candidate should have done multiple experiance/projects/internship related to nodejs. This is an important rule.`,
+    full_criteria: `Candidate should have done multiple experiance/projects/internship related to nodejs. This is an important rule.`,
     resume_rating: `
     - Candidate should have done multiple experiance/projects/internship related to nodejs..
     - Candidate should have worked on projects using expressjs. `,
@@ -103,9 +106,10 @@ export const linkedJobProfileRules: Record<
     is_open: true,
     job_description: `Good Knowledge in django or flask
     Worked with databases like mongodb or mysql or postgresql`,
-    full_criteria: `Rule 1. Candidate should have maximum salary of 40,000 per month. If candidates salary is not mentioned, assume he passes this criteria.
-    Rule 2. Candidate should not belong to locations ${exclude_location_rule}
-    Rule 4. Candidate should have done multiple work/projects/internship related python and flask/django. This is an important rule.`,
+    // full_criteria: `Rule 1. Candidate should have maximum salary of 40,000 per month. If candidates salary is not mentioned, assume he passes this criteria.
+    // Rule 2. Candidate should not belong to locations ${exclude_location_rule}
+    // Rule 4. Candidate should have done multiple work/projects/internship related python and flask/django. This is an important rule.`,
+    full_criteria: `Candidate should have done multiple work/projects/internship related python and flask/django. This is an important rule.`,
     resume_rating: `
     - Candidate should have done multiple experiance/projects/internship related to python and flask/django
     - Candidate should have done multiple experiance/projects/internship related mongodb or mysql database`,
@@ -125,10 +129,11 @@ export const linkedJobProfileRules: Record<
     is_open: true,
     job_description: `Good Knowledge in django or flask
     Worked with databases like mongodb or mysql or postgresql`,
-    full_criteria: `Rule 1. Candidate should have maximum salary of 40,000 per month. If candidates salary is not mentioned, assume he passes this criteria.
-    Rule 2. Candidate should not belong to locations ${exclude_location_rule}
-    Rule 3. Candidate should not have more than 1year of Experience.
-    Rule 4. Candidate should have done multiple work/projects/internship related python and flask/django. This is an important rule.`,
+    // full_criteria: `Rule 1. Candidate should have maximum salary of 40,000 per month. If candidates salary is not mentioned, assume he passes this criteria.
+    // Rule 2. Candidate should not belong to locations ${exclude_location_rule}
+    // Rule 3. Candidate should not have more than 1year of Experience.
+    // Rule 4. Candidate should have done multiple work/projects/internship related python and flask/django. This is an important rule.`,
+    full_criteria: `Candidate should have done multiple work/projects/internship related python and flask/django. This is an important rule.`,
     resume_rating: `
     - Candidate should have done multiple experiance/projects/internship related to python and flask/django
     - Candidate should have done multiple experiance/projects/internship related mongodb or mysql database`,
