@@ -79,6 +79,7 @@ const remind_candidates = async (remainders: boolean) => {
 
       if (shouldContinue) {
         if (!queue[fromNumber]) {
+          //if message is already queue don't remind
           await schedule_message_to_be_processed(fromNumber, cred, `remind-${remainders}`);
           if (!from_candidate) await updateRemainderSent(fromNumber);
           await sleep(5000);

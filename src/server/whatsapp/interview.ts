@@ -248,7 +248,7 @@ export const conduct_interview = async (
   return { message: reply, action: action, stage: interview.interview?.stage || "" };
 };
 
-export const callViaHuman = async (phoneNo: string, interview: Interview) => {
+const callViaHuman = async (phoneNo: string, interview: Interview) => {
   let slack_action_channel_id = process.env.slack_final_action_channel_id || process.env.slack_action_channel_id;
   if (slack_action_channel_id) {
     let { slack_thread_id, channel_id } = await get_whatspp_conversations(phoneNo);

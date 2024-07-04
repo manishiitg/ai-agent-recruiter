@@ -269,7 +269,7 @@ export const process_whatsapp_conversation = async (
   }
 };
 
-export const callViaHuman = async (candidate: Candidate, creds: WhatsAppCreds, phoneNo: string) => {
+const callViaHuman = async (candidate: Candidate, creds: WhatsAppCreds, phoneNo: string) => {
   let context = "";
   const info = candidate.conversation?.info;
   if (info?.current_ctc && info.current_ctc != "no") context += `Current CTC: ${info.current_ctc} \n`;
