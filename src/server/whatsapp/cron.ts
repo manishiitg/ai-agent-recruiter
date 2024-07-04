@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import { convertToIST, sleep } from "./util";
+import { convertToIST, formatTime, sleep } from "./util";
 import {
   add_whatsapp_message_sent_delivery_report,
   get_whatspp_conversations,
@@ -80,7 +80,7 @@ const remind_candidates = async (remainders: boolean) => {
       if (shouldContinue) {
         if (!queue[fromNumber]) {
           //if message is already queue don't remind
-          await schedule_message_to_be_processed(fromNumber, cred, `remind-${remainders}`);
+          await schedule_message_to_be_processed(fromNumber, cred, `remind-${remainders}-${formatTime(sortedConversation[0].created_at)}`);
           if (!from_candidate) await updateRemainderSent(fromNumber);
           await sleep(5000);
         }
@@ -94,7 +94,7 @@ const get_pending_hr_screening_candidates = async () => {
   for (const candidate of candidates) {
     const unique_id = candidate.unique_id;
     if (!(await isInterviewStarted(unique_id))) {
-      await schedule_message_to_be_processed(unique_id, cred, "pending-hr-screening-remind");
+      await schedule_message_to_be_processed(unique_id, cred, `pending-hr-screening-remind`);
       await sleep(5000);
     }
   }
@@ -113,7 +113,7 @@ const get_pending_hr_screening_candidates = async () => {
     });
 
     if (now.getTime() - sortedConversation[0].created_at.getTime() > 1000 * 60 * 20) {
-      await schedule_message_to_be_processed(unique_id, cred, "pending-hr-interview-remind");
+      await schedule_message_to_be_processed(unique_id, cred, `pending-hr-interview-remind-${formatTime(sortedConversation[0].created_at)}`);
       await updateInterviewRemainderSent(unique_id);
       await sleep(5000);
     }

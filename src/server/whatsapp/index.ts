@@ -7,7 +7,7 @@ dotenv.config();
 
 require("newrelic");
 import { Request, Response } from "express";
-import { downloadFile } from "./util";
+import { downloadFile, formatTime } from "./util";
 import {
   add_whatsapp_message_sent_delivery_report,
   check_whatsapp_convsation_exists,
@@ -53,13 +53,6 @@ export const queue: Record<
 > = {};
 
 const DEBOUNCE_TIMEOUT = 30; // no of seconds to wait before processing messages
-
-function formatTime(date: Date) {
-  const hours = String(date.getHours()).padStart(2, "0");
-  const minutes = String(date.getMinutes()).padStart(2, "0");
-  const seconds = String(date.getSeconds()).padStart(2, "0");
-  return `${hours}:${minutes}:${seconds}`;
-}
 
 export const whatsapp_webhook = async (req: Request, res: Response) => {
   const { From, To, ContentType, Context, Button, Media0, Body, MessageUUID } = req.body;
