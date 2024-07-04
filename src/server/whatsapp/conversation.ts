@@ -112,13 +112,17 @@ export const process_whatsapp_conversation = async (
     await saveCandidateDetailsToDB(candidate);
   }
 
-  if (!candidate.conversation.classifed_to || !candidate.conversation.classifed_to.category.includes(CONV_CLASSIFY_CANDIDATE_JOB)) {
-    const classifyResponse = await classify_conversation(phoneNo, convertConversationToText(conversation));
-    candidate.conversation.classifed_to = {
-      category: classifyResponse.CLASSIFIED_CATEGORY,
-      reason: classifyResponse.REASON,
-    };
-  }
+  // if (!candidate.conversation.classifed_to || !candidate.conversation.classifed_to.category.includes(CONV_CLASSIFY_CANDIDATE_JOB)) {
+  // const classifyResponse = await classify_conversation(phoneNo, convertConversationToText(conversation));
+  // candidate.conversation.classifed_to = {
+  //   category: classifyResponse.CLASSIFIED_CATEGORY,
+  //   reason: classifyResponse.REASON,
+  // };
+  // }
+  candidate.conversation.classifed_to = {
+    category: CONV_CLASSIFY_CANDIDATE_JOB,
+    reason: "manual",
+  }; //via whatsapp only jobs people apply
 
   if (shouldExtractInfo(candidate.conversation?.info) && candidate.conversation.resume && candidate.conversation.resume?.full_resume_text.length > 0) {
     //atleast two messages
