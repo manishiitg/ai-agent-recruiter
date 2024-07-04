@@ -43,7 +43,7 @@ export const cred: WhatsAppCreds = {
 
 const ADMIN_PHNO = "919717071555";
 
-const queue: Record<
+export const queue: Record<
   string,
   {
     status: "RUNNING" | "PENDING";
@@ -414,7 +414,7 @@ export const schedule_message_to_be_processed = async (fromNumber: string, cred:
     if (slack_thread_id) {
       await postMessageToThread(
         slack_thread_id,
-        `HR: ${agentReply.message}. Action: ${agentReply.action} Stage: ${agentReply.stage} ${scheduled_from}`,
+        `HR: ${agentReply.message}. Action: ${agentReply.action} Stage: ${agentReply.stage} ${scheduled_from} ${formatTime(new Date())}`,
         channel_id || process.env.slack_action_channel_id
       );
     } else {

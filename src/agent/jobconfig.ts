@@ -60,7 +60,13 @@ export const linkedJobProfileRules: Record<
     Rule 5. Candidate should have done multiple experiance/projects/internship related reactjs. This is an important rule.`,
     resume_rating: `
     - Candidate should have done multiple experiance/projects/internship related to reactjs`,
-    questions_to_ask: [`candidate introduction about yourself and your projects`, `what is states vs props`, `question about state managment`, `reactjs interview questions`],
+    questions_to_ask: [
+      `candidate introduction about yourself and your projects`,
+      `what is states vs props`,
+      `question regarding useCallback and useMemo`,
+      `question about state managment`,
+      `reactjs interview questions`,
+    ],
   },
   "Jr Vuejs Developer": {
     is_open: true,

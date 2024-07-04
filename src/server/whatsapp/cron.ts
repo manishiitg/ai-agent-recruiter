@@ -32,7 +32,7 @@ import { createRequire } from "module";
 import { send_whatsapp_text_reply } from "../../integrations/plivo";
 import { conduct_interview, getInterviewObject } from "./interview";
 import { converToMp3 } from "../../integrations/mp3";
-import { cred, schedule_message_to_be_processed } from ".";
+import { cred, queue, schedule_message_to_be_processed } from ".";
 import { transcribe_file_deepgram } from "../../integrations/deepgram";
 import { transribe_file_assembly_ai } from "../../integrations/assembly";
 import { rate_interview } from "../../agent/prompts/rate_interview";
@@ -52,11 +52,10 @@ const remind_candidates = async (remainders: boolean) => {
 
     let from_candidate = false;
     const { slack_thread_id, conversation } = await get_whatspp_conversations(candidate.unique_id);
-    if (conversation.length > 0) {
-      const sortedConversation = sortBy(conversation, (conv: WhatsAppConversaion) => {
-        return conv.created_at;
-      });
-
+    const sortedConversation = sortBy(conversation, (conv: WhatsAppConversaion) => {
+      return conv.created_at;
+    });
+    if (sortedConversation.length > 0) {
       if (sortedConversation[sortedConversation.length - 1].userType == "candidate") {
         shouldContinue = now.getTime() - sortedConversation[sortedConversation.length - 1].created_at.getTime() > 1000 * 60 * 5;
         from_candidate = true;
@@ -69,13 +68,8 @@ const remind_candidates = async (remainders: boolean) => {
     }
 
     if (shouldContinue) {
-      //no response in 1hr
       console.log(candidate.unique_id);
       const fromNumber = candidate.unique_id;
-      const { conversation } = await get_whatspp_conversations(fromNumber);
-      const sortedConversation = sortBy(conversation, (conv: WhatsAppConversaion) => {
-        return conv.created_at;
-      });
 
       if (!remainders) {
         if (sortedConversation[sortedConversation.length - 1].userType == "agent") {
@@ -84,9 +78,11 @@ const remind_candidates = async (remainders: boolean) => {
       }
 
       if (shouldContinue) {
-        await schedule_message_to_be_processed(fromNumber, cred, `remind-${remainders}`);
-        if (!from_candidate) await updateRemainderSent(fromNumber);
-        await sleep(5000);
+        if (!queue[fromNumber]) {
+          await schedule_message_to_be_processed(fromNumber, cred, `remind-${remainders}`);
+          if (!from_candidate) await updateRemainderSent(fromNumber);
+          await sleep(5000);
+        }
       }
     }
   }

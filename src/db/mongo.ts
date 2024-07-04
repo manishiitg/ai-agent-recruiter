@@ -245,6 +245,21 @@ export async function saveCandidateConversationDebugInfoToDB(candidate: Candidat
   await db.collection("candidates").updateOne({ unique_id: unique_id }, { $set: { "conversation.progress": info, updated_at: new Date() } }, { upsert: true });
 }
 
+export async function deleteRemainderSent(unique_id: string) {
+  const client = await connectDB();
+  const db = client.db("whatsapp");
+  await db.collection("candidates").updateOne(
+    { unique_id },
+    {
+      $unset: {
+        "conversation.remainder_sent": "",
+      },
+      $set: {
+        updated_at: new Date(),
+      },
+    }
+  );
+}
 export async function updateRemainderSent(unique_id: string) {
   const client = await connectDB();
   const db = client.db("whatsapp");

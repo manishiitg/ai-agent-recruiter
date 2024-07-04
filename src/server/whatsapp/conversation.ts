@@ -11,7 +11,15 @@ import {
   CONV_CLASSIFY_WISHES_PREFIX,
   extractInfo,
 } from "../../agent/recruiter/extract_info";
-import { get_whatspp_conversations, getCandidateDetailsFromDB, saveCandidateConversationDebugInfoToDB, saveCandidateDetailsToDB, update_slack_thread_id_for_conversion } from "../../db/mongo";
+import {
+  deleteRemainderSent,
+  get_whatspp_conversations,
+  getCandidateDetailsFromDB,
+  saveCandidateConversationDebugInfoToDB,
+  saveCandidateDetailsToDB,
+  update_slack_thread_id_for_conversion,
+  updateRemainderSent,
+} from "../../db/mongo";
 import { Candidate, WhatsAppConversaion, WhatsAppCreds } from "../../db/types";
 import { summariseResume } from "../../agent/prompts/summary_resume_prompt";
 import { transitionStage } from "../../agent/recruiter/transitions";
@@ -218,6 +226,8 @@ export const process_whatsapp_conversation = async (
     console.log(phoneNo, "2. action, reply", action, reply);
     if (llm.action != "no_action") {
       candidate.conversation.actions_taken.push(llm.action);
+      await deleteRemainderSent(candidate.id);
+
       await saveCandidateDetailsToDB(candidate);
     }
     action = llm.action;

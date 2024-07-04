@@ -57,14 +57,8 @@ Agent has a STATE (s) , STATE TRANSITION (s) and RULE (s)
 Things to work on
 ==================
 1. Rejection flow
-2. Assign audio question to round
 3. Able to ask questions real time and judge candidate on tech skills properly and provide a rating
-4. Bug where candidate doesn't provide audio, instead just replies via text in interview
-5. Duplicate questions sent to users
 6. Ask people if they are willing to relocate to noida, if belong to different state.
 7. If candidate are sending message, after status is completed. There should be option for hr to reply manually. they need to get notified about it.
-8. Add general context like is saturday on/off, is jost work from office or home. etc? or prompt llm to ask human if answer is not avaiable
 9. create option for human to mention rejection. so that we can inform the person?
 10. if job opening gets closed, inform previous candidates?
-11. setup logging to understand whats going on
-12. if manual reply done like, you have been rejected. we shouldn't send automated replies?
