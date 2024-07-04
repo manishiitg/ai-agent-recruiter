@@ -208,8 +208,8 @@ export const process_whatsapp_conversation = async (
       if (candidate.conversation) {
         candidate.conversation.stage = STAGE_GOT_REJECTED;
 
-        candidate.conversation.conversation_completed = true;
-        candidate.conversation.conversation_completed_reason = action;
+        // candidate.conversation.conversation_completed = true;
+        // candidate.conversation.conversation_completed_reason = action;
       }
 
     if (candidate.conversation) {
@@ -248,7 +248,12 @@ export const process_whatsapp_conversation = async (
     });
   }
 
-  if (action.includes("do_call_via_human") || action.includes("rejected") || action.includes("no_job_profile")) {
+  if (action.includes("do_call_via_human") || action.includes("no_job_profile")) {
+    candidate.conversation.conversation_completed = true;
+    candidate.conversation.conversation_completed_reason = action;
+    await saveCandidateDetailsToDB(candidate);
+  }
+  if (action.includes("no_action") && candidate.conversation.stage === STAGE_GOT_REJECTED) {
     candidate.conversation.conversation_completed = true;
     candidate.conversation.conversation_completed_reason = action;
     await saveCandidateDetailsToDB(candidate);

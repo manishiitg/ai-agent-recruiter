@@ -176,7 +176,7 @@ export const STAGE_RULE_MAP: Record<
     },
     rejected_reason: {
       rule: "If candiate is asking for reason for reason",
-      response: "Inform candidate reason in a polite way. Don't mention about other job profiles",
+      response: "Inform candidate why is rejected based on reason in <final_rejection_reason> and also mention reason in a polite way. Don't mention about other job profiles",
     },
     no_action: {
       rule: "If candiate is not asking for reason but responding with a general message",
