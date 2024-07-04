@@ -137,7 +137,7 @@ const check_slack_thread_for_manual_msgs = async () => {
     const fromNumber = candidate.unique_id;
     const { slack_thread_id, channel_id } = await get_whatspp_conversations(candidate.unique_id);
     if (slack_thread_id && channel_id) {
-      const msgs = await getLatestMessagesFromThread(channel_id, slack_thread_id, 100);
+      const msgs = await getLatestMessagesFromThread(channel_id, slack_thread_id, 500);
       console.log(`got msgs from slack for ${fromNumber} ${msgs.length}`);
 
       for (const msg of msgs) {
