@@ -57,11 +57,11 @@ const remind_candidates = async (remainders: boolean) => {
     });
     if (sortedConversation.length > 0) {
       if (sortedConversation[sortedConversation.length - 1].userType == "candidate") {
-        shouldContinue = now.getTime() - sortedConversation[sortedConversation.length - 1].created_at.getTime() > 1000 * 60 * 5;
+        shouldContinue = now.getTime() - convertToIST(sortedConversation[sortedConversation.length - 1].created_at).getTime() > 1000 * 60 * 5;
         from_candidate = true;
         //if last conversion was sent by candidate and we didn't reply for 5min
       } else {
-        if (now.getTime() - sortedConversation[sortedConversation.length - 1].created_at.getTime() > 1000 * 60 * 30) {
+        if (now.getTime() - convertToIST(sortedConversation[sortedConversation.length - 1].created_at).getTime() > 1000 * 60 * 30) {
           shouldContinue = true;
         }
       }
@@ -83,7 +83,9 @@ const remind_candidates = async (remainders: boolean) => {
           await schedule_message_to_be_processed(
             fromNumber,
             cred,
-            `remind-${remainders}-${formatTime(sortedConversation[sortedConversation.length - 1].created_at)}-${now.getTime() - sortedConversation[sortedConversation.length - 1].created_at.getTime()}`
+            `remind-${remainders}-${formatTime(convertToIST(sortedConversation[sortedConversation.length - 1].created_at))}-${
+              now.getTime() - convertToIST(sortedConversation[sortedConversation.length - 1].created_at).getTime()
+            }`
           );
           if (!from_candidate) await updateRemainderSent(fromNumber);
           await sleep(5000);
@@ -116,12 +118,12 @@ const get_pending_hr_screening_candidates = async () => {
       return conv.created_at;
     });
 
-    if (now.getTime() - sortedConversation[sortedConversation.length - 1].created_at.getTime() > 1000 * 60 * 20) {
+    if (now.getTime() - convertToIST(sortedConversation[sortedConversation.length - 1].created_at).getTime() > 1000 * 60 * 20) {
       await schedule_message_to_be_processed(
         unique_id,
         cred,
-        `pending-hr-interview-remind-${formatTime(sortedConversation[sortedConversation.length - 1].created_at)}---${
-          now.getTime() - sortedConversation[sortedConversation.length - 1].created_at.getTime()
+        `pending-hr-interview-remind-${formatTime(convertToIST(sortedConversation[sortedConversation.length - 1].created_at))}---${
+          now.getTime() - convertToIST(sortedConversation[sortedConversation.length - 1].created_at).getTime()
         }`
       );
       await updateInterviewRemainderSent(unique_id);
