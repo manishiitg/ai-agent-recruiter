@@ -286,11 +286,11 @@ export const evaluate_hr_screen_interview = async () => {
 
 export const start_cron = async () => {
   // await evaluate_hr_screen_interview();
+  await check_slack_thread_for_manual_msgs();
   await get_pending_hr_screening_candidates();
 
   await remind_candidates(false); //send remainder to candidate who's conversation is not completed.. if last message was sent by agent, dont send remainder
   await remind_candidates(true); //send remainder to candidate who's conversation is not completed
-  await check_slack_thread_for_manual_msgs();
 
   setInterval(async () => {
     //send remainders to candidate on same day
