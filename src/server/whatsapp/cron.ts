@@ -56,12 +56,12 @@ const remind_candidates = async (remainders: boolean) => {
       return conv.created_at;
     });
     if (sortedConversation.length > 0) {
-      if (sortedConversation[sortedConversation.length - 1].userType == "candidate") {
-        shouldContinue = now.getTime() - sortedConversation[sortedConversation.length - 1].created_at.getTime() > 1000 * 60 * 5;
+      if (sortedConversation[0].userType == "candidate") {
+        shouldContinue = now.getTime() - sortedConversation[0].created_at.getTime() > 1000 * 60 * 5;
         from_candidate = true;
         //if last conversion was sent by candidate and we didn't reply for 5min
       } else {
-        if (now.getTime() - sortedConversation[sortedConversation.length - 1].created_at.getTime() > 1000 * 60 * 30) {
+        if (now.getTime() - sortedConversation[0].created_at.getTime() > 1000 * 60 * 30) {
           shouldContinue = true;
         }
       }
@@ -72,7 +72,7 @@ const remind_candidates = async (remainders: boolean) => {
       const fromNumber = candidate.unique_id;
 
       if (!remainders) {
-        if (sortedConversation[sortedConversation.length - 1].userType == "agent") {
+        if (sortedConversation[0].userType == "agent") {
           shouldContinue = false;
         }
       }
@@ -112,7 +112,7 @@ const get_pending_hr_screening_candidates = async () => {
       return conv.created_at;
     });
 
-    if (now.getTime() - sortedConversation[sortedConversation.length - 1].created_at.getTime() > 1000 * 60 * 20) {
+    if (now.getTime() - sortedConversation[0].created_at.getTime() > 1000 * 60 * 20) {
       await schedule_message_to_be_processed(unique_id, cred, "pending-hr-interview-remind");
       await updateInterviewRemainderSent(unique_id);
       await sleep(5000);
