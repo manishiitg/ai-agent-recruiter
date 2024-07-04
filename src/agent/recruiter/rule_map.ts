@@ -153,7 +153,10 @@ export const STAGE_RULE_MAP: Record<
     },
     do_call_via_human: {
       rule: "if candidate has provided his phone number and also provided his availability",
-      response: "mention that you are shortlisted and we will start next round soon",
+      response: `mention that you are shortlisted and we will start next round soon.
+      Also you reach our HR team at +91-9580421704 (Anishka) for job profile Python.
+      Or +91-9870413312(Sanjana) for Reactjs, PHP, Vuejs
+      Check which job profile the candidate belongs to before share the phone no`,
       // response: "mention i will call you later on and mention his phone no",
     },
     tell_job_description: {
@@ -172,11 +175,16 @@ export const STAGE_RULE_MAP: Record<
   got_rejected: {
     rejected: {
       rule: "If Candidate is rejected based on context",
-      response: "Inform candidate why is rejected based on reason in <final_rejection_reason> and also mention reason in a polite way. Don't mention about other job profiles",
+      response: `
+      Inform candidate why is rejected based on reason in <final_rejection_reason> and also mention reason in a polite way. Don't mention about other job profiles.
+      `,
     },
     rejected_reason: {
       rule: "If candiate is asking for reason for reason",
-      response: "Inform candidate why is rejected based on reason in <final_rejection_reason> and also mention reason in a polite way. Don't mention about other job profiles",
+      response: `Inform candidate why is rejected based on reason in <final_rejection_reason> and also mention reason in a polite way. Don't mention about other job profiles
+      Also you reach our HR team at +91-9580421704 (Anishka) for job profile Python.
+      Or +91-9870413312(Sanjana) for Reactjs, PHP, Vuejs
+      Check which job profile the candidate belongs to before share the phone no`,
     },
     no_action: {
       rule: "If candiate is not asking for reason but responding with a general message",
