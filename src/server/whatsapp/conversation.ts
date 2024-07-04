@@ -311,7 +311,9 @@ const callViaHuman = async (candidate: Candidate, creds: WhatsAppCreds, phoneNo:
 
       const msg = `call the candidate ${candidate.id} ${
         candidate.conversation.info?.name
-      } for job profile ${candidate.conversation?.shortlisted?.job_profile.trim()} Resume Rating ${ratingReply.rating.trim()}`;
+      } for job profile ${candidate.conversation?.shortlisted?.job_profile.trim()} Resume Rating ${ratingReply.rating.trim()}
+    ${candidate.conversation.info?.location} ${candidate.conversation.info?.expected_ctc} ${candidate.conversation.info?.years_of_experiance}
+      `;
 
       const slack_thread_id = await postMessage(msg, slack_action_channel_id);
       for (const conv of sortedConversation) {
