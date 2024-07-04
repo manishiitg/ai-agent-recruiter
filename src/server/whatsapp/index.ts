@@ -7,7 +7,7 @@ dotenv.config();
 
 require("newrelic");
 import { Request, Response } from "express";
-import { downloadFile, formatTime } from "./util";
+import { convertToIST, downloadFile, formatTime } from "./util";
 import {
   add_whatsapp_message_sent_delivery_report,
   check_whatsapp_convsation_exists,
@@ -409,7 +409,7 @@ export const schedule_message_to_be_processed = async (fromNumber: string, cred:
       if (slack_thread_id) {
         await postMessageToThread(
           slack_thread_id,
-          `HR: ${agentReply.message}. Action: ${agentReply.action} Stage: ${agentReply.stage} ${scheduled_from} ${formatTime(new Date())}`,
+          `HR: ${agentReply.message}. Action: ${agentReply.action} Stage: ${agentReply.stage} ${scheduled_from} ${formatTime(convertToIST(new Date()))}`,
           channel_id || process.env.slack_action_channel_id
         );
       } else {
