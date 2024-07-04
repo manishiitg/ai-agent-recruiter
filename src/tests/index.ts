@@ -3,7 +3,6 @@ import {
   CONVERSION_TYPE_INTERVIEW,
   get_whatspp_conversations,
   getCandidateDetailsFromDB,
-  getInterviewCandidates,
   getInterviewRemainder,
   getPendingNotCompletedCandidates,
   getSlackTsRead,

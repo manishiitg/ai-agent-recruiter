@@ -7,7 +7,7 @@ import {
   get_whatspp_conversations,
   getCandidateDetailsFromDB,
   getCandidateInterviewFromDB,
-  getInterviewCandidates,
+  getInterviewCandidatesForSlackThread,
   getInterviewCompletedCandidates,
   getInterviewRemainder,
   getPendingNotCompletedCandidates,
@@ -130,7 +130,7 @@ const get_pending_hr_screening_candidates = async () => {
 };
 
 const check_slack_thread_for_manual_msgs = async () => {
-  const candidates = await getInterviewCandidates();
+  const candidates = await getInterviewCandidatesForSlackThread();
   console.log("interview candidates", candidates.length, process.env.bot_user_id);
 
   for (const candidate of candidates) {

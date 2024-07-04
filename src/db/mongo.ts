@@ -491,7 +491,7 @@ export const getInterviewCompletedCandidates = async () => {
     .toArray();
 };
 
-export const getInterviewCandidates = async () => {
+export const getInterviewCandidatesForSlackThread = async () => {
   const client = await connectDB();
   const db = client.db("whatsapp");
 
@@ -499,7 +499,7 @@ export const getInterviewCandidates = async () => {
   let currentDate = new Date();
 
   // Set the time to the start of the day (00:00:00.000)
-  let startOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
+  let startOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() - 2);
 
   // Set the time to the start of the next day (00:00:00.000)
   let startOfNextDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + 1);
