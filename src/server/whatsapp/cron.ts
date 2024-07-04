@@ -85,7 +85,7 @@ const remind_candidates = async (remainders: boolean) => {
             cred,
             `remind-${remainders}-${formatTime(convertToIST(sortedConversation[sortedConversation.length - 1].created_at))}-${
               now.getTime() - convertToIST(sortedConversation[sortedConversation.length - 1].created_at).getTime()
-            }`
+            }--${formatTime(now)}`
           );
           if (!from_candidate) await updateRemainderSent(fromNumber);
           await sleep(5000);
@@ -108,9 +108,6 @@ const get_pending_hr_screening_candidates = async () => {
   console.log("interview_remainder", interview_remainder.length);
   for (const candidate of interview_remainder) {
     const unique_id = candidate.unique_id;
-    console.log(candidate);
-    console.log(convertToIST(candidate.interview.started_at));
-    const date = convertToIST(candidate.interview.started_at) as Date;
     const now = convertToIST(new Date());
 
     const { conversation } = await get_whatspp_conversations(unique_id);
@@ -124,7 +121,7 @@ const get_pending_hr_screening_candidates = async () => {
         cred,
         `pending-hr-interview-remind-${formatTime(convertToIST(sortedConversation[sortedConversation.length - 1].created_at))}---${
           now.getTime() - convertToIST(sortedConversation[sortedConversation.length - 1].created_at).getTime()
-        }`
+        }--${formatTime(now)}`
       );
       await updateInterviewRemainderSent(unique_id);
       await sleep(5000);
