@@ -52,7 +52,7 @@ export const queue: Record<
   }
 > = {};
 
-const DEBOUNCE_TIMEOUT = 60; // no of seconds to wait before processing messages
+const DEBOUNCE_TIMEOUT = 30; // no of seconds to wait before processing messages
 
 function formatTime(date: Date) {
   const hours = String(date.getHours()).padStart(2, "0");
