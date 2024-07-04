@@ -254,6 +254,9 @@ const callViaHuman = async (phoneNo: string, interview: Interview) => {
     let { slack_thread_id, channel_id } = await get_whatspp_conversations(phoneNo);
     if (slack_thread_id) {
       if (interview && interview.interview && interview.interview.interview_questions_asked) {
+        if (channel_id == process.env.slack_action_channel_id) {
+          await postMessageToThread(slack_thread_id, `moving to #whatapp-action-channel`, channel_id || process.env.slack_action_channel_id);
+        }
         let ratings = [];
         for (const question of interview.interview.interview_questions_asked) {
           const audio_files = interview.interview.audio_file;
