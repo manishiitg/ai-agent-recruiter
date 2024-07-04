@@ -293,6 +293,13 @@ const callViaHuman = async (candidate: Candidate, creds: WhatsAppCreds, phoneNo:
   if (creds) context += `Whatsapp Account ${creds.name}`;
 
   let slack_action_channel_id = process.env.slack_final_action_channel_id || process.env.slack_action_channel_id;
+
+  const { slack_thread_id, channel_id } = await get_whatspp_conversations(candidate.id);
+  if (channel_id == process.env.slack_final_action_channel_id) {
+    console.log(`${candidate.id} already posted on channel!`);
+    return;
+  }
+
   if (slack_action_channel_id) {
     if (candidate.conversation && candidate.conversation.resume) {
       const ratingReply = await rate_resume(candidate.id, candidate.conversation);
