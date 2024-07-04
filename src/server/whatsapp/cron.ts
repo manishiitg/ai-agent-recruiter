@@ -80,7 +80,11 @@ const remind_candidates = async (remainders: boolean) => {
       if (shouldContinue) {
         if (!queue[fromNumber]) {
           //if message is already queue don't remind
-          await schedule_message_to_be_processed(fromNumber, cred, `remind-${remainders}-${formatTime(sortedConversation[0].created_at)}`);
+          await schedule_message_to_be_processed(
+            fromNumber,
+            cred,
+            `remind-${remainders}-${formatTime(sortedConversation[0].created_at)}-${now.getTime() - sortedConversation[0].created_at.getTime()}`
+          );
           if (!from_candidate) await updateRemainderSent(fromNumber);
           await sleep(5000);
         }
@@ -113,7 +117,11 @@ const get_pending_hr_screening_candidates = async () => {
     });
 
     if (now.getTime() - sortedConversation[0].created_at.getTime() > 1000 * 60 * 20) {
-      await schedule_message_to_be_processed(unique_id, cred, `pending-hr-interview-remind-${formatTime(sortedConversation[0].created_at)}`);
+      await schedule_message_to_be_processed(
+        unique_id,
+        cred,
+        `pending-hr-interview-remind-${formatTime(sortedConversation[0].created_at)}---${now.getTime() - sortedConversation[0].created_at.getTime()}`
+      );
       await updateInterviewRemainderSent(unique_id);
       await sleep(5000);
     }
