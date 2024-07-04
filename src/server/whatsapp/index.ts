@@ -391,7 +391,7 @@ export const schedule_message_to_be_processed = async (fromNumber: string, cred:
   }
 
   if (agentReply && agentReply.message) {
-    if (agentReply.action == "no_action") {
+    if (agentReply.action.includes("no_action")) {
     } else {
       // let should_reply = true;
       // if (queue[fromNumber] && queue[fromNumber].canDelete === false) {
