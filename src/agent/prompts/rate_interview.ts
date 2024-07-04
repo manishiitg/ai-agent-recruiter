@@ -44,7 +44,7 @@ After completing your evaluation, provide your response in the following XML for
 Remember to provide thorough reasoning in the <SCRATCHPAD> section before giving your final ratings. Your evaluation should be fair, objective, and based solely on the information provided.
 Make sure provide output strictly in xml format.`;
 
-  llm_output = await callDeepkSeek(prompt, profileID, 0, DEEP_SEEK_V2_CHAT, { type: "rate_resume" }, async (llm_output: string): Promise<Record<string, string>> => {
+  llm_output = await callDeepkSeek(prompt, profileID, 0, DEEP_SEEK_V2_CHAT, { type: "rate_interview_question" }, async (llm_output: string): Promise<Record<string, string>> => {
     const jObj = await parseStringPromise(llm_output, {
       explicitArray: false,
       strict: false,
