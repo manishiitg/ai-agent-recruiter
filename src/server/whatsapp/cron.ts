@@ -58,12 +58,10 @@ export const remind_candidates = async (remainders: boolean) => {
         from_candidate = true;
         //if last conversion was sent by candidate and we didn't reply for 5min
         console.log(
-          `${candidate.unique_id} last conversation sent by candidate ${shouldContinue} now: ${formatTime(now)}  sent at ${convertToIST(
-            sortedConversation[sortedConversation.length - 1].created_at
-          ).getTime()} `
+          `${candidate.unique_id} last conversation sent by candidate ${shouldContinue} now: ${formatTime(now)}  sent at ${convertToIST(sortedConversation[sortedConversation.length - 1].created_at)} `
         );
       } else {
-        console.log(`${candidate.unique_id} last conversation sent by agent now: ${formatTime(now)}  sent at ${convertToIST(sortedConversation[sortedConversation.length - 1].created_at).getTime()} `);
+        console.log(`${candidate.unique_id} last conversation sent by agent now: ${formatTime(now)}  sent at ${convertToIST(sortedConversation[sortedConversation.length - 1].created_at)} `);
         if (now.getTime() - convertToIST(sortedConversation[sortedConversation.length - 1].created_at).getTime() > 1000 * 60 * 30) {
           shouldContinue = true;
         }
