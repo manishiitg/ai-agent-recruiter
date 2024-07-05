@@ -276,7 +276,11 @@ const callViaHuman = async (phoneNo: string, interview: Interview) => {
 
           const rating = await rate_tech_answer(phoneNo, interview, question.question_asked_to_user, answers);
           await postMessageToThread(slack_thread_id, `Rating Reasong:${stage}: ${rating.SCRATCHPAD}`, channel_id || process.env.slack_action_channel_id);
-          await postMessageToThread(slack_thread_id, `Answer Rating: ${rating.QUESTION_RATING}`, channel_id || process.env.slack_action_channel_id);
+          await postMessageToThread(
+            slack_thread_id,
+            `Answer Rating: ${rating.QUESTION_RATING}  Debug: ${parseInt(rating.QUESTION_RATING.trim(), 10)}`,
+            channel_id || process.env.slack_action_channel_id
+          );
           ratings.push(rating.QUESTION_RATING);
         }
         await postMessageToThread(slack_thread_id, `HR Screening completed! Rating ${ratings.join(",")}`, channel_id || process.env.slack_action_channel_id, false);
