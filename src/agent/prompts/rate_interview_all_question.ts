@@ -33,8 +33,9 @@ Your task is to rate the candidate's answers on a scale of 0 to 10, where 0 is c
 For each question, follow these steps:
 1. Consider the relevance, accuracy, and completeness of the candidate's response.
 2. Evaluate how well the answer aligns technically with the question.
-3. Provide a detailed reasoning for your rating in the <scratchpad> section for every query.
-4. Assign a final rating from 0 to 10.
+4. If its not a technical question evaluate the answer based on correctness and communication skills.
+5. Provide a detailed reasoning for your rating in the <scratchpad> section for every query.
+6. Assign a final rating from 0 to 10.
 
 After completing your evaluation, provide your response in the following XML format:
 
