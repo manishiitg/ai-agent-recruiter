@@ -282,7 +282,7 @@ export async function getInterviewRemainder() {
   let currentDate = new Date();
 
   // Set the time to the start of the day (00:00:00.000)
-  let startOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
+  let startOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() - 1);
 
   // Set the time to the start of the next day (00:00:00.000)
   let startOfNextDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + 1);
