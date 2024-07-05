@@ -131,11 +131,6 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
             if (!existsSync(resume_path)) {
               mkdirSync(resume_path, { recursive: true });
             }
-            // queue[fromNumber] = {
-            //   ts: setTimeout(() => {}, 1000),
-            //   status: "RUNNING",
-            //   canDelete: true,
-            // };
 
             const { slack_thread_id, channel_id } = await get_whatspp_conversations(fromNumber);
 
@@ -244,12 +239,6 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
             if (!existsSync(resume_path)) {
               mkdirSync(resume_path, { recursive: true });
             }
-            queue[fromNumber] = {
-              ts: setTimeout(() => {}, 1000),
-              status: "RUNNING",
-              canDelete: true,
-              startedAt: new Date(),
-            };
 
             const resume_file = path.join(resume_path, "resume.pdf");
             await downloadFile(Media0, resume_file);
