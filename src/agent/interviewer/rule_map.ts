@@ -40,7 +40,7 @@ const STAGE_RULE_MAP: Record<
     },
     remainder: {
       rule: "If already asked candidate to start interview but candidate has not replied",
-      response: "send a remainder asking to start interview on whatsapp",
+      response: "send a remainder if candidate is ready to start an interview",
     },
     how_this_works: {
       rule: "If candidate asks how this works",

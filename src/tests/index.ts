@@ -27,6 +27,8 @@ import { ask_question_for_tech_interview } from "../agent/prompts/interview_ques
 import { send_whatsapp_text_reply } from "../integrations/plivo";
 
 (async () => {
+  await remind_candidates(false);
+
   // there is a bug. for ph: 916309891039. he is uploaded his resume but for some reason we havne't processed it so he is stuck in stage New
 
   // const ph = "919262378726";

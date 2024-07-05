@@ -36,11 +36,8 @@ import { cred, queue, schedule_message_to_be_processed } from ".";
 import { transcribe_file_deepgram } from "../../integrations/deepgram";
 import { transribe_file_assembly_ai } from "../../integrations/assembly";
 import { rate_interview } from "../../agent/prompts/rate_interview";
-// @ts-ignore
-const require = createRequire(import.meta.url);
-var textract = require("textract");
 
-const remind_candidates = async (remainders: boolean) => {
+export const remind_candidates = async (remainders: boolean) => {
   const candidates = await getPendingNotCompletedCandidates(remainders);
   console.log("getPendingNotCompletedCandidates", candidates.length);
   for (const candidate of candidates) {
@@ -60,7 +57,13 @@ const remind_candidates = async (remainders: boolean) => {
         shouldContinue = now.getTime() - convertToIST(sortedConversation[sortedConversation.length - 1].created_at).getTime() > 1000 * 60 * 5;
         from_candidate = true;
         //if last conversion was sent by candidate and we didn't reply for 5min
+        console.log(
+          `${candidate.unique_id} last conversation sent by candidate ${shouldContinue} now: ${formatTime(now)}  sent at ${convertToIST(
+            sortedConversation[sortedConversation.length - 1].created_at
+          ).getTime()} `
+        );
       } else {
+        console.log(`${candidate.unique_id} last conversation sent by agent now: ${formatTime(now)}  sent at ${convertToIST(sortedConversation[sortedConversation.length - 1].created_at).getTime()} `);
         if (now.getTime() - convertToIST(sortedConversation[sortedConversation.length - 1].created_at).getTime() > 1000 * 60 * 30) {
           shouldContinue = true;
         }
@@ -68,11 +71,11 @@ const remind_candidates = async (remainders: boolean) => {
     }
 
     if (shouldContinue) {
-      console.log(candidate.unique_id);
       const fromNumber = candidate.unique_id;
 
       if (!remainders) {
         if (sortedConversation[sortedConversation.length - 1].userType == "agent") {
+          console.log(`${candidate.unique_id} last conversation sent by agent so won't continue`);
           shouldContinue = false;
         }
       }
@@ -89,6 +92,8 @@ const remind_candidates = async (remainders: boolean) => {
           );
           if (!from_candidate) await updateRemainderSent(fromNumber);
           await sleep(5000);
+        } else {
+          console.log(`${candidate.unique_id} queue still in progress!  ${queue[fromNumber].ts} ${queue[fromNumber].canDelete} ${queue[fromNumber].status} `);
         }
       }
     }
