@@ -195,6 +195,10 @@ const STAGE_RULE_MAP: Record<
         }
       },
     },
+    candidate_will_answer_at_a_later_time: {
+      rule: "If candidate has he can answer at a later time",
+      response: "Reply its alright",
+    },
     candidate_doesnt_understand: {
       rule: "If candidate doesn't understand how to record on whatsapp",
       response: "Inform candidate to use the whatsapp voice recording feature and give a short introduction. Also inform he can send multiple recordings as well if needed.",
