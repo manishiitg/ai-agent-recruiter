@@ -93,7 +93,7 @@ export const remind_candidates = async (remainders: boolean) => {
           if (!from_candidate) await updateRemainderSent(fromNumber);
           await sleep(5000);
         } else {
-          console.log(`${candidate.unique_id} queue still in progress!  ${queue[fromNumber].ts} ${queue[fromNumber].canDelete} ${queue[fromNumber].status} `);
+          console.log(`${candidate.unique_id} queue still in progress!  ${formatTime(convertToIST(queue[fromNumber].startedAt))} ${queue[fromNumber].canDelete} ${queue[fromNumber].status} `);
         }
       }
     }

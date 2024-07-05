@@ -51,7 +51,8 @@ export const STAGE_RULE_MAP: Record<
     },
     tell_job_opening: {
       rule: "If candidate has not mentioned which job profile candidate is interested in",
-      response: "Suggest the a single most suitable <open_job> profile based this conversation/context and ask if he is interested for the same",
+      response: `Suggest the a single most suitable <open_job> profile based this conversation/context and ask if he is interested for the same.
+      Suggest a single job opening only if there is enough context to suggest or mention all job openings.`,
     },
     tell_job_description: {
       rule: "if candidate is specifically about job description in conversation",

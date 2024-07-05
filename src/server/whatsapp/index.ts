@@ -49,6 +49,7 @@ export const queue: Record<
     status: "RUNNING" | "PENDING";
     ts: NodeJS.Timeout;
     canDelete: boolean;
+    startedAt: Date;
   }
 > = {};
 
@@ -96,9 +97,10 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
                 }, (fromNumber === ADMIN_PHNO ? 5 : DEBOUNCE_TIMEOUT) * 1000),
                 status: "PENDING",
                 canDelete: true,
+                startedAt: new Date(),
               };
             } else {
-              console.log(fromNumber, "previous msg processing started so not queueing again!", queue[fromNumber]);
+              console.log(fromNumber, `previous msg processing started so not queueing again! ${queue[fromNumber].canDelete} ${queue[fromNumber].status} ${queue[fromNumber].ts}`);
               queue[fromNumber].canDelete = false;
             }
           } else {
@@ -109,6 +111,7 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
               }, (fromNumber === ADMIN_PHNO ? 5 : DEBOUNCE_TIMEOUT) * 1000),
               status: "PENDING",
               canDelete: true,
+              startedAt: new Date(),
             };
           }
         }
@@ -212,11 +215,12 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
                   }, (fromNumber === ADMIN_PHNO ? 5 : DEBOUNCE_TIMEOUT) * 1000),
                   status: "PENDING",
                   canDelete: true,
+                  startedAt: new Date(),
                 };
               } else {
                 // TODO. need to handle this. user has sent another message in between of process.
                 // conversation are not valid any. can we cancel and restart?
-                console.log(fromNumber, "previous msg processing started so not queueing again!", queue[fromNumber]);
+                console.log(fromNumber, `previous msg processing started so not queueing again! ${queue[fromNumber].canDelete} ${queue[fromNumber].status} ${queue[fromNumber].ts}`);
                 queue[fromNumber].canDelete = false;
               }
             } else {
@@ -226,6 +230,7 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
                 }, (fromNumber === ADMIN_PHNO ? 5 : DEBOUNCE_TIMEOUT) * 1000),
                 status: "PENDING",
                 canDelete: true,
+                startedAt: new Date(),
               };
             }
           } else if (req.body.MimeType.includes("pdf")) {
@@ -237,6 +242,7 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
               ts: setTimeout(() => {}, 1000),
               status: "RUNNING",
               canDelete: true,
+              startedAt: new Date(),
             };
 
             const resume_file = path.join(resume_path, "resume.pdf");
@@ -293,11 +299,12 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
                   }, (fromNumber === ADMIN_PHNO ? 5 : DEBOUNCE_TIMEOUT) * 1000),
                   status: "PENDING",
                   canDelete: true,
+                  startedAt: new Date(),
                 };
               } else {
                 // TODO. need to handle this. user has sent another message in between of process.
                 // conversation are not valid any. can we cancel and restart?
-                console.log(fromNumber, "previous msg processing started so not queueing again!", queue[fromNumber]);
+                console.log(fromNumber, `previous msg processing started so not queueing again! ${queue[fromNumber].canDelete} ${queue[fromNumber].status} ${queue[fromNumber].ts}`);
                 queue[fromNumber].canDelete = false;
               }
             } else {
@@ -307,6 +314,7 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
                 }, (fromNumber === ADMIN_PHNO ? 5 : DEBOUNCE_TIMEOUT) * 1000),
                 status: "PENDING",
                 canDelete: true,
+                startedAt: new Date(),
               };
             }
           } else {
@@ -449,6 +457,7 @@ export const schedule_message_to_be_processed = async (fromNumber: string, cred:
         }, (fromNumber === ADMIN_PHNO ? 5 : DEBOUNCE_TIMEOUT) * 1000),
         status: "PENDING",
         canDelete: true,
+        startedAt: new Date(),
       };
     }
   }
