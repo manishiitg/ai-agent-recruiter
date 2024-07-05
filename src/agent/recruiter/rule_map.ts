@@ -181,6 +181,12 @@ export const STAGE_RULE_MAP: Record<
       `,
     },
     rejected_reason: {
+      rule: "If Candidate is rejected based on context",
+      response: `
+      Inform candidate why is rejected based on reason in <final_rejection_reason> and also mention reason in a polite way. Don't mention about other job profiles.
+      `,
+    },
+    rejected_reason_again: {
       rule: "If candiate is asking for reason for reason",
       response: `Inform candidate why is rejected based on reason in <final_rejection_reason> and also mention reason in a polite way. Don't mention about other job profiles
       Also you reach our HR team at +91-9580421704 (Anishka) for job profile Python.
