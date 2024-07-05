@@ -66,7 +66,7 @@ export const linkedJobProfileRules: Record<
       `what is states vs props`,
       `question regarding useCallback and useMemo`,
       `question about state managment`,
-      `reactjs interview questions`,
+      `i have a component which is rendering is a lot, how can i debug and stop the re-renders`,
     ],
   },
   "Jr Vuejs Developer": {
