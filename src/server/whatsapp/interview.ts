@@ -123,7 +123,8 @@ export const conduct_interview = async (
   }
 
   if (interview.interview.stage !== STAGE_INTERVIEW_NOT_DONE && interview.interview.stage !== STAGE_COMPLETED) {
-    if (action.includes("candidate_ready_next_question") || action.includes("candidate_answered_sent_recording")) {
+    if (action.includes("candidate_ready_next_question")) { 
+      // || action.includes("candidate_answered_sent_recording")
       // || action.includes("candidate_provided_wrong_answer")
       if (interview.interview.stage.includes(STAGE_TECH_QUES)) {
         stage_transition = true;

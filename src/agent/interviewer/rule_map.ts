@@ -231,14 +231,6 @@ const STAGE_RULE_MAP: Record<
         }
       },
     },
-    // ask_about_next_question: {
-    //   rule: "If candidate has given audio recording and completed answer for question",
-    //   response: "Are you ready for the next question?",
-    //   should_render: (obj: Interview, current_stage: string, current_action: string) => {
-    //     const hasAudio = obj.interview?.interview_info.got_audio_file;
-    //     return hasAudio ? true : false;
-    //   },
-    // },
     // general_message_or_question: {
     //   rule: "If candidate gave a general message like ok, yes or asking a question",
     //   response: "reply accordingly a very short answer",
