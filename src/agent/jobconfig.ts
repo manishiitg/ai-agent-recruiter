@@ -91,7 +91,7 @@ export const linkedJobProfileRules: Record<
     // Rule 3. Candidate should have done multiple experiance/projects/internship related to nodejs. This is an important rule.`,
     full_criteria: `Candidate should have done multiple experiance/projects/internship related to nodejs. This is an important rule.`,
     resume_rating: `
-    - Candidate should have done multiple experiance/projects/internship related to nodejs..
+    - Candidate should have done multiple projects/internship related to nodejs.
     - Candidate should have worked on projects using expressjs. `,
     questions_to_ask: [
       `candidate introduction about yourself and your projects`,
@@ -111,8 +111,8 @@ export const linkedJobProfileRules: Record<
     // Rule 4. Candidate should have done multiple work/projects/internship related python and flask/django. This is an important rule.`,
     full_criteria: `Candidate should have done multiple work/projects/internship related python. This is an important rule.`,
     resume_rating: `
-    - Candidate should have done multiple experiance/projects/internship related to python and flask/django
-    - Candidate should have done multiple experiance/projects/internship related mongodb or mysql database`,
+    - Candidate should have done multiple projects/internship related to python
+    - Candidate should have done multiple projects/internship related mongodb or mysql database`,
     questions_to_ask: [
       `candidate introduction about yourself and your projects`,
       `what is a lamda function in python`,
