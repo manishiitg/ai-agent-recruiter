@@ -186,6 +186,12 @@ export const STAGE_RULE_MAP: Record<
       Inform candidate why is rejected based on reason in <final_rejection_reason> and also mention reason in a polite way. Don't mention about other job profiles.
       `,
     },
+    if_asking_about_other_profiles: {
+      rule: "If candidate is asking about other job profiles",
+      response: `
+      Inform we cannot consider for other profiles now, and he can apply later after few months after gaining more skills about the current job profile
+      `,
+    },
     rejected_reason_again: {
       rule: "If candiate is asking for reason for reason",
       response: `Inform candidate why is rejected based on reason in <final_rejection_reason> and also mention reason in a polite way. Don't mention about other job profiles
