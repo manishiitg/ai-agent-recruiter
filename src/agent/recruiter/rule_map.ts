@@ -200,6 +200,10 @@ export const STAGE_RULE_MAP: Record<
       Check which job profile the candidate belongs to before share the phone no`,
     },
     no_action: {
+      rule: "if candidate has given a general message like ok or thank you",
+      response: "take no action",
+    },
+    no_action_2: {
       rule: "If candiate is not asking for reason but responding with a general message",
       response: "take no action",
     },
