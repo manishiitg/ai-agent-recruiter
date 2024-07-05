@@ -148,7 +148,7 @@ const STAGE_RULE_MAP: Record<
   tech: {
     candidate_ready_next_question: {
       rule: "If we have asked if he ready for next question and he has replied yes.",
-      response: "reply accordingly a very short answer",
+      response: "ask if he is ready for next question",
       should_render: (obj: Interview, current_stage: string, current_action: string) => {
         const hasInterviewStageQuestions = obj.interview?.interview_questions_asked?.filter((row) => row.stage === current_stage);
         const hasAudio = obj.interview?.interview_info.got_audio_file;
