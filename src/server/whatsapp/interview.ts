@@ -123,8 +123,8 @@ export const conduct_interview = async (
   }
 
   if (interview.interview.stage !== STAGE_INTERVIEW_NOT_DONE && interview.interview.stage !== STAGE_COMPLETED) {
-    if (action.includes("candidate_ready_next_question")) { 
-      // || action.includes("candidate_answered_sent_recording")
+    if (action.includes("candidate_ready_next_question")) {
+      //
       // || action.includes("candidate_provided_wrong_answer")
       if (interview.interview.stage.includes(STAGE_TECH_QUES)) {
         stage_transition = true;
@@ -263,13 +263,13 @@ const callViaHuman = async (phoneNo: string, interview: Interview) => {
           const audio_files = interview.interview.audio_file;
           const stage = question.stage;
           const audioOfStage = audio_files?.filter((row) => row.stage == stage);
-          await postMessageToThread(slack_thread_id, `Question:${stage}: ${question.question_asked_to_user}`, channel_id || process.env.slack_action_channel_id);
-          await postMessageToThread(slack_thread_id, `Expected Answer:${stage}: ${question.expected_answer}`, channel_id || process.env.slack_action_channel_id);
+          // await postMessageToThread(slack_thread_id, `Question:${stage}: ${question.question_asked_to_user}`, channel_id || process.env.slack_action_channel_id);
+          // await postMessageToThread(slack_thread_id, `Expected Answer:${stage}: ${question.expected_answer}`, channel_id || process.env.slack_action_channel_id);
 
           let answers = "";
           if (audioOfStage) {
             for (const audio of audioOfStage) {
-              await postMessageToThread(slack_thread_id, `Answer:${stage}: ${audio.transcribe}`, channel_id || process.env.slack_action_channel_id);
+              // await postMessageToThread(slack_thread_id, `Answer:${stage}: ${audio.transcribe}`, channel_id || process.env.slack_action_channel_id);
               answers = audio.transcribe + "\n";
             }
           }
