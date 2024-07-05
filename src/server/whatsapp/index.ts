@@ -463,6 +463,7 @@ export const schedule_message_to_be_processed = async (fromNumber: string, cred:
       };
     }
   }
+  console.log(`${fromNumber} processing completed! ${formatTime(convertToIST(new Date()))}`);
 };
 
 export const whatsapp_callback = async (req: Request, res: Response) => {
