@@ -47,6 +47,10 @@ const STAGE_RULE_MAP: Record<
       response:
         "explain him the process. i will ask you some technical questions, you will provie answers via whatsapp audio. then we our HR team will listen to the audio response and evaluate your profile.",
     },
+    candidate_will_answer_at_a_later_time: {
+      rule: "If candidate has he can answer at a later time",
+      response: "Reply its alright and let me know when you are ready to start",
+    },
     candidate_accepted_for_interview: {
       rule: "if we have asked the candidate to conduct interview specifically on whatsapp and he is agreed to them same.",
       response: "short reply",
