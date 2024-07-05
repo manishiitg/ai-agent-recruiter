@@ -100,7 +100,10 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
                 startedAt: new Date(),
               };
             } else {
-              console.log(fromNumber, `previous msg processing started so not queueing again! ${queue[fromNumber].canDelete} ${queue[fromNumber].status} ${queue[fromNumber].ts}`);
+              console.log(
+                fromNumber,
+                `previous msg processing started so not queueing again! ${queue[fromNumber].canDelete} ${queue[fromNumber].status} ${formatTime(convertToIST(queue[fromNumber].startedAt))}`
+              );
               queue[fromNumber].canDelete = false;
             }
           } else {
@@ -220,7 +223,10 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
               } else {
                 // TODO. need to handle this. user has sent another message in between of process.
                 // conversation are not valid any. can we cancel and restart?
-                console.log(fromNumber, `previous msg processing started so not queueing again! ${queue[fromNumber].canDelete} ${queue[fromNumber].status} ${queue[fromNumber].ts}`);
+                console.log(
+                  fromNumber,
+                  `previous msg processing started so not queueing again! ${queue[fromNumber].canDelete} ${queue[fromNumber].status} ${formatTime(convertToIST(queue[fromNumber].startedAt))}`
+                );
                 queue[fromNumber].canDelete = false;
               }
             } else {
@@ -304,7 +310,10 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
               } else {
                 // TODO. need to handle this. user has sent another message in between of process.
                 // conversation are not valid any. can we cancel and restart?
-                console.log(fromNumber, `previous msg processing started so not queueing again! ${queue[fromNumber].canDelete} ${queue[fromNumber].status} ${queue[fromNumber].ts}`);
+                console.log(
+                  fromNumber,
+                  `previous msg processing started so not queueing again! ${queue[fromNumber].canDelete} ${queue[fromNumber].status} ${formatTime(convertToIST(queue[fromNumber].startedAt))}`
+                );
                 queue[fromNumber].canDelete = false;
               }
             } else {
