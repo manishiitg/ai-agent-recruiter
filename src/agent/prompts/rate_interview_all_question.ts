@@ -5,31 +5,35 @@ import { callDeepkSeek, DEEP_SEEK_V2_CHAT, DEEP_SEEK_V2_CODER } from "../../llms
 import { Interview } from "../interviewer/types";
 import { profile } from "console";
 
-export const rate_tech_answer = async (profileID: string, interviewObj: Interview, question: string, answer: string) => {
-  const classified_job_profile = interviewObj.interview?.info?.suitable_job_profile;
+export const rate_tech_answer_all_question = async (profileID: string, questions: string[], answers: string[]) => {
 
   let llm_output = "";
   const prompt = `You are an AI assistant tasked with evaluating a job applicant's interview performance. 
-  You will be provided with a question and an answer. 
-  Your goal is to carefully review this information and provide ratings for each answer, as well as an assessment of the candidate's technical skills.
+  You will be provided with multiple question questions and an multiple answers. 
 
-First, review the job details:
+  These questions are asked to the candidate over a telephinic conversation.
+  You need to review how well the candidate has answered the questions technically.
 
-  <JOB_TITLE>
-  ${classified_job_profile}
-  </JOB_TITLE>
-  Now, here are the interview questions and their best expected answers:
+  Your goal is to carefully review this information and provide ratings for each answer.
 
+  <questions_asked>
+  ${questions.map((question, idx) => {
+    return `<question_${idx}>${question}</question_${idx}>\n`;
+  })}
+  </questions_asked>
 
-  Question: ${question}
-  Answer: ${answer}
+  <answers_given>
+  ${answers.map((answer, idx) => {
+    return `<answer>${answer}</answer>\n`;
+  })}
+  </answers_given>
   
 Your task is to rate the candidate's answers on a scale of 0 to 10, where 0 is completely incorrect or irrelevant, and 10 is a perfect match to the best expected answer. 
 
 For each question, follow these steps:
 1. Consider the relevance, accuracy, and completeness of the candidate's response.
-2. Evaluate how well the answer aligns with the job criteria and requirements.
-3. Provide a detailed reasoning for your rating in the <scratchpad> section.
+2. Evaluate how well the answer aligns technically with the question.
+3. Provide a detailed reasoning for your rating in the <scratchpad> section for every query.
 4. Assign a final rating from 0 to 10.
 
 After completing your evaluation, provide your response in the following XML format:
@@ -38,7 +42,9 @@ After completing your evaluation, provide your response in the following XML for
   <SCRATCHPAD>
     [Provide your step-by-step reasoning for each question here]
   </SCRATCHPAD>
-  <QUESTION_RATING>final rating</QUESTION_RATING>
+  ${questions.map((question, idx) => {
+    return `<QUESTION_RATING_${idx}>final rating</QUESTION_RATING_${idx}>;`;
+  })}
 </RESPONSE>
 
 Remember to provide thorough reasoning in the <SCRATCHPAD> section before giving your final ratings. Your evaluation should be fair, objective, and based solely on the information provided.
@@ -65,7 +71,8 @@ Make sure provide output strictly in xml format.`;
   const SCRATCHPAD = jObj["RESPONSE"]["SCRATCHPAD"];
   const QUESTION_RATING = jObj["RESPONSE"]["QUESTION_RATING"];
 
-  return { SCRATCHPAD, QUESTION_RATING };
+  //   return { SCRATCHPAD, QUESTION_RATING };
+  return jObj["RESPONSE"];
 };
 
 export const rate_interview = async (profileID: string, interviewObj: Interview) => {
@@ -84,7 +91,7 @@ export const rate_interview = async (profileID: string, interviewObj: Interview)
   }
 
   let llm_output = "";
-  const prompt = `You are an AI assistant tasked with evaluating a job applicant's interview performance. You will be provided with the job details, interview questions, best expected answers, and the candidate's actual responses. Your goal is to carefully review this information and provide ratings for each answer, as well as an assessment of the candidate's technical skills.
+  const prompt = `You are an AI assistant tasked with evaluating a job applicant's interview performance. You will be provided with the job details, interview questions, best expected answers, and the candidate's actual responses. Your goal is to carefully review this information and provide ratings for each answer, as well as an assessment of the candidate's communication skills.
 
 First, review the job details:
 

@@ -12,6 +12,7 @@ import { postMessage, postMessageToThread } from "../../communication/slack";
 // import { STAGE_INTRODUCTION } from "../../agent/interviewer/rule_map";
 import { ask_question_for_tech_interview } from "../../agent/prompts/interview_questions";
 import { rate_tech_answer } from "../../agent/prompts/rate_interview";
+import { rate_tech_answer_all_question } from "../../agent/prompts/rate_interview_all_question";
 
 export const getInterviewObject = async (phoneNo: string) => {
   let interview: Interview;
@@ -259,6 +260,9 @@ const callViaHuman = async (phoneNo: string, interview: Interview) => {
           await postMessageToThread(slack_thread_id, `moving to #whatapp-action-channel`, channel_id || process.env.slack_action_channel_id);
         }
         let ratings = [];
+
+        let all_questions = [];
+        let all_answers = [];
         for (const question of interview.interview.interview_questions_asked) {
           const audio_files = interview.interview.audio_file;
           const stage = question.stage;
@@ -266,11 +270,13 @@ const callViaHuman = async (phoneNo: string, interview: Interview) => {
           // await postMessageToThread(slack_thread_id, `Question:${stage}: ${question.question_asked_to_user}`, channel_id || process.env.slack_action_channel_id);
           // await postMessageToThread(slack_thread_id, `Expected Answer:${stage}: ${question.expected_answer}`, channel_id || process.env.slack_action_channel_id);
 
+          all_questions.push(question.question_asked_to_user);
           let answers = "";
           if (audioOfStage) {
             for (const audio of audioOfStage) {
               // await postMessageToThread(slack_thread_id, `Answer:${stage}: ${audio.transcribe}`, channel_id || process.env.slack_action_channel_id);
               answers = audio.transcribe + "\n";
+              all_answers.push(audio.transcribe);
             }
           }
 
@@ -282,6 +288,10 @@ const callViaHuman = async (phoneNo: string, interview: Interview) => {
             channel_id || process.env.slack_action_channel_id
           );
           ratings.push(rating.QUESTION_RATING);
+        }
+        if (all_questions.length > 0) {
+          const rating_response = await rate_tech_answer_all_question(phoneNo, all_questions, all_answers);
+          await postMessageToThread(slack_thread_id, `Final Rating: ${JSON.stringify(rating_response)}`, channel_id || process.env.slack_action_channel_id);
         }
         await postMessageToThread(slack_thread_id, `HR Screening completed! Rating ${ratings.join(",")}`, channel_id || process.env.slack_action_channel_id, false);
       }
