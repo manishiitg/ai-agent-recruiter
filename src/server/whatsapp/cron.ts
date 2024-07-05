@@ -123,6 +123,16 @@ const get_pending_hr_screening_candidates = async () => {
     });
 
     if (now.getTime() - convertToIST(sortedConversation[sortedConversation.length - 1].created_at).getTime() > 1000 * 60 * 20) {
+      if (unique_id) {
+        const interObj = getInterviewObject(unique_id);
+        if ((await interObj).interview?.stage.includes("candidate_will_answer_at_a_later_time")) {
+          if (now.getTime() - convertToIST(sortedConversation[sortedConversation.length - 1].created_at).getTime() < 1000 * 60 * 60 * 5) {
+            console.log(unique_id, "skipping interview for candidate as stage is candidate_will_answer_at_a_later_time");
+            continue;
+          }
+        }
+      }
+
       await schedule_message_to_be_processed(
         unique_id,
         cred,
