@@ -447,10 +447,12 @@ export const schedule_message_to_be_processed = async (fromNumber: string, cred:
     console.log(fromNumber, "debug!");
   }
   if (queue[fromNumber] && queue[fromNumber].canDelete) {
+    console.log(`${fromNumber} delete queue`);
     delete queue[fromNumber];
   } else {
     if (queue[fromNumber]) {
       //when we get resume/text when previous message is already processing, we set canDelete = false
+      console.log(`${fromNumber} scheduing again in queue`);
       queue[fromNumber] = {
         ts: setTimeout(() => {
           schedule_message_to_be_processed(fromNumber, cred, "canDelete=false");
