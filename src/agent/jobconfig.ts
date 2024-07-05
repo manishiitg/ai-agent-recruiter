@@ -109,20 +109,17 @@ export const linkedJobProfileRules: Record<
     // full_criteria: `Rule 1. Candidate should have maximum salary of 40,000 per month. If candidates salary is not mentioned, assume he passes this criteria.
     // Rule 2. Candidate should not belong to locations ${exclude_location_rule}
     // Rule 4. Candidate should have done multiple work/projects/internship related python and flask/django. This is an important rule.`,
-    full_criteria: `Candidate should have done multiple work/projects/internship related python and flask/django. This is an important rule.`,
+    full_criteria: `Candidate should have done multiple work/projects/internship related python. This is an important rule.`,
     resume_rating: `
     - Candidate should have done multiple experiance/projects/internship related to python and flask/django
     - Candidate should have done multiple experiance/projects/internship related mongodb or mysql database`,
     questions_to_ask: [
       `candidate introduction about yourself and your projects`,
-      `what middleware is in Django`,
-      `how do you create custom middleware in Django`,
-      `use of Django ORM`,
+      `what is a lamda function in python`,
+      `what is list comprehension in python`,
       `how do you perform raw SQL queries in Django`,
-      `different types of relationships in Django models`,
-      `select_related and prefetch_related`,
-      `Signals in django`,
-      `authentication vs authorization django`,
+      `what middleware is in Django`,
+      `what is left join in mysql`,
     ],
   },
   "Python Internship (Cuvette)": {
@@ -133,20 +130,17 @@ export const linkedJobProfileRules: Record<
     // Rule 2. Candidate should not belong to locations ${exclude_location_rule}
     // Rule 3. Candidate should not have more than 1year of Experience.
     // Rule 4. Candidate should have done multiple work/projects/internship related python and flask/django. This is an important rule.`,
-    full_criteria: `Candidate should have done multiple work/projects/internship related python and flask/django. This is an important rule.`,
+    full_criteria: `Candidate should have done multiple work/projects/internship related python. This is an important rule.`,
     resume_rating: `
     - Candidate should have done multiple experiance/projects/internship related to python and flask/django
     - Candidate should have done multiple experiance/projects/internship related mongodb or mysql database`,
     questions_to_ask: [
       `candidate introduction about yourself and your projects`,
-      `what middleware is in Django`,
-      `how do you create custom middleware in Django`,
-      `use of Django ORM`,
+      `what is a lamda function in python`,
+      `what is list comprehension in python`,
       `how do you perform raw SQL queries in Django`,
-      `different types of relationships in Django models`,
-      `select_related and prefetch_related`,
-      `Signals in django`,
-      `authentication vs authorization django`,
+      `what middleware is in Django`,
+      `what is left join in mysql`,
     ],
   },
   "Jr PHP Developer": {
