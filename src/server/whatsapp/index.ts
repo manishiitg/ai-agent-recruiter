@@ -46,7 +46,7 @@ const ADMIN_PHNO = "919717071555";
 export const queue: Record<
   string,
   {
-    status: "RUNNING" | "PENDING";
+    status: "RUNNING" | "PENDING" | "BLOCKING";
     ts: NodeJS.Timeout;
     canDelete: boolean;
     startedAt: Date;
@@ -131,6 +131,12 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
             if (!existsSync(resume_path)) {
               mkdirSync(resume_path, { recursive: true });
             }
+            queue[fromNumber] = {
+              ts: setTimeout(() => {}, 1000),
+              status: "BLOCKING",
+              canDelete: true,
+              startedAt: new Date(),
+            };
 
             const { slack_thread_id, channel_id } = await get_whatspp_conversations(fromNumber);
 
@@ -202,7 +208,10 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
                 await postAttachment(resume_file, channel_id || process.env.slack_action_channel_id, ts);
               }
             }
-
+            if (queue[fromNumber] && queue[fromNumber].status === "BLOCKING") {
+              clearTimeout(queue[fromNumber].ts);
+              delete queue[fromNumber];
+            }
             if (queue[fromNumber]) {
               if (queue[fromNumber].status == "PENDING") {
                 console.log(fromNumber, "cancelling previous timeout!");
@@ -239,6 +248,13 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
             if (!existsSync(resume_path)) {
               mkdirSync(resume_path, { recursive: true });
             }
+
+            queue[fromNumber] = {
+              ts: setTimeout(() => {}, 1000),
+              status: "BLOCKING",
+              canDelete: true,
+              startedAt: new Date(),
+            };
 
             const resume_file = path.join(resume_path, "resume.pdf");
             await downloadFile(Media0, resume_file);
@@ -283,6 +299,11 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
                 created_at: new Date(),
               };
             await saveCandidateDetailsToDB(candidate);
+
+            if (queue[fromNumber] && queue[fromNumber].status === "BLOCKING") {
+              clearTimeout(queue[fromNumber].ts);
+              delete queue[fromNumber];
+            }
 
             if (queue[fromNumber]) {
               if (queue[fromNumber].status == "PENDING") {
