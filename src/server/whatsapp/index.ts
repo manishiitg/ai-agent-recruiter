@@ -329,7 +329,7 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
             } else {
               queue[fromNumber] = {
                 ts: setTimeout(() => {
-                  schedule_message_to_be_processed(fromNumber, cred, "first-audio");
+                  schedule_message_to_be_processed(fromNumber, cred, "first-pdf");
                 }, (fromNumber === ADMIN_PHNO ? 5 : DEBOUNCE_TIMEOUT) * 1000),
                 status: "PENDING",
                 canDelete: true,

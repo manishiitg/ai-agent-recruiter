@@ -112,7 +112,9 @@ export const linkedJobProfileRules: Record<
     full_criteria: `Candidate should have done multiple work/projects/internship related python. This is an important rule.`,
     resume_rating: `
     - Candidate should have done multiple projects/internship related to python
-    - Candidate should have done multiple projects/internship related mongodb or mysql database`,
+    - Candidate should have done multiple projects/internship related mongodb or mysql database
+    - If candidate has worked on projects related to machine learning, this should reduce resume rating.
+    - Candidate should ideally have worked in web development or api development and not pure ML projects.`,
     questions_to_ask: [
       `candidate introduction about yourself and your projects`,
       `what is a lamda function in python`,
@@ -133,7 +135,9 @@ export const linkedJobProfileRules: Record<
     full_criteria: `Candidate should have done multiple work/projects/internship related python. This is an important rule.`,
     resume_rating: `
     - Candidate should have done multiple experiance/projects/internship related to python and flask/django
-    - Candidate should have done multiple experiance/projects/internship related mongodb or mysql database`,
+    - Candidate should have done multiple experiance/projects/internship related mongodb or mysql database
+    - If candidate has worked on projects related to machine learning, this should reduce resume rating.
+    - Candidate should ideally have worked in web development or api development and not pure ML projects.`,
     questions_to_ask: [
       `candidate introduction about yourself and your projects`,
       `what is a lamda function in python`,
