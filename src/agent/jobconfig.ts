@@ -60,7 +60,9 @@ export const linkedJobProfileRules: Record<
     // Rule 5. Candidate should have done multiple experiance/projects/internship related reactjs. This is an important rule.`,
     full_criteria: `Candidate should have done multiple experiance/projects/internship related reactjs. This is an important rule.`,
     resume_rating: `
-    - Candidate should have done multiple experiance/projects/internship related to reactjs`,
+    - Candidate should have done multiple experiance/projects/internship related to reactjs
+    - experiance with technologies like aws, docker, google cloud are a plus point
+    - simple html/css projects should be considered negative point`,
     questions_to_ask: [
       `candidate introduction about yourself and your projects`,
       `what is states vs props`,
@@ -79,7 +81,9 @@ export const linkedJobProfileRules: Record<
     // Rule 5. Candidate should have done multiple work/projects/internship related vuejs. This is an important rule.`,
     full_criteria: `Candidate should have done multiple work/projects/internship related vuejs/javascript. This is an important rule.`,
     resume_rating: `
-    - Candidate should have done multiple experiance/projects/internship related to vuejs`,
+    - Candidate should have done multiple experiance/projects/internship related to vuejs
+    - experiance with technologies like aws, docker, google cloud are a plus point
+    - simple html/css projects should be considered negative point`,
     questions_to_ask: [`candidate introduction about yourself and your projects`, `what is states vs props`, `question about state managment`, `vuejs interview questions`],
   },
   "Jr NodeJs Developer": {
