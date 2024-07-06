@@ -72,6 +72,18 @@ export const remind_candidates = async (remainders: boolean) => {
       }
     }
 
+    if (candidate.unique_id) {
+      if (await isInterviewStarted(candidate.unique_id)) {
+        const interObj = getInterviewObject(candidate.unique_id);
+        if ((await interObj).interview?.stage.includes("candidate_will_answer_at_a_later_time")) {
+          if (now.getTime() - convertToIST(sortedConversation[sortedConversation.length - 1].created_at).getTime() < 1000 * 60 * 60 * 5) {
+            console.log(candidate.unique_id, "skipping interview for candidate as stage is candidate_will_answer_at_a_later_time");
+            shouldContinue = false;
+          }
+        }
+      }
+    }
+
     if (shouldContinue) {
       const fromNumber = candidate.unique_id;
 
