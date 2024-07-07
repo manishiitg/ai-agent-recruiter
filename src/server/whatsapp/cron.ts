@@ -74,8 +74,8 @@ export const remind_candidates = async (remainders: boolean) => {
 
     if (candidate.unique_id) {
       if (await isInterviewStarted(candidate.unique_id)) {
-        const interObj = getInterviewObject(candidate.unique_id);
-        if ((await interObj).interview?.stage.includes("candidate_will_answer_at_a_later_time")) {
+        const interObj = await getInterviewObject(candidate.unique_id);
+        if (interObj.interview?.stage.includes("candidate_will_answer_at_a_later_time")) {
           if (now.getTime() - convertToIST(sortedConversation[sortedConversation.length - 1].created_at).getTime() < 1000 * 60 * 60 * 5) {
             console.log(candidate.unique_id, "skipping interview for candidate as stage is candidate_will_answer_at_a_later_time");
             shouldContinue = false;
@@ -143,8 +143,8 @@ const get_pending_hr_screening_candidates = async () => {
 
     if (now.getTime() - convertToIST(sortedConversation[sortedConversation.length - 1].created_at).getTime() > 1000 * 60 * 20) {
       if (unique_id) {
-        const interObj = getInterviewObject(unique_id);
-        if ((await interObj).interview?.stage.includes("candidate_will_answer_at_a_later_time")) {
+        const interObj = await getInterviewObject(unique_id);
+        if (interObj.interview?.stage.includes("candidate_will_answer_at_a_later_time")) {
           if (now.getTime() - convertToIST(sortedConversation[sortedConversation.length - 1].created_at).getTime() < 1000 * 60 * 60 * 5) {
             console.log(unique_id, "skipping interview for candidate as stage is candidate_will_answer_at_a_later_time");
             continue;
