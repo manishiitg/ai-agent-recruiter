@@ -26,7 +26,8 @@ const STAGE_RULE_MAP: Record<
   new: {
     ask_for_interview: {
       rule: "Ask candidate to conduct interview on whatsapp",
-      response: `Inform the candidate you would like to conduct basic technical screening on whatsapp itself. 
+      response: `Inform the candidate you would like to conduct an AI based technical screening on whatsapp itself. 
+        This would be an automated interview and allows us to quickly shortlist your application for the job profile.
         This would require candidate to answer some basic technical question via whatsapp audio recording. 
         Also inform candidate can they can send multiple audio recording to answer their question and but keep the recordings short.
         If he okey with the same, reply yes.
