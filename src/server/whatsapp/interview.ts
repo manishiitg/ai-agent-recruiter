@@ -326,7 +326,7 @@ const callViaHuman = async (phoneNo: string, interview: Interview) => {
                       }
                       let resume_file = path.join(resume_path, `${phoneNo}_resume.pdf`);
                       await downloadFile(conv.body.Media0, resume_file);
-                      await postAttachment(resume_file, slack_action_channel_id, slack_thread_id);
+                      await postAttachment(resume_file, process.env.slack_hr_screening_channel_id, slack_thread_id);
                     }
                   }
                 } else {
@@ -344,7 +344,7 @@ const callViaHuman = async (phoneNo: string, interview: Interview) => {
                   try {
                     const mp3_path = await converToMp3(resume_file);
                     if (slack_thread_id) {
-                      await postAttachment(mp3_path, channel_id || process.env.slack_action_channel_id, slack_thread_id);
+                      await postAttachment(mp3_path, process.env.slack_hr_screening_channel_id, slack_thread_id);
                     }
                   } catch (error) {
                     console.error(error);
