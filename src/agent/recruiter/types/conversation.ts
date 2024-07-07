@@ -21,6 +21,8 @@ export interface Conversation {
     // TECHNICAL_SKILLS?: string;
     full_resume_text: string;
   };
+  resume_ratings?: string;
+  resume_ratings_reason?: string;
 }
 
 export interface CandidateInfo {
