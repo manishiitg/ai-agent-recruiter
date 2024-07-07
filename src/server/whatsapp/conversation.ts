@@ -48,8 +48,8 @@ export const getCandidate = async (phoneNo: string, whatsapp: string) => {
       console.log(phoneNo, "update candidate.current_converstaion_id new conversion 2");
     }
 
-    if(!candidate.whatsapp){
-      candidate.whatsapp = whatsapp
+    if (!candidate.whatsapp) {
+      candidate.whatsapp = whatsapp;
     }
   } catch (error) {
     // const classifed_to = await classifyConversation(messageFrom ? messageFrom : "", creds.name, convertConversationToText(conversation));
@@ -326,6 +326,8 @@ const callViaHuman = async (candidate: Candidate, creds: WhatsAppCreds, phoneNo:
       `;
 
       const slack_thread_id = await postMessage(msg, slack_action_channel_id);
+
+      await postMessageToThread(slack_thread_id, `Resume Rating Reason ${ratingReply.reason}`, slack_action_channel_id, false);
       for (const conv of sortedConversation) {
         if (conv.messageType == "media" && conv.body) {
           if ("Media0" in conv.body) {
