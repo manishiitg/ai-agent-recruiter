@@ -17,6 +17,7 @@ import sortBy from "lodash/sortBy";
 import path from "path";
 import { existsSync, mkdirSync } from "fs";
 import { downloadFile } from "./util";
+import { converToMp3 } from "../../integrations/mp3";
 
 export const getInterviewObject = async (phoneNo: string) => {
   let interview: Interview;
@@ -314,22 +315,44 @@ const callViaHuman = async (phoneNo: string, interview: Interview) => {
               return conv.created_at;
             });
 
-            for (const conv of sortedConversation) {
-              if (conv.messageType == "media" && conv.body) {
-                if ("Media0" in conv.body) {
-                  if ("MimeType" in conv.body && conv.body["MimeType"].includes("pdf")) {
-                    const resume_path = path.join(process.env.dirname ? process.env.dirname : "", phoneNo);
-                    if (!existsSync(resume_path)) {
-                      mkdirSync(resume_path, { recursive: true });
+            const resume_path = path.join(process.env.dirname ? process.env.dirname : "", phoneNo);
+            try {
+              for (const conv of sortedConversation) {
+                if (conv.messageType == "media" && conv.body) {
+                  if ("Media0" in conv.body) {
+                    if ("MimeType" in conv.body && conv.body["MimeType"].includes("pdf")) {
+                      if (!existsSync(resume_path)) {
+                        mkdirSync(resume_path, { recursive: true });
+                      }
+                      let resume_file = path.join(resume_path, `${phoneNo}_resume.pdf`);
+                      await downloadFile(conv.body.Media0, resume_file);
+                      await postAttachment(resume_file, slack_action_channel_id, slack_thread_id);
                     }
-                    let resume_file = path.join(resume_path, `${phoneNo}_resume.pdf`);
-                    await downloadFile(conv.body.Media0, resume_file);
-                    await postAttachment(resume_file, slack_action_channel_id, slack_thread_id);
+                  }
+                } else {
+                  // await postMessageToThread(slack_thread_id, `${conv.userType == "agent" ? "HR" : `${phoneNo}`}:  ${conv.content} `, slack_action_channel_id);
+                }
+              }
+            } catch (error) {
+              console.error(error);
+            }
+            try {
+              if (interview.interview.audio_file) {
+                for (const file of interview.interview.audio_file) {
+                  const resume_file = path.join(resume_path, `${candidate.id}_${file.stage}_audio.ogg`);
+                  await downloadFile(file.fileUrl, resume_file);
+                  try {
+                    const mp3_path = await converToMp3(resume_file);
+                    if (slack_thread_id) {
+                      await postAttachment(mp3_path, channel_id || process.env.slack_action_channel_id, slack_thread_id);
+                    }
+                  } catch (error) {
+                    console.error(error);
                   }
                 }
-              } else {
-                // await postMessageToThread(slack_thread_id, `${conv.userType == "agent" ? "HR" : `${phoneNo}`}:  ${conv.content} `, slack_action_channel_id);
               }
+            } catch (error) {
+              console.error(error);
             }
           }
         }
