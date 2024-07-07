@@ -83,7 +83,7 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
           if (slack_thread_id) {
             await postMessageToThread(slack_thread_id, `${fromNumber}: ${text}. Time: ${time}`, channel_id || process.env.slack_action_channel_id);
           } else {
-            const ts = await postMessage(`${fromNumber}: ${text}. Time: ${time}`, channel_id || process.env.slack_action_channel_id);
+            const ts = await postMessage(`${fromNumber}: ${text}. Time: ${time} To: ${toNumber}`, channel_id || process.env.slack_action_channel_id);
             await update_slack_thread_id_for_conversion(fromNumber, ts, channel_id || process.env.slack_action_channel_id);
           }
 
