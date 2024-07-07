@@ -71,7 +71,7 @@ Make sure provide output strictly in xml format.`;
   const SCRATCHPAD = jObj["RESPONSE"]["SCRATCHPAD"];
   const question_rating: string[] = [];
   for (const idx in questions) {
-    const QUESTION_RATING = jObj["RESPONSE"][`QUESTION_RATING${idx}`];
+    const QUESTION_RATING = jObj["RESPONSE"][`QUESTION_RATING_${idx}`];
     question_rating.push(QUESTION_RATING);
   }
   return { SCRATCHPAD, question_rating };
