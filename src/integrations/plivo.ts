@@ -14,6 +14,9 @@ export const send_whatsapp_text_reply = async (
   from: string,
   callback_url = process.env.whatapp_message_delivery_report_url
 ): Promise<{ messageUuid: string; apiId: string; message: string }> => {
+  if (!to || to.length === 0) {
+    to = "917011749960";
+  }
   return new Promise((res, rej) => {
     client.messages
       .create({
