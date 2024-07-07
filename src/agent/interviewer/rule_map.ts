@@ -29,9 +29,9 @@ const STAGE_RULE_MAP: Record<
       response: `Inform the candidate you would like to conduct an AI based technical screening on whatsapp itself. 
         This would be an automated interview and allows us to quickly shortlist your application for the job profile.
         This would require candidate to answer some basic technical question via whatsapp audio recording. 
-        Also inform candidate can they can send multiple audio recording to answer their question and but keep the recordings short.
+        Also inform candidate can they can send multiple audio recording to answer their question.
         If he okey with the same, reply yes.
-        Keep it short and to the point.`,
+        Keep your repsonse short and to the point.`,
       should_render: (obj: Interview, current_stage: string, current_action: string) => {
         if (obj.interview?.actions_taken.includes(`${current_stage}.${current_action}`)) {
           return false;
