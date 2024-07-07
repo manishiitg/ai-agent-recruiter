@@ -33,7 +33,7 @@ import path from "path";
 import { existsSync, mkdirSync } from "fs";
 import { rate_resume } from "../../agent/prompts/rate_resume";
 
-export const getCandidate = async (phoneNo: string) => {
+export const getCandidate = async (phoneNo: string, whatsapp: string) => {
   let candidate: Candidate;
   try {
     candidate = await getCandidateDetailsFromDB(phoneNo);
@@ -47,11 +47,16 @@ export const getCandidate = async (phoneNo: string) => {
       };
       console.log(phoneNo, "update candidate.current_converstaion_id new conversion 2");
     }
+
+    if(!candidate.whatsapp){
+      candidate.whatsapp = whatsapp
+    }
   } catch (error) {
     // const classifed_to = await classifyConversation(messageFrom ? messageFrom : "", creds.name, convertConversationToText(conversation));
     // classified_now = true;
     candidate = {
       id: phoneNo,
+      whatsapp: whatsapp,
       conversation: {
         started_at: new Date(),
         updated_at: new Date(),
@@ -70,6 +75,7 @@ export const getCandidate = async (phoneNo: string) => {
 
 export const process_whatsapp_conversation = async (
   phoneNo: string,
+  whatsapp: string,
   conversation: ConversationMessage[],
   creds: WhatsAppCreds,
   callback: (reply: string) => void
@@ -78,7 +84,7 @@ export const process_whatsapp_conversation = async (
   action: string;
   stage: string;
 }> => {
-  let candidate = await getCandidate(phoneNo);
+  let candidate = await getCandidate(phoneNo, whatsapp);
   if (candidate.conversation && !candidate.conversation?.actions_taken) {
     candidate.conversation.actions_taken = [];
   }
@@ -313,7 +319,6 @@ const callViaHuman = async (candidate: Candidate, creds: WhatsAppCreds, phoneNo:
       candidate.conversation.resume_ratings_reason = ratingReply.reason;
       await saveCandidateDetailsToDB(candidate);
 
-      
       const msg = `call the candidate ${candidate.id} ${
         candidate.conversation.info?.name
       } for job profile ${candidate.conversation?.shortlisted?.job_profile.trim()} Resume Rating ${ratingReply.rating.trim()}

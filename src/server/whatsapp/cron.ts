@@ -106,7 +106,7 @@ export const remind_candidates = async (remainders: boolean) => {
           //if message is already queue don't remind
           await schedule_message_to_be_processed(
             fromNumber,
-            cred,
+            candidate.whatsapp,
             `remind-${remainders}-${formatTime(convertToIST(sortedConversation[sortedConversation.length - 1].created_at))}-${
               now.getTime() - convertToIST(sortedConversation[sortedConversation.length - 1].created_at).getTime()
             }--${formatTime(now)}`
@@ -126,7 +126,7 @@ const get_pending_hr_screening_candidates = async () => {
   for (const candidate of candidates) {
     const unique_id = candidate.unique_id;
     if (!(await isInterviewStarted(unique_id))) {
-      await schedule_message_to_be_processed(unique_id, cred, `pending-hr-screening-remind`);
+      await schedule_message_to_be_processed(unique_id, candidate.whatsapp, `pending-hr-screening-remind`);
       await sleep(5000);
     }
   }
@@ -154,7 +154,7 @@ const get_pending_hr_screening_candidates = async () => {
 
       await schedule_message_to_be_processed(
         unique_id,
-        cred,
+        candidate.whatsapp,
         `pending-hr-interview-remind-${formatTime(convertToIST(sortedConversation[sortedConversation.length - 1].created_at))}---${
           now.getTime() - convertToIST(sortedConversation[sortedConversation.length - 1].created_at).getTime()
         }--${formatTime(now)}`
@@ -171,6 +171,7 @@ const check_slack_thread_for_manual_msgs = async () => {
 
   for (const candidate of candidates) {
     const fromNumber = candidate.unique_id;
+    const toNumber = candidate.whatsapp;
     const { slack_thread_id, channel_id } = await get_whatspp_conversations(candidate.unique_id);
     if (slack_thread_id && channel_id) {
       const msgs = await getLatestMessagesFromThread(channel_id, slack_thread_id, 500);
@@ -191,7 +192,7 @@ const check_slack_thread_for_manual_msgs = async () => {
 
               const response = await send_whatsapp_text_reply(text_to_send, fromNumber, cred.phoneNo);
               const messageUuid = response.messageUuid;
-              await save_whatsapp_conversation("agent", fromNumber, "text", fromNumber, "", "");
+              await save_whatsapp_conversation("agent", fromNumber, toNumber, "text", fromNumber, "", "");
               await add_whatsapp_message_sent_delivery_report(fromNumber, fromNumber, "text", messageUuid);
               await postMessageToThread(slack_thread_id, `HR: ${text_to_send}. Action: ${"manual"} Stage: ${"slack"}`, channel_id);
               await saveSlackTsRead(msg.ts);

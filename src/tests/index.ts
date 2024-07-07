@@ -22,7 +22,7 @@ import { getLatestMessagesFromThread, postMessageToThread } from "../communicati
 import { transribe_file_assembly_ai } from "../integrations/assembly";
 import { transcribe_file_deepgram } from "../integrations/deepgram";
 import { rate_interview } from "../agent/prompts/rate_interview";
-import { evaluate_hr_screen_interview } from "../server/whatsapp/cron";
+import { evaluate_hr_screen_interview, remind_candidates } from "../server/whatsapp/cron";
 import { ask_question_for_tech_interview } from "../agent/prompts/interview_questions";
 import { send_whatsapp_text_reply } from "../integrations/plivo";
 
@@ -155,7 +155,7 @@ import { send_whatsapp_text_reply } from "../integrations/plivo";
 
   const fromNumber = "919717071555";
 
-  await save_whatsapp_conversation("candidate", fromNumber, "", "i am ready", "", "");
+  await save_whatsapp_conversation("candidate", fromNumber, "+917011749960", "", "i am ready", "", "");
 
   // await save_whatsapp_conversation("candidate", fromNumber, "", "<audio_recording>yes my name is manish and i am full stack developer</audio_recording>", "", "");
 
@@ -202,10 +202,10 @@ import { send_whatsapp_text_reply } from "../integrations/plivo";
 
   console.log(agentReply);
   if (agentReply && agentReply.message) {
-    await save_whatsapp_conversation("agent", fromNumber, "text", agentReply.message, "", "");
+    await save_whatsapp_conversation("agent", fromNumber, "+917011749960", "text", agentReply.message, "", "");
 
     if (false) {
-      await save_whatsapp_conversation("candidate", fromNumber, "text", "ok", "", "");
+      await save_whatsapp_conversation("candidate", fromNumber, "+917011749960", "text", "ok", "", "");
 
       const { slack_thread_id, conversation } = await get_whatspp_conversations(fromNumber);
       const sortedConversation = sortBy(conversation, (conv: WhatsAppConversaion) => {
@@ -227,7 +227,7 @@ import { send_whatsapp_text_reply } from "../integrations/plivo";
       );
       console.log(agentReply);
 
-      await save_whatsapp_conversation("agent", fromNumber, "text", agentReply.message, "", "");
+      await save_whatsapp_conversation("agent", fromNumber, "+917011749960", "text", agentReply.message, "", "");
     }
   }
   console.log("completed!");

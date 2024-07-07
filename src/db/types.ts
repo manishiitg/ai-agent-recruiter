@@ -3,6 +3,7 @@ import { Conversation } from "../agent/recruiter/types/conversation";
 export interface Candidate {
   id: string;
   conversation?: Conversation;
+  whatsapp: string;
   meta?: Record<string, string>;
 }
 

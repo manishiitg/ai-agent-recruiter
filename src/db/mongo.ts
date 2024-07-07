@@ -102,14 +102,14 @@ export const update_slack_thread_id_for_conversion = async (from: string, thread
 export const CONVERSION_TYPE_INTERVIEW = "interview";
 export const CONVERSION_TYPE_CANDIDATE = "candidate";
 
-export const save_whatsapp_conversation = async (type: "agent" | "candidate", from: string, messageType: string, content: string, uid: string, body: any) => {
+export const save_whatsapp_conversation = async (type: "agent" | "candidate", from: string, whatsapp: string, messageType: string, content: string, uid: string, body: any) => {
   const client = await connectDB();
   const db = client.db("whatsapp");
   const collection = db.collection("conversation");
   // Check if the conversation already exists for the given 'from'
   const existingConversation = await collection.findOne({ from });
 
-  const candidateObj = await getCandidate(from);
+  const candidateObj = await getCandidate(from, whatsapp);
 
   let conversationType = CONVERSION_TYPE_CANDIDATE;
   if (candidateObj.conversation?.conversation_completed_reason?.includes("do_call_via_human")) {
@@ -222,6 +222,7 @@ export async function getCandidateDetailsFromDB(unique_id: string): Promise<Cand
   if (data) {
     let obj: Candidate = {
       id: data.unique_id,
+      whatsapp: data.whatsapp,
       ...data,
     };
     return obj;
@@ -441,6 +442,7 @@ export const getShortlistedCandidates = async () => {
       {
         projection: {
           unique_id: 1,
+          whatsapp: 1,
         },
       }
     )
@@ -516,6 +518,7 @@ export const getInterviewCandidatesForSlackThread = async () => {
       {
         projection: {
           unique_id: 1,
+          whatsapp: 1,
           "interview.started_at": 1,
         },
         sort: {
