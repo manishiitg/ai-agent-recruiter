@@ -289,15 +289,22 @@ const callViaHuman = async (phoneNo: string, interview: Interview) => {
           // );
           // ratings.push(rating.QUESTION_RATING);
         }
+        let question_rating: string[] = [];
         if (all_questions.length > 0) {
           const rating_response = await rate_tech_answer_all_question(phoneNo, all_questions, all_answers);
+          question_rating = rating_response.question_rating;
           await postMessageToThread(slack_thread_id, `HR Screening Final Rating: ${JSON.stringify(rating_response)}`, channel_id || process.env.slack_action_channel_id);
         }
 
-        const candidate = await getCandidateDetailsFromDB(interview.id);
-
         if (process.env.slack_hr_screening_channel_id) {
-          await postMessage(`HR Screening Completed ${candidate.id} for job profile ${candidate.conversation?.shortlisted?.job_profile}`, process.env.slack_hr_screening_channel_id);
+          const candidate = await getCandidateDetailsFromDB(interview.id);
+          if (candidate.conversation) {
+            const msg = `HR Screening Completed ${candidate.id} ${candidate.conversation.info?.name} for job profile ${candidate.conversation?.shortlisted?.job_profile.trim()} Resume Rating ${
+              candidate.conversation.resume_ratings
+            } ${candidate.conversation.info?.location} ${candidate.conversation.info?.expected_ctc} ${candidate.conversation.info?.years_of_experiance} HR Screening Rating ${question_rating.join(",")}
+          `;
+            await postMessage(msg, process.env.slack_hr_screening_channel_id);
+          }
         }
 
         // slack_hr_screening_channel_id

@@ -309,12 +309,17 @@ const callViaHuman = async (candidate: Candidate, creds: WhatsAppCreds, phoneNo:
         return conv.created_at;
       });
 
+      candidate.conversation.resume_ratings = ratingReply.rating;
+      candidate.conversation.resume_ratings_reason = ratingReply.reason;
+      await saveCandidateDetailsToDB(candidate);
+
+      
       const msg = `call the candidate ${candidate.id} ${
         candidate.conversation.info?.name
       } for job profile ${candidate.conversation?.shortlisted?.job_profile.trim()} Resume Rating ${ratingReply.rating.trim()}
     ${candidate.conversation.info?.location} ${candidate.conversation.info?.expected_ctc} ${candidate.conversation.info?.years_of_experiance}
       `;
-      
+
       const slack_thread_id = await postMessage(msg, slack_action_channel_id);
       for (const conv of sortedConversation) {
         if (conv.messageType == "media" && conv.body) {
