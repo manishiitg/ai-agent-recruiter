@@ -32,7 +32,7 @@ import { createRequire } from "module";
 import { send_whatsapp_text_reply } from "../../integrations/plivo";
 import { conduct_interview, getInterviewObject } from "./interview";
 import { converToMp3 } from "../../integrations/mp3";
-import { cred, queue, schedule_message_to_be_processed } from ".";
+import { queue, schedule_message_to_be_processed } from ".";
 import { transcribe_file_deepgram } from "../../integrations/deepgram";
 import { transribe_file_assembly_ai } from "../../integrations/assembly";
 import { rate_interview } from "../../agent/prompts/rate_interview";
@@ -190,10 +190,10 @@ const check_slack_thread_for_manual_msgs = async () => {
               let text_to_send = text.replace(process.env.bot_user_id || "<@U017T6CK4ET>", "");
               text_to_send = text_to_send.trim();
 
-              const response = await send_whatsapp_text_reply(text_to_send, fromNumber, cred.phoneNo);
+              const response = await send_whatsapp_text_reply(text_to_send, fromNumber, toNumber);
               const messageUuid = response.messageUuid;
-              await save_whatsapp_conversation("agent", fromNumber, toNumber, "text", fromNumber, "", "");
-              await add_whatsapp_message_sent_delivery_report(fromNumber, fromNumber, "text", messageUuid);
+              await save_whatsapp_conversation("agent", fromNumber, toNumber, "text", fromNumber, text_to_send, "");
+              await add_whatsapp_message_sent_delivery_report(fromNumber, text_to_send, "text", messageUuid);
               await postMessageToThread(slack_thread_id, `HR: ${text_to_send}. Action: ${"manual"} Stage: ${"slack"}`, channel_id);
               await saveSlackTsRead(msg.ts);
 
@@ -321,6 +321,33 @@ export const evaluate_hr_screen_interview = async () => {
   }
 };
 
+const keep_conversation_warm = async () => {
+  //whatsapp doesn't allow message to be sent after 24hrs. so send an update to candidate every 12hrs?
+
+  const candidates = await getInterviewCompletedCandidates();
+  const now = convertToIST(new Date());
+  for (const candidate of candidates) {
+    const ph = candidate.unique_id;
+
+    const { slack_thread_id, channel_id, conversation } = await get_whatspp_conversations(ph);
+    const sortedConversation = sortBy(conversation, (conv: WhatsAppConversaion) => {
+      return conv.created_at;
+    });
+    if (sortedConversation.length > 0) {
+      if (now.getTime() - convertToIST(sortedConversation[sortedConversation.length - 1].created_at).getTime() > 1000 * 60 * 60 * 12) {
+        const candidate = await getCandidateDetailsFromDB(ph);
+        const text_to_send = "You are still in our shortlist, didn't get time to review interview recordings yet";
+
+        const response = await send_whatsapp_text_reply(text_to_send, ph, candidate.whatsapp);
+        const messageUuid = response.messageUuid;
+        await save_whatsapp_conversation("agent", ph, candidate.whatsapp, "text", ph, text_to_send, "");
+        await add_whatsapp_message_sent_delivery_report(ph, text_to_send, "text", messageUuid);
+        await postMessageToThread(slack_thread_id, `HR: ${text_to_send}. Action: ${"manual"} Stage: ${"12hr-updated"}`, channel_id);
+      }
+    }
+  }
+};
+
 export const start_cron = async () => {
   // await evaluate_hr_screen_interview();
   check_slack_thread_for_manual_msgs();
@@ -332,6 +359,7 @@ export const start_cron = async () => {
   setInterval(async () => {
     //send remainders to candidate on same day
     await check_slack_thread_for_manual_msgs();
+    await keep_conversation_warm();
     // await evaluate_hr_screen_interview();
   }, 1000 * 60 * 30); //30min
 
