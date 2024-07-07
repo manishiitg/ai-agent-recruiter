@@ -6,7 +6,6 @@ import { Interview } from "../interviewer/types";
 import { profile } from "console";
 
 export const rate_tech_answer_all_question = async (profileID: string, questions: string[], answers: string[]) => {
-
   let llm_output = "";
   const prompt = `You are an AI assistant tasked with evaluating a job applicant's interview performance. 
   You will be provided with multiple question questions and an multiple answers. 
@@ -70,10 +69,12 @@ Make sure provide output strictly in xml format.`;
     throw new Error("response not found!");
   }
   const SCRATCHPAD = jObj["RESPONSE"]["SCRATCHPAD"];
-  const QUESTION_RATING = jObj["RESPONSE"]["QUESTION_RATING"];
-
-  //   return { SCRATCHPAD, QUESTION_RATING };
-  return jObj["RESPONSE"];
+  const question_rating: string[] = [];
+  for (const idx in questions) {
+    const QUESTION_RATING = jObj["RESPONSE"][`QUESTION_RATING${idx}`];
+    question_rating.push(QUESTION_RATING);
+  }
+  return { SCRATCHPAD, question_rating };
 };
 
 export const rate_interview = async (profileID: string, interviewObj: Interview) => {

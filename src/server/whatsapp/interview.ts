@@ -259,7 +259,7 @@ const callViaHuman = async (phoneNo: string, interview: Interview) => {
         if (channel_id == process.env.slack_action_channel_id) {
           await postMessageToThread(slack_thread_id, `moving to #whatapp-action-channel`, channel_id || process.env.slack_action_channel_id);
         }
-        let ratings = [];
+        // let ratings = [];
 
         let all_questions = [];
         let all_answers = [];
@@ -271,29 +271,39 @@ const callViaHuman = async (phoneNo: string, interview: Interview) => {
           // await postMessageToThread(slack_thread_id, `Expected Answer:${stage}: ${question.expected_answer}`, channel_id || process.env.slack_action_channel_id);
 
           all_questions.push(question.question_asked_to_user);
-          let answers = "";
+          // let answers = "";
           if (audioOfStage) {
             for (const audio of audioOfStage) {
               // await postMessageToThread(slack_thread_id, `Answer:${stage}: ${audio.transcribe}`, channel_id || process.env.slack_action_channel_id);
-              answers = audio.transcribe + "\n";
+              // answers = audio.transcribe + "\n";
               all_answers.push(audio.transcribe);
             }
           }
 
-          const rating = await rate_tech_answer(phoneNo, interview, question.question_asked_to_user, answers);
-          await postMessageToThread(slack_thread_id, `Rating Reasong:${stage}: ${rating.SCRATCHPAD}`, channel_id || process.env.slack_action_channel_id);
-          await postMessageToThread(
-            slack_thread_id,
-            `Answer Rating: ${rating.QUESTION_RATING}  Debug: ${parseInt(rating.QUESTION_RATING.trim(), 10)}`,
-            channel_id || process.env.slack_action_channel_id
-          );
-          ratings.push(rating.QUESTION_RATING);
+          // const rating = await rate_tech_answer(phoneNo, interview, question.question_asked_to_user, answers);
+          // await postMessageToThread(slack_thread_id, `Rating Reasong:${stage}: ${rating.SCRATCHPAD}`, channel_id || process.env.slack_action_channel_id);
+          // await postMessageToThread(
+          //   slack_thread_id,
+          //   `Answer Rating: ${rating.QUESTION_RATING}  Debug: ${parseInt(rating.QUESTION_RATING.trim(), 10)}`,
+          //   channel_id || process.env.slack_action_channel_id
+          // );
+          // ratings.push(rating.QUESTION_RATING);
         }
+        let ratings: string[] = [];
         if (all_questions.length > 0) {
           const rating_response = await rate_tech_answer_all_question(phoneNo, all_questions, all_answers);
+          ratings = rating_response.question_rating;
           await postMessageToThread(slack_thread_id, `Final Rating: ${JSON.stringify(rating_response)}`, channel_id || process.env.slack_action_channel_id);
         }
         await postMessageToThread(slack_thread_id, `HR Screening completed! Rating ${ratings.join(",")}`, channel_id || process.env.slack_action_channel_id, false);
+
+        const candidate = await getCandidateDetailsFromDB(interview.id);
+
+        if (process.env.slack_hr_screening_channel_id) {
+          await postMessage(`HR Screening Completed ${candidate.id} for job profile ${candidate.conversation?.shortlisted?.job_profile}`, process.env.slack_hr_screening_channel_id);
+        }
+
+        // slack_hr_screening_channel_id
       }
 
       // await postMessageToThread(slack_thread_id, `Question1: ${interview.interview?.tech_questions?.question1}`, channel_id || process.env.slack_action_channel_id);

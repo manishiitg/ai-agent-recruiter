@@ -56,9 +56,7 @@ Agent has a STATE (s) , STATE TRANSITION (s) and RULE (s)
 
 Things to work on
 ==================
-1. Rejection flow
 3. Able to ask questions real time and judge candidate on tech skills properly and provide a rating
-6. Ask people if they are willing to relocate to noida, if belong to different state.
 7. If candidate are sending message, after status is completed. There should be option for hr to reply manually. they need to get notified about it.
-9. create option for human to mention rejection. so that we can inform the person?
 10. if job opening gets closed, inform previous candidates?
+1. when we copy converstion of one channel to another, sometimes if the conversaion is old media doesn't get downloaded and the process fails.

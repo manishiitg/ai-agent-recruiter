@@ -437,6 +437,7 @@ export const schedule_message_to_be_processed = async (fromNumber: string, cred:
       // }
       // if (should_reply) {
       //if not can delete, means there is another process in queue which will run and reply to user
+      
       const response = await send_whatsapp_text_reply(agentReply.message, fromNumber, cred.phoneNo);
       const messageUuid = response.messageUuid;
       console.log(fromNumber, "got messageUuid", messageUuid);
