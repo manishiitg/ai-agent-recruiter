@@ -84,6 +84,13 @@ export const remind_candidates = async (remainders: boolean) => {
       }
     }
 
+    try {
+      const candidateObj = await getCandidateDetailsFromDB(candidate.unique_id);
+      if (candidateObj.conversation?.stage.includes("got_rejected")) {
+        shouldContinue = false;
+      }
+    } catch (error) {}
+
     if (shouldContinue) {
       const fromNumber = candidate.unique_id;
 
