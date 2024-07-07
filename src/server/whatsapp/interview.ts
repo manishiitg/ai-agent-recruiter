@@ -268,6 +268,7 @@ const callViaHuman = async (phoneNo: string, interview: Interview) => {
 
         let all_questions = [];
         let all_answers = [];
+        let all_expected_answers = [];
         for (const question of interview.interview.interview_questions_asked) {
           const audio_files = interview.interview.audio_file;
           const stage = question.stage;
@@ -276,6 +277,7 @@ const callViaHuman = async (phoneNo: string, interview: Interview) => {
           // await postMessageToThread(slack_thread_id, `Expected Answer:${stage}: ${question.expected_answer}`, channel_id || process.env.slack_action_channel_id);
 
           all_questions.push(question.question_asked_to_user);
+          all_expected_answers.push(question.expected_answer);
           // let answers = "";
           if (audioOfStage) {
             for (const audio of audioOfStage) {

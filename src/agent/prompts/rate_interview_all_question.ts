@@ -5,19 +5,23 @@ import { callDeepkSeek, DEEP_SEEK_V2_CHAT, DEEP_SEEK_V2_CODER } from "../../llms
 import { Interview } from "../interviewer/types";
 import { profile } from "console";
 
-export const rate_tech_answer_all_question = async (profileID: string, questions: string[], answers: string[]) => {
+export const rate_tech_answer_all_question = async (profileID: string, questions: string[], answers: string[], all_expected_answers: string[]) => {
   let llm_output = "";
   const prompt = `You are an AI assistant tasked with evaluating a job applicant's interview performance. 
   You will be provided with multiple question questions and an multiple answers. 
 
   These questions are asked to the candidate over a telephinic conversation.
   You need to review how well the candidate has answered the questions technically.
+  Check candidates answers again, expected_answer mentioned and rate how technically correct the answer is.
 
   Your goal is to carefully review this information and provide ratings for each answer.
 
   <questions_asked>
   ${questions.map((question, idx) => {
-    return `<question_${idx}>${question}</question_${idx}>\n`;
+    return `
+    <question_${idx}>${question}</question_${idx}>
+    <expected_answer_${idx}>${all_expected_answers[idx]}</expected_answer_${idx}>
+    `;
   })}
   </questions_asked>
 
