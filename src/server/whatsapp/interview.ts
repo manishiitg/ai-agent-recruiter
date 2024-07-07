@@ -2,17 +2,21 @@ import { generateConversationReply } from "../../agent/interviewer/agent";
 import { STAGE_COMPLETED, STAGE_INTERVIEW_NOT_DONE, STAGE_NEW, STAGE_TECH_QUES } from "../../agent/interviewer/rule_map";
 import { ConversationMessage, Interview } from "../../agent/interviewer/types";
 import { get_whatspp_conversations, getCandidateDetailsFromDB, getCandidateInterviewFromDB, saveCandidateInterviewToDB } from "../../db/mongo";
-import { WhatsAppCreds } from "../../db/types";
+import { WhatsAppConversaion, WhatsAppCreds } from "../../db/types";
 import { extractInfo } from "../../agent/interviewer/extract_info";
 import { convertConversationToText } from "../../agent/interviewer/helper";
 import { transitionStage } from "../../agent/interviewer/transitions";
 import { question_to_ask_from_resume, single_question_to_ask_from_resume } from "../../agent/prompts/resume_question";
 import { linkedJobProfileRules, NUMBER_OF_INTERVIEW_QUESTIONS } from "../../agent/jobconfig";
-import { postMessage, postMessageToThread } from "../../communication/slack";
+import { postAttachment, postMessage, postMessageToThread } from "../../communication/slack";
 // import { STAGE_INTRODUCTION } from "../../agent/interviewer/rule_map";
 import { ask_question_for_tech_interview } from "../../agent/prompts/interview_questions";
 import { rate_tech_answer } from "../../agent/prompts/rate_interview";
 import { rate_tech_answer_all_question } from "../../agent/prompts/rate_interview_all_question";
+import sortBy from "lodash/sortBy";
+import path from "path";
+import { existsSync, mkdirSync } from "fs";
+import { downloadFile } from "./util";
 
 export const getInterviewObject = async (phoneNo: string) => {
   let interview: Interview;
@@ -304,6 +308,29 @@ const callViaHuman = async (phoneNo: string, interview: Interview) => {
             } ${candidate.conversation.info?.location} ${candidate.conversation.info?.expected_ctc} ${candidate.conversation.info?.years_of_experiance} HR Screening Rating ${question_rating.join(",")}
           `;
             await postMessage(msg, process.env.slack_hr_screening_channel_id);
+
+            let { conversation } = await get_whatspp_conversations(phoneNo);
+            const sortedConversation = sortBy(conversation, (conv: WhatsAppConversaion) => {
+              return conv.created_at;
+            });
+
+            for (const conv of sortedConversation) {
+              if (conv.messageType == "media" && conv.body) {
+                if ("Media0" in conv.body) {
+                  if ("MimeType" in conv.body && conv.body["MimeType"].includes("pdf")) {
+                    const resume_path = path.join(process.env.dirname ? process.env.dirname : "", phoneNo);
+                    if (!existsSync(resume_path)) {
+                      mkdirSync(resume_path, { recursive: true });
+                    }
+                    let resume_file = path.join(resume_path, `${phoneNo}_resume.pdf`);
+                    await downloadFile(conv.body.Media0, resume_file);
+                    await postAttachment(resume_file, slack_action_channel_id, slack_thread_id);
+                  }
+                }
+              } else {
+                // await postMessageToThread(slack_thread_id, `${conv.userType == "agent" ? "HR" : `${phoneNo}`}:  ${conv.content} `, slack_action_channel_id);
+              }
+            }
           }
         }
 
