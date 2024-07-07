@@ -334,18 +334,18 @@ const keep_conversation_warm = async () => {
       return conv.created_at;
     });
     if (sortedConversation.length > 0) {
-      if (sortedConversation[sortedConversation.length - 1].userType == "candidate") {
-        if (now.getTime() - convertToIST(sortedConversation[sortedConversation.length - 1].created_at).getTime() > 1000 * 60 * 60 * 12) {
-          const candidate = await getCandidateDetailsFromDB(ph);
-          const text_to_send = "You are still in our shortlist, didn't get time to review interview recordings yet";
+      // if (sortedConversation[sortedConversation.length - 1].userType == "candidate") {
+      if (now.getTime() - convertToIST(sortedConversation[sortedConversation.length - 1].created_at).getTime() > 1000 * 60 * 60 * 12) {
+        const candidate = await getCandidateDetailsFromDB(ph);
+        const text_to_send = "You are still in our shortlist, didn't get time to review interview recordings yet";
 
-          const response = await send_whatsapp_text_reply(text_to_send, ph, candidate.whatsapp);
-          const messageUuid = response.messageUuid;
-          await save_whatsapp_conversation("agent", ph, candidate.whatsapp, "text", ph, text_to_send, "");
-          await add_whatsapp_message_sent_delivery_report(ph, text_to_send, "text", messageUuid);
-          await postMessageToThread(slack_thread_id, `HR: ${text_to_send}. Action: ${"manual"} Stage: ${"12hr-updated"}`, channel_id);
-        }
+        const response = await send_whatsapp_text_reply(text_to_send, ph, candidate.whatsapp);
+        const messageUuid = response.messageUuid;
+        await save_whatsapp_conversation("agent", ph, candidate.whatsapp, "text", ph, text_to_send, "");
+        await add_whatsapp_message_sent_delivery_report(ph, text_to_send, "text", messageUuid);
+        await postMessageToThread(slack_thread_id, `HR: ${text_to_send}. Action: ${"manual"} Stage: ${"12hr-updated"}`, channel_id);
       }
+      // }
     }
   }
 };
