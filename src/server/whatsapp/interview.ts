@@ -310,7 +310,10 @@ const callViaHuman = async (phoneNo: string, interview: Interview) => {
           await postMessageToThread(slack_thread_id, `HR Screening Final Rating: ${JSON.stringify(rating_response)}`, channel_id || process.env.slack_action_channel_id);
         }
 
-        if (process.env.slack_hr_screening_channel_id) {
+        if (process.env.slack_hr_screening_channel_id && !interview.interview.send_on_final_slack) {
+          interview.interview.send_on_final_slack = true;
+          await saveCandidateInterviewToDB(interview);
+
           const candidate = await getCandidateDetailsFromDB(interview.id);
           if (candidate.conversation) {
             const msg = `HR Screening Completed ${candidate.id} ${candidate.conversation.info?.name} for job profile ${candidate.conversation?.shortlisted?.job_profile.trim()} Resume Rating ${

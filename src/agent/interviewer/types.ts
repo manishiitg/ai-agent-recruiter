@@ -65,6 +65,7 @@ export interface Interview {
       TECH_QUESTION2_RATING: any;
       TECH_QUESTION3_RATING: any;
     };
+    send_on_final_slack?: boolean
   };
 }
 
