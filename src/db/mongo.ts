@@ -358,6 +358,7 @@ export async function getPendingNotCompletedCandidates(remainders: boolean) {
         {
           projection: {
             unique_id: 1,
+            whatsapp: 1,
             "conversation.started_at": 1,
           },
           sort: {
