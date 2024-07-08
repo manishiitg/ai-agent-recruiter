@@ -78,6 +78,7 @@ export interface CandidateInfo {
   suitable_job_profile?: string;
   hiring_for_job_profile?: boolean;
   name?: string;
+  gender?: string;
 }
 
 export interface ShortlistReponse {

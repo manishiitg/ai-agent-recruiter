@@ -85,6 +85,13 @@ export const conduct_interview = async (
     return { message: "", action: "completed", stage: "completed" };
   }
 
+  if (interview.interview.info.gender && interview.interview.info.gender?.toLowerCase().includes("female")) {
+    interview.interview.conversation_completed = true;
+    interview.interview.conversation_completed_reason = "gender";
+    await saveCandidateInterviewToDB(interview);
+    return { message: "", action: "completed", stage: "completed" };
+  }
+
   let llm = await generateConversationReply(phoneNo, interview, creds.name, conversation);
   let action = llm.action;
   let reply = llm.reply;
@@ -298,7 +305,7 @@ const callViaHuman = async (phoneNo: string, interview: Interview) => {
         }
         let question_rating: string[] = [];
         if (all_questions.length > 0) {
-          const rating_response = await rate_tech_answer_all_question(phoneNo, all_questions, all_answers);
+          const rating_response = await rate_tech_answer_all_question(phoneNo, all_questions, all_answers, all_expected_answers);
           question_rating = rating_response.question_rating;
           await postMessageToThread(slack_thread_id, `HR Screening Final Rating: ${JSON.stringify(rating_response)}`, channel_id || process.env.slack_action_channel_id);
         }
