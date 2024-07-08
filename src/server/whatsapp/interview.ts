@@ -317,7 +317,7 @@ const callViaHuman = async (phoneNo: string, interview: Interview) => {
               candidate.conversation.resume_ratings
             } ${candidate.conversation.info?.location} ${candidate.conversation.info?.expected_ctc} ${candidate.conversation.info?.years_of_experiance} HR Screening Rating ${question_rating.join(",")}
           `;
-            await postMessage(msg, process.env.slack_hr_screening_channel_id);
+            const slack_thread_id = await postMessage(msg, process.env.slack_hr_screening_channel_id);
 
             let { conversation } = await get_whatspp_conversations(phoneNo);
             const sortedConversation = sortBy(conversation, (conv: WhatsAppConversaion) => {
@@ -352,9 +352,8 @@ const callViaHuman = async (phoneNo: string, interview: Interview) => {
                   await downloadFile(file.fileUrl, resume_file);
                   try {
                     const mp3_path = await converToMp3(resume_file);
-                    if (slack_thread_id) {
-                      await postAttachment(mp3_path, process.env.slack_hr_screening_channel_id, slack_thread_id);
-                    }
+
+                    await postAttachment(mp3_path, process.env.slack_hr_screening_channel_id, slack_thread_id);
                   } catch (error) {
                     console.error(error);
                   }
