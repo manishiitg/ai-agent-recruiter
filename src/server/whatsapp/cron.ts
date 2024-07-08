@@ -334,8 +334,16 @@ const keep_conversation_warm = async () => {
       return conv.created_at;
     });
     if (sortedConversation.length > 0) {
-      // if (sortedConversation[sortedConversation.length - 1].userType == "candidate") {
-      if (now.getTime() - convertToIST(sortedConversation[sortedConversation.length - 1].created_at).getTime() > 1000 * 60 * 60 * 12) {
+      let shouldContinue = now.getTime() - convertToIST(sortedConversation[sortedConversation.length - 1].created_at).getTime() > 1000 * 60 * 60 * 12;
+      if (sortedConversation[sortedConversation.length - 1].userType == "candidate") {
+        if (sortedConversation[sortedConversation.length - 1].content.indexOf("You are still in our shortlist, didn't get time to review interview recordings yet") !== -1) {
+          shouldContinue = false;
+        }
+      }
+      if (now.getTime() - convertToIST(sortedConversation[sortedConversation.length - 1].created_at).getTime() > 1000 * 60 * 60 * 24) {
+        shouldContinue = false;
+      }
+      if (shouldContinue) {
         const candidate = await getCandidateDetailsFromDB(ph);
         const text_to_send = "You are still in our shortlist, didn't get time to review interview recordings yet";
 
