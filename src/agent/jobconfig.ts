@@ -51,7 +51,7 @@ export const linkedJobProfileRules: Record<
     questions_to_ask: [`expressjs middleware`, `interact with mongodb`],
   },
   "Jr React Developer": {
-    is_open: false,
+    is_open: true,
     job_description: `This opening is only for candidates from 0 to 1 year of experience.
     Good Knowledge in javascript, reactjs`,
     full_criteria: `
