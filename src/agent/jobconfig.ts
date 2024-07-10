@@ -126,9 +126,9 @@ export const linkedJobProfileRules: Record<
     - simple html/css projects should be considered negative point`,
     questions_to_ask: [
       `candidate introduction about yourself and your projects`,
-      `what is a lamda function in python`,
       `what is list comprehension in python`,
       `how do you perform raw SQL queries in Django`,
+      `assume there is an array on integers and we need to find the nth largest element in the array. what would be your approach to find this. don't use sorting, need to use for loops and solve this problem in O(n) time complexity. let me know what be your approach`,
       `what middleware is in Django`,
       `what is left join in mysql`,
     ],
@@ -153,8 +153,8 @@ export const linkedJobProfileRules: Record<
     - simple html/css projects should be considered negative point`,
     questions_to_ask: [
       `candidate introduction about yourself and your projects`,
-      `what is a lamda function in python`,
       `what is list comprehension in python`,
+      `assume there is an array on integers and we need to find the nth largest element in the array. what would be your approach to find this. don't use sorting, need to use for loops and solve this problem in O(n) time complexity. let me know what be your approach`,
       `how do you perform raw SQL queries in Django`,
       `what middleware is in Django`,
       `what is left join in mysql`,
