@@ -85,12 +85,12 @@ export const conduct_interview = async (
     return { message: "", action: "completed", stage: "completed" };
   }
 
-  // if (interview.interview.info.gender && interview.interview.info.gender?.toLowerCase().includes("female")) {
-  //   interview.interview.conversation_completed = true;
-  //   interview.interview.conversation_completed_reason = "gender";
-  //   await saveCandidateInterviewToDB(interview);
-  //   return { message: "", action: "completed", stage: "completed" };
-  // }
+  if (interview.interview.info.gender && interview.interview.info.gender?.toLowerCase().includes("female")) {
+    interview.interview.conversation_completed = true;
+    interview.interview.conversation_completed_reason = "gender";
+    await saveCandidateInterviewToDB(interview);
+    return { message: "", action: "completed", stage: "completed" };
+  }
 
   let llm = await generateConversationReply(phoneNo, interview, creds.name, conversation);
   let action = llm.action;
