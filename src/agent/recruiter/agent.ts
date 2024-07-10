@@ -177,6 +177,7 @@ export const generateConversationReply = async (
 - Do not mention the context or conversation explicitly in the final response.
 - Whenever possible ask candidate for resume, if you don't have candidate's resume already
 - Keep resume in a human / friendy conversational tone. Keep response maximum to 30 words.
+- Never disclose salary criteria for a role.
 
   10. Output Structure:
   Provide your response in the following XML format:
