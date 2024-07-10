@@ -369,7 +369,7 @@ export const start_cron = async () => {
   setInterval(async () => {
     //send remainders to candidate on same day
     await check_slack_thread_for_manual_msgs();
-    await keep_conversation_warm();
+    // await keep_conversation_warm();
     // await evaluate_hr_screen_interview();
   }, 1000 * 60 * 30); //30min
 
