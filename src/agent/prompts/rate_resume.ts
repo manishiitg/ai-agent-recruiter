@@ -75,7 +75,7 @@ Respond only in xml format as below.
     throw new Error("response not found!");
   }
   rating = jObj["RESPONSE"]["RATING"].trim();
-  reason = jObj["RESPONSE"]["ANALYSIS"] + jObj["RESPONSE"]["INTERNSHIP_WORK_TRAINING_ANALYSIS"];
+  reason = jObj["RESPONSE"]["ANALYSIS"] + JSON.stringify(jObj["RESPONSE"]["INTERNSHIP_WORK_TRAINING_ANALYSIS"]);
 
   return { rating, reason };
 };
