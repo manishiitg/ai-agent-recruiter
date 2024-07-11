@@ -154,7 +154,8 @@ export const STAGE_RULE_MAP: Record<
     },
     do_call_via_human: {
       rule: "if candidate has provided his phone number and also provided his availability",
-      response: `mention that you are shortlisted and we will start next round soon.`,
+      response: `mention that you are shortlisted and we will start next round soon.
+      `,
       // response: "mention i will call you later on and mention his phone no",
     },
     tell_job_description: {

@@ -240,7 +240,10 @@ const STAGE_RULE_MAP: Record<
   completed: {
     inform: {
       rule: "Inform candidate his interview is completed",
-      response: "Inform candidate his interview is completed and we will get back soon",
+      response: `Inform candidate his interview is completed and we will get back soon.
+      Inform candidate they can reach our HR team at +91-9580421704 (Anishka) for job profile Python.
+      Or +91-8534091412(Sanjana) for Reactjs, PHP, Vuejs
+      Check which job profile the candidate belongs to before share the phone no`,
     },
   },
   interview_not_done: {
