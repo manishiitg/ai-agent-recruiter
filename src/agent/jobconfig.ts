@@ -90,10 +90,12 @@ export const linkedJobProfileRules: Record<
     is_open: true,
     job_description: `Good Knowledge in expressjs or typescript or other nodejs frameworks.
     Worked with databases like mongodb or mysql or postgresql`,
-    // full_criteria: `Rule 1. Candidate should not belong to locations ${exclude_location_rule}
+    // full_criteria: `
     // Rule 2. Candidate should have maximum salary of 40,000 per month. If candidates salary is not mentioned, assume he passes this criteria.
     // Rule 3. Candidate should have done multiple experiance/projects/internship related to nodejs. This is an important rule.`,
-    full_criteria: `-Rule 1. Candidate should have maximum salary of 50,000 per month or 6LPA per year. If candidates salary is not mentioned, assume he passes this criteria.
+    full_criteria: `
+    - Candidate should not belong to locations ${exclude_location_rule}
+    - Candidate should have maximum salary of 50,000 per month or 6LPA per year. If candidates salary is not mentioned, assume he passes this criteria.
     - Candidate should have done multiple experiance/projects/internship related to nodejs. This is an important rule.`,
     resume_rating: `
     - Candidate should have done multiple projects/internship related to nodejs.
@@ -115,7 +117,8 @@ export const linkedJobProfileRules: Record<
     // Rule 2. Candidate should not belong to locations ${exclude_location_rule}
     // Rule 4. Candidate should have done multiple work/projects/internship related python and flask/django. This is an important rule.`,
     full_criteria: `
-    - Rule 1. Candidate should have maximum salary of 50,000 per month or 6LPA per year. If candidates salary is not mentioned, assume he passes this criteria.
+    - Candidate should not belong to locations ${exclude_location_rule}
+    - Candidate should have maximum salary of 50,000 per month or 6LPA per year. If candidates salary is not mentioned, assume he passes this criteria.
     - Candidate should have done multiple work/projects/internship related python. This is an important rule.`,
     resume_rating: `
     - Candidate should have done multiple projects/internship related to python
