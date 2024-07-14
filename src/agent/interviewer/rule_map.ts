@@ -41,7 +41,7 @@ const STAGE_RULE_MAP: Record<
     },
     remainder: {
       rule: "If already asked candidate to start interview but candidate has not replied",
-      response: "send a remainder if candidate is ready to start an interview",
+      response: "mention its important to give the AI based interview to be considered for the position. send a remainder if candidate is ready to start an interview",
     },
     how_this_works: {
       rule: "If candidate asks how this works",
@@ -190,7 +190,7 @@ const STAGE_RULE_MAP: Record<
     },
     remainder: {
       rule: "If already asked candidate about tech question but candidate has not replied",
-      response: "send a remainder asking to reply to tech question",
+      response: "send a remainder asking to reply to tech question. mention if interview is not completed, its difficult to consider for job application",
       should_render: (obj: Interview, current_stage: string, current_action: string) => {
         const hasInterviewStageQuestions = obj.interview?.interview_questions_asked?.filter((row) => row.stage === current_stage);
         if (hasInterviewStageQuestions && hasInterviewStageQuestions?.length > 0) {
