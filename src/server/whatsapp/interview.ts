@@ -372,6 +372,11 @@ const callViaHuman = async (phoneNo: string, interview: Interview) => {
             }, 0);
 
             await postMessageToThread(slack_thread_id, `Avg Rating ${total_rating / question_rating.length}`, process.env.slack_hr_screening_channel_id);
+
+            const avg_rating = total_rating / question_rating.length;
+
+            interview.interview.avg_rating = avg_rating;
+            await saveCandidateInterviewToDB(interview);
           }
         }
 

@@ -3,6 +3,7 @@ import { ObjectId } from "mongodb";
 export interface Interview {
   id: string;
   interview?: {
+    avg_rating?: number;
     started_at: Date;
     updated_at: Date;
     stage: string;
