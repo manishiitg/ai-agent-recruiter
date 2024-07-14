@@ -87,7 +87,7 @@ export const linkedJobProfileRules: Record<
     questions_to_ask: [`candidate introduction about yourself and your projects`, `what is states vs props`, `question about state managment`, `vuejs interview questions`],
   },
   "Jr NodeJs Developer": {
-    is_open: true,
+    is_open: false,
     job_description: `Good Knowledge in expressjs or typescript or other nodejs frameworks.
     Worked with databases like mongodb or mysql or postgresql`,
     // full_criteria: `
@@ -137,7 +137,7 @@ export const linkedJobProfileRules: Record<
     ],
   },
   "Python Internship (Cuvette)": {
-    is_open: true,
+    is_open: false,
     job_description: `Good Knowledge in django or flask
     Worked with databases like mongodb or mysql or postgresql`,
     // full_criteria: `Rule 1. Candidate should have maximum salary of 40,000 per month. If candidates salary is not mentioned, assume he passes this criteria.
