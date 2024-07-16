@@ -107,6 +107,8 @@ export const linkedJobProfileRules: Record<
       `assume there is an array on integers and we need to find the nth largest element in the array. what would be your approach to find this. don't use sorting, need to use for loops and solve this problem in O(n) time complexity. let me know what be your approach`,
       `nodejs async vs promises`,
       `nodejs event loop`,
+      `nodejs interview question related to mongodb`,
+      `nodejs interview question related to mysql database`
     ],
   },
   "Jr Python Developer": {
