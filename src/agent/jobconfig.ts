@@ -87,7 +87,7 @@ export const linkedJobProfileRules: Record<
     questions_to_ask: [`candidate introduction about yourself and your projects`, `what is states vs props`, `question about state managment`, `vuejs interview questions`],
   },
   "Jr NodeJs Developer": {
-    is_open: false,
+    is_open: true,
     job_description: `Good Knowledge in expressjs or typescript or other nodejs frameworks.
     Worked with databases like mongodb or mysql or postgresql`,
     // full_criteria: `
@@ -103,7 +103,7 @@ export const linkedJobProfileRules: Record<
     questions_to_ask: [
       `candidate introduction about yourself and your projects`,
       `expressjs middleware`,
-      `interact with mongodb`,
+      `how to setup authentication in expressjs`,
       `assume there is an array on integers and we need to find the nth largest element in the array. what would be your approach to find this. don't use sorting, need to use for loops and solve this problem in O(n) time complexity. let me know what be your approach`,
       `nodejs async vs promises`,
       `nodejs event loop`,
