@@ -343,7 +343,6 @@ const callViaHuman = async (phoneNo: string, interview: Interview) => {
                     }
                   }
                 } else {
-                  // await postMessageToThread(slack_thread_id, `${conv.userType == "agent" ? "HR" : `${phoneNo}`}:  ${conv.content} `, slack_action_channel_id);
                 }
               }
             } catch (error) {
@@ -356,7 +355,7 @@ const callViaHuman = async (phoneNo: string, interview: Interview) => {
                 for (const file of interview.interview.audio_file) {
                   for (const asked of interview.interview.interview_questions_asked) {
                     if (file.stage === asked.stage && !question_for_stage[asked.stage]) {
-                      await postMessageToThread(slack_thread_id, `${asked.stage}:${asked.question_asked_to_user} : ${asked.topic}`, slack_action_channel_id);
+                      await postMessageToThread(slack_thread_id, `${asked.stage}:${asked.question_asked_to_user} : ${asked.topic}`, process.env.slack_hr_screening_channel_id);
                       question_for_stage[asked.stage] = true;
                     }
                   }
