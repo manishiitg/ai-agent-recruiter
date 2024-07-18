@@ -481,7 +481,6 @@ export const getInterviewCompletedCandidatesRatingNotSent = async () => {
           $lt: startOfNextDay,
         },
         avg_rating: { $exists: true },
-        avg_rating_sent: { $exists: false },
       },
       {
         projection: {

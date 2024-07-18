@@ -230,7 +230,7 @@ export const evaluate_hr_screen_interview = async () => {
     const ph = candidate.unique_id;
 
     const interview = await getCandidateInterviewFromDB(ph);
-    if (interview.interview?.avg_rating) {
+    if (interview.interview?.avg_rating && !interview.interview.avg_rating_sent) {
       const { slack_thread_id, channel_id, conversation } = await get_whatspp_conversations(ph);
       if (interview.interview.avg_rating < 6) {
         const text_to_send = `You scored a rating of ${
