@@ -139,8 +139,7 @@ export const linkedJobProfileRules: Record<
       `assume there is an array on integers and we need to find the nth largest element in the array. what would be your approach to find this. don't use sorting, need to use for loops and solve this problem in O(n) time complexity. let me know what be your approach`,
       `what middleware is in Django`,
       `left join vs inner join in mysql`,
-      `techical question related to python`,
-      `techical question related to python`
+      `techical question related to rest api in python`,
     ],
   },
   "Python Internship (Cuvette)": {
