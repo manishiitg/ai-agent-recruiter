@@ -253,6 +253,8 @@ export const evaluate_hr_screen_interview = async () => {
         await add_whatsapp_message_sent_delivery_report(ph, text_to_send, "text", messageUuid);
         await postMessageToThread(slack_thread_id, `HR: ${text_to_send}. Action: ${"manual"} Stage: ${"interview review"}`, channel_id);
       }
+      interview.interview.avg_rating_sent = true;
+      await saveCandidateInterviewToDB(interview);
     }
   }
 };
