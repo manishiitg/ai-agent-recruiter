@@ -476,10 +476,12 @@ export const getInterviewCompletedCandidatesRatingNotSent = async () => {
     .find(
       {
         "interview.conversation_completed_reason": "completed",
-          "interview.started_at": {
-            $gte: startOfDay,
-            $lt: startOfNextDay,
-          },
+        "interview.started_at": {
+          $gte: startOfDay,
+          $lt: startOfNextDay,
+        },
+        avg_rating: { $exists: true },
+        avg_rating_sent: { $exists: false },
       },
       {
         projection: {
