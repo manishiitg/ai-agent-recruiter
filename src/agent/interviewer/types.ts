@@ -4,6 +4,7 @@ export interface Interview {
   id: string;
   interview?: {
     avg_rating?: number;
+    avg_rating_sent?: boolean;
     started_at: Date;
     updated_at: Date;
     stage: string;

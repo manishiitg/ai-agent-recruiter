@@ -18,6 +18,7 @@ import path from "path";
 import { existsSync, mkdirSync } from "fs";
 import { downloadFile } from "./util";
 import { converToMp3 } from "../../integrations/mp3";
+import { send_whatsapp_text_reply } from "../../integrations/plivo";
 
 export const getInterviewObject = async (phoneNo: string) => {
   let interview: Interview;
@@ -348,9 +349,18 @@ const callViaHuman = async (phoneNo: string, interview: Interview) => {
             } catch (error) {
               console.error(error);
             }
+
             try {
               if (interview.interview.audio_file) {
+                let question_for_stage: Record<string, boolean> = {};
                 for (const file of interview.interview.audio_file) {
+                  for (const asked of interview.interview.interview_questions_asked) {
+                    if (file.stage === asked.stage && !question_for_stage[asked.stage]) {
+                      await postMessageToThread(slack_thread_id, `${asked.stage}:${asked.question_asked_to_user} : ${asked.topic}`, slack_action_channel_id);
+                      question_for_stage[asked.stage] = true;
+                    }
+                  }
+
                   const resume_file = path.join(resume_path, `${candidate.id}_${file.stage}_audio.ogg`);
                   await downloadFile(file.fileUrl, resume_file);
                   try {
@@ -374,7 +384,6 @@ const callViaHuman = async (phoneNo: string, interview: Interview) => {
             await postMessageToThread(slack_thread_id, `Avg Rating ${total_rating / question_rating.length}`, process.env.slack_hr_screening_channel_id);
 
             const avg_rating = total_rating / question_rating.length;
-
             interview.interview.avg_rating = avg_rating;
             await saveCandidateInterviewToDB(interview);
           }

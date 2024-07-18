@@ -9,6 +9,7 @@ import {
   getCandidateInterviewFromDB,
   getInterviewCandidatesForSlackThread,
   getInterviewCompletedCandidates,
+  getInterviewCompletedCandidatesRatingNotSent,
   getInterviewRemainder,
   getPendingNotCompletedCandidates,
   getShortlistedCandidates,
@@ -224,7 +225,36 @@ const check_slack_thread_for_manual_msgs = async () => {
 };
 
 export const evaluate_hr_screen_interview = async () => {
-  const candidates = await getInterviewCompletedCandidates();
+  const candidates = await getInterviewCompletedCandidatesRatingNotSent();
+  for (const candidate of candidates) {
+    const ph = candidate.unique_id;
+
+    const interview = await getCandidateInterviewFromDB(ph);
+    if (interview.interview?.avg_rating) {
+      const { slack_thread_id, channel_id, conversation } = await get_whatspp_conversations(ph);
+      if (interview.interview.avg_rating < 6) {
+        const text_to_send = `You scored a rating of ${
+          Math.round(interview.interview.avg_rating * 10) / 10
+        } out of 10 based on your anwers. This score is lower than avg rating we are expecting for the interview. We will still manually go through your recording once.`;
+
+        const response = await send_whatsapp_text_reply(text_to_send, ph, candidate.whatsapp);
+        const messageUuid = response.messageUuid;
+        await save_whatsapp_conversation("agent", ph, candidate.whatsapp, "text", ph, text_to_send, "");
+        await add_whatsapp_message_sent_delivery_report(ph, text_to_send, "text", messageUuid);
+        await postMessageToThread(slack_thread_id, `HR: ${text_to_send}. Action: ${"manual"} Stage: ${"interview review"}`, channel_id);
+      } else {
+        const text_to_send = `You scored a rating of ${
+          Math.round(interview.interview.avg_rating * 10) / 10
+        } out of 10 based on your anwers. This is good score so our HR team will reach out to you soon!`;
+
+        const response = await send_whatsapp_text_reply(text_to_send, ph, candidate.whatsapp);
+        const messageUuid = response.messageUuid;
+        await save_whatsapp_conversation("agent", ph, candidate.whatsapp, "text", ph, text_to_send, "");
+        await add_whatsapp_message_sent_delivery_report(ph, text_to_send, "text", messageUuid);
+        await postMessageToThread(slack_thread_id, `HR: ${text_to_send}. Action: ${"manual"} Stage: ${"interview review"}`, channel_id);
+      }
+    }
+  }
 };
 
 const keep_conversation_warm = async () => {
@@ -265,7 +295,7 @@ const keep_conversation_warm = async () => {
 };
 
 export const start_cron = async () => {
-  // await evaluate_hr_screen_interview();
+  await evaluate_hr_screen_interview();
   check_slack_thread_for_manual_msgs();
   await get_pending_hr_screening_candidates();
 
@@ -276,7 +306,7 @@ export const start_cron = async () => {
     //send remainders to candidate on same day
     await check_slack_thread_for_manual_msgs();
     // await keep_conversation_warm();
-    // await evaluate_hr_screen_interview();
+    await evaluate_hr_screen_interview();
   }, 1000 * 60 * 30); //30min
 
   setInterval(() => {
