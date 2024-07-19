@@ -376,15 +376,26 @@ const callViaHuman = async (phoneNo: string, interview: Interview) => {
             }
 
             // question_rating
-            let total_rating = question_rating.reduce((prev, cur) => {
-              return prev + parseInt(cur);
-            }, 0);
+            // let total_rating = question_rating.reduce((prev, cur) => {
+            //   if(parseInt(cur) && cu)
+            //   return prev + parseInt(cur);
+            // }, 0);
 
-            await postMessageToThread(slack_thread_id, `Avg Rating ${total_rating / question_rating.length}`, process.env.slack_hr_screening_channel_id);
+            let total_rating = 0;
+            let total_questions = 0;
+            question_rating.forEach((val) => {
+              if (parseInt(val) && val) {
+                total_rating += parseInt(val);
+                total_questions += 1;
+              }
+            });
 
-            const avg_rating = total_rating / question_rating.length;
-            interview.interview.avg_rating = avg_rating;
-            await saveCandidateInterviewToDB(interview);
+            if (total_questions > 0) {
+              await postMessageToThread(slack_thread_id, `Avg Rating ${total_rating / total_questions}`, process.env.slack_hr_screening_channel_id);
+              const avg_rating = total_rating / total_questions;
+              interview.interview.avg_rating = avg_rating;
+              await saveCandidateInterviewToDB(interview);
+            }
           }
         }
 
