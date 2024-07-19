@@ -447,7 +447,7 @@ export const getShortlistedCandidates = async () => {
         },
       }
     )
-    .limit(50)
+    // .limit(50)
     .toArray();
 };
 
