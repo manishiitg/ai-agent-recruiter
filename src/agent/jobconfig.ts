@@ -2,7 +2,7 @@ export const near_location = "Delhi, Noida, Ghaziabad, Meerut, Himachal, Nanital
 const exclude_location_rule = "Hyderabad, Kerela, Bangalore, Gwalior, Mumbai, Kolkata, Madras, Odisha, Indore, Pondicherry, West Bengal, Tamil Nadu, Andra Pradesh, Chennai";
 // const exclude_location_rule = "Odisha";
 
-export const NUMBER_OF_INTERVIEW_QUESTIONS = 5;
+export const NUMBER_OF_INTERVIEW_QUESTIONS = 7;
 
 export const companyInfo = `
 Company Name: Excellence Technosoft Pvt Ltd
@@ -139,6 +139,7 @@ export const linkedJobProfileRules: Record<
       `what middleware is in Django`,
       `left join vs inner join in mysql`,
       `techical question related to rest api in python`,
+      `techical question related to python`
     ],
   },
   "Python Internship (Cuvette)": {
