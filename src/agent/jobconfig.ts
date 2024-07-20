@@ -119,7 +119,6 @@ export const linkedJobProfileRules: Record<
     // Rule 2. Candidate should not belong to locations ${exclude_location_rule}
     // Rule 4. Candidate should have done multiple work/projects/internship related python and flask/django. This is an important rule.`,
     full_criteria: `
-    - Candidate should not belong to locations ${exclude_location_rule}
     - Candidate should have maximum salary of 50,000 per month or 6LPA per year. If candidates salary is not mentioned, assume he passes this criteria.
     - Candidate should have done multiple work/projects/internship related python. This is an important rule`,
     resume_rating: `
