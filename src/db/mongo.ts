@@ -417,6 +417,55 @@ export async function getSlackTsRead(ts: string) {
   }
 }
 
+export const archieveCandidate = async (ph: string) => {
+  const client = await connectDB();
+  const db = client.db("whatsapp");
+  const row = await db.collection("candidates").findOne({ unique_id: ph });
+  if (row) {
+    await db.collection("arch_candidate").insertOne(row);
+    await db.collection("candidate").deleteOne({ unique_id: ph });
+
+    const rowConv = await db.collection("conversation").findOne({ from: ph });
+    if (rowConv) {
+      await db.collection("arch_conversation").insertOne(rowConv);
+      await db.collection("conversation").deleteOne({ from: ph });
+    }
+
+    const interview = await db.collection("interviews").findOne({ unique_id: ph });
+    if (interview) {
+      await db.collection("arch_interviews").insertOne(interview);
+      await db.collection("interviews").deleteOne({ unique_id: ph });
+    }
+  }
+};
+
+export const getCandidatesOlderThan30Days = async () => {
+  const client = await connectDB();
+  const db = client.db("whatsapp");
+
+  // Get the current date
+  let currentDate = new Date();
+
+  // Set the time to the start of the day (00:00:00.000)
+  let startOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() - 30);
+
+  return await db
+    .collection("candidates")
+    .find(
+      {
+        "conversation.started_at": {
+          $lt: startOfDay,
+        },
+      },
+      {
+        projection: {
+          unique_id: 1,
+        },
+      }
+    )
+    .toArray();
+};
+
 export const getShortlistedCandidates = async () => {
   const client = await connectDB();
   const db = client.db("whatsapp");

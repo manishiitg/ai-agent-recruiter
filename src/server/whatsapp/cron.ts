@@ -4,9 +4,11 @@ dotenv.config();
 import { convertToIST, formatTime, sleep } from "./util";
 import {
   add_whatsapp_message_sent_delivery_report,
+  archieveCandidate,
   get_whatspp_conversations,
   getCandidateDetailsFromDB,
   getCandidateInterviewFromDB,
+  getCandidatesOlderThan30Days,
   getInterviewCandidatesForSlackThread,
   getInterviewCompletedCandidates,
   getInterviewCompletedCandidatesRatingNotSent,
@@ -296,7 +298,17 @@ const keep_conversation_warm = async () => {
   }
 };
 
+export const archieve_candidate = async () => {
+  const old = await getCandidatesOlderThan30Days();
+  for (const candidate of old) {
+    const unique_id = candidate.unique_id;
+    await archieveCandidate(unique_id);
+    break;
+  }
+};
+
 export const start_cron = async () => {
+  await archieve_candidate();
   await evaluate_hr_screen_interview();
   check_slack_thread_for_manual_msgs();
   await get_pending_hr_screening_candidates();
