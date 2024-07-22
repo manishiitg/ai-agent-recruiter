@@ -51,7 +51,7 @@ export const linkedJobProfileRules: Record<
     questions_to_ask: [`expressjs middleware`, `interact with mongodb`],
   },
   "Jr React Developer": {
-    is_open: false,
+    is_open: true,
     job_description: `This opening is only for candidates from 0 to 1 year of experience.
     Good Knowledge in javascript, reactjs`,
     full_criteria: `
@@ -68,7 +68,9 @@ export const linkedJobProfileRules: Record<
       `what is states vs props`,
       `question regarding useCallback and useMemo`,
       `question about state managment`,
-      `i have a component which is rendering is a lot, how can i debug and stop the re-renders`,
+      `questions regarding css`,
+      `difficult questions regarding css3 and flex`,
+      `difficult questions regarding css3`,
     ],
   },
   "Jr Vuejs Developer": {
