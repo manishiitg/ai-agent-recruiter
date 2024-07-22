@@ -102,13 +102,13 @@ export const linkedJobProfileRules: Record<
     - Candidate should have worked on projects using expressjs. `,
     questions_to_ask: [
       `candidate introduction about yourself and your projects`,
-      `expressjs middleware`,
-      `how to setup authentication in expressjs`,
+      `technical question related to expressjs and rest apis`,
+      `technical question related to expressjs and rest apis`,
       `assume there is an array on integers and we need to find the nth largest element in the array. what would be your approach to find this. don't use sorting, need to use for loops and solve this problem in O(n) time complexity. let me know what be your approach`,
-      `nodejs async vs promises`,
-      `nodejs event loop`,
-      `nodejs interview question related to mongodb`,
-      `nodejs interview question related to mysql database`
+      `technical question related to nodejs`,
+      `technical question related to nodejs`,
+      `technical question related to nodejs and database`,
+      `technical question related to nodejs and database`
     ],
   },
   "Jr Python Developer": {
@@ -137,7 +137,7 @@ export const linkedJobProfileRules: Record<
       `how do you perform raw SQL queries in Django`,
       `assume there is an array on integers and we need to find the nth largest element in the array. what would be your approach to find this. don't use sorting, need to use for loops and solve this problem in O(n) time complexity. let me know what be your approach`,
       `what middleware is in Django`,
-      `left join vs inner join in mysql`,
+      `techical question related to python`,
       `techical question related to rest api in python`,
       `techical question related to python`
     ],
