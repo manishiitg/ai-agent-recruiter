@@ -1,5 +1,5 @@
 export const near_location = "Delhi, Noida, Ghaziabad, Meerut, Himachal, Nanital, Faridabad, Jaipur, Agra, Mathura, Prayagraj, Greater Noida, Hapur, Uttar Pradesh, Uttrakhand";
-const exclude_location_rule = "Hyderabad, Kerela, Bangalore, Gwalior, Mumbai, Kolkata, Madras, Odisha, Indore, Pondicherry, West Bengal, Tamil Nadu, Andra Pradesh, Chennai";
+const exclude_location_rule = "Pune, Hyderabad, Kerela, Bangalore, Gwalior, Mumbai, Kolkata, Madras, Odisha, Indore, Pondicherry, West Bengal, Tamil Nadu, Andra Pradesh, Chennai";
 // const exclude_location_rule = "Odisha";
 
 export const NUMBER_OF_INTERVIEW_QUESTIONS = 8
@@ -56,7 +56,7 @@ export const linkedJobProfileRules: Record<
     Good Knowledge in javascript, reactjs`,
     full_criteria: `
     Rule 2. Candidate should not belong to locations ${exclude_location_rule}
-    Rule 3. Candidate should have maximum salary of 50,000 per month or 6LPA per year. If candidates salary is not mentioned, assume he passes this criteria.
+    Rule 3. Candidate should have maximum salary of 30,000 per month or 4LPA per year. If candidates salary is not mentioned, assume he passes this criteria.
     Rule 5. Candidate should have done multiple experiance/projects/internship related reactjs. This is an important rule.`,
     // full_criteria: `Candidate should have done multiple experiance/projects/internship related reactjs. This is an important rule.`,
     resume_rating: `
