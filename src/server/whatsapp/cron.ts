@@ -317,7 +317,7 @@ export const start_cron = async () => {
   await archieve_candidate()
   await evaluate_hr_screen_interview();
   check_slack_thread_for_manual_msgs();
-  await get_pending_hr_screening_candidates();
+  // await get_pending_hr_screening_candidates();
 
   await remind_candidates(false); //send remainder to candidate who's conversation is not completed.. if last message was sent by agent, dont send remainder
   await remind_candidates(true); //send remainder to candidate who's conversation is not completed
@@ -332,7 +332,7 @@ export const start_cron = async () => {
 
   setInterval(() => {
     (async () => {
-      await get_pending_hr_screening_candidates(); // candidate who's shortlisted i.e do_human_call but interview didn't start
+      // await get_pending_hr_screening_candidates(); // candidate who's shortlisted i.e do_human_call but interview didn't start
       await remind_candidates(false); //send remainder to candidate who's conversation is not completed.. if last message was sent by agent, dont send remainder
       await remind_candidates(true); //send remainder to candidate who's conversation is not completed
     })();
