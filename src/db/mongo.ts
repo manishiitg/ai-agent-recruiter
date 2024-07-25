@@ -422,17 +422,23 @@ export const archieveCandidate = async (ph: string) => {
   const db = client.db("whatsapp");
   const row = await db.collection("candidates").findOne({ unique_id: ph });
   if (row) {
+    //@ts-ignore
+    delete row._id;
     await db.collection("arch_candidate").insertOne(row);
     await db.collection("candidate").deleteOne({ unique_id: ph });
 
     const rowConv = await db.collection("conversation").findOne({ from: ph });
     if (rowConv) {
+      //@ts-ignore
+      delete rowConv._id;
       await db.collection("arch_conversation").insertOne(rowConv);
       await db.collection("conversation").deleteOne({ from: ph });
     }
 
     const interview = await db.collection("interviews").findOne({ unique_id: ph });
     if (interview) {
+      //@ts-ignore
+      delete interview._id;
       await db.collection("arch_interviews").insertOne(interview);
       await db.collection("interviews").deleteOne({ unique_id: ph });
     }
