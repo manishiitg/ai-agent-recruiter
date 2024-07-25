@@ -463,6 +463,7 @@ export const getCandidatesOlderThan30Days = async () => {
         "conversation.started_at": {
           $lt: startOfDay,
         },
+        unique_id: { $exists: true },
       },
       {
         projection: {
