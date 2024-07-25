@@ -385,6 +385,6 @@ export async function getLatestMessagesFromThread(channelId: string, ts: string,
     }
   } catch (error) {
     console.error("Error:", error);
-    throw error; // Rethrow the error to be handled by the caller
+    // throw error; // Rethrow the error to be handled by the caller
   }
 }

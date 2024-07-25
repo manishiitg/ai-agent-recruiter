@@ -23,7 +23,7 @@ import {
 import sortBy from "lodash/sortBy";
 import { WhatsAppConversaion, WhatsAppCreds } from "../../db/types";
 import { getCandidate, process_whatsapp_conversation } from "./conversation";
-import { getLatestMessagesFromThread, postAttachment, postMessage, postMessageToThread } from "../../communication/slack";
+import { postAttachment, postMessage, postMessageToThread } from "../../communication/slack";
 import path from "path";
 import { existsSync, mkdirSync } from "fs";
 import { send_whatsapp_text_reply } from "../../integrations/plivo";
