@@ -1,4 +1,4 @@
-import { MongoClient, ObjectId, ServerApiVersion } from "mongodb";
+import { MongoClient } from "mongodb";
 import dotenv from "dotenv";
 import { Candidate, WhatsAppConversaion } from "./types";
 import { threadId } from "worker_threads";
@@ -447,7 +447,7 @@ export const getCandidatesOlderThan30Days = async () => {
   let currentDate = new Date();
 
   // Set the time to the start of the day (00:00:00.000)
-  let startOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() - 30);
+  let startOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
   console.log("startOfDay", startOfDay);
 
   return await db
