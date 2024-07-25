@@ -303,18 +303,17 @@ const keep_conversation_warm = async () => {
 };
 
 export const archieve_candidate = async () => {
-  
   const old = await getCandidatesOlderThan30Days();
   console.log("old", old.length);
   for (const candidate of old) {
     const unique_id = candidate.unique_id;
     await archieveCandidate(unique_id);
-    break;
+    // break;
   }
 };
 
 export const start_cron = async () => {
-  await archieve_candidate()
+  await archieve_candidate();
   // await evaluate_hr_screen_interview();
   // check_slack_thread_for_manual_msgs();
   // await get_pending_hr_screening_candidates();
