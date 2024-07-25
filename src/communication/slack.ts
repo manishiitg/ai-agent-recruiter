@@ -50,7 +50,7 @@ export async function downloadSlackFile(fileId: string, outputPath: string): Pro
   }
 }
 
-async function uploadFileToSlack(token: string, channel: string, filePath: string, threadTs?: string): Promise<string> {
+async function uploadFileToSlack(token: string, channel: string, filePath: string, threadTs?: string) {
   try {
     const fileName = path.basename(filePath);
     const fileSize = fs.statSync(filePath).size;
@@ -65,15 +65,17 @@ async function uploadFileToSlack(token: string, channel: string, filePath: strin
       {
         headers: {
           Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
       }
     );
 
     if (!uploadUrlResponse.data.ok) {
+      console.error("Error details:", uploadUrlResponse.data);
       throw new Error("Failed to get upload URL: " + uploadUrlResponse.data.error);
     }
 
-    const { upload_url, file_id } = uploadUrlResponse.data.url_upload;
+    const { upload_url, file_id } = uploadUrlResponse.data.file;
 
     // Step 2: Upload the file to the provided URL
     const form = new FormData();
@@ -97,11 +99,13 @@ async function uploadFileToSlack(token: string, channel: string, filePath: strin
       {
         headers: {
           Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
       }
     );
 
     if (!completeResponse.data.ok) {
+      console.error("Error details:", completeResponse.data);
       throw new Error("Failed to complete upload: " + completeResponse.data.error);
     }
 
@@ -116,11 +120,13 @@ async function uploadFileToSlack(token: string, channel: string, filePath: strin
       {
         headers: {
           Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
       }
     );
 
     if (!messageResponse.data.ok) {
+      console.error("Error details:", messageResponse.data);
       throw new Error("Failed to send message: " + messageResponse.data.error);
     }
 
@@ -130,6 +136,7 @@ async function uploadFileToSlack(token: string, channel: string, filePath: strin
     throw new Error("File upload failed: " + error);
   }
 }
+
 // Function to post a message to a Slack channel
 async function postMessageToSlack(token: string, channel: string, text: string): Promise<string> {
   const response = await axios.post(
