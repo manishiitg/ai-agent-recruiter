@@ -59,12 +59,8 @@ async function uploadFileToSlack(token: string, channel: string, filePath: strin
     const uploadUrlResponse = await axios.post(
       "https://slack.com/api/files.getUploadURLExternal",
       {
-        files: [
-          {
-            filename: fileName,
-            length: fileSize,
-          },
-        ],
+        filename: fileName,
+        length: fileSize,
       },
       {
         headers: {
@@ -80,6 +76,8 @@ async function uploadFileToSlack(token: string, channel: string, filePath: strin
     }
 
     const { upload_url, file_id } = uploadUrlResponse.data.file;
+
+    console.log("upload_url, file_id ", upload_url, file_id);
 
     // Step 2: Upload the file to the provided URL
     const form = new FormData();
@@ -97,6 +95,8 @@ async function uploadFileToSlack(token: string, channel: string, filePath: strin
           {
             id: file_id,
             title: fileName,
+            channel_id: channel,
+            thread_ts: threadTs,
           },
         ],
       },
@@ -113,26 +113,26 @@ async function uploadFileToSlack(token: string, channel: string, filePath: strin
       throw new Error("Failed to complete upload: " + completeResponse.data.error);
     }
 
-    // Send a message to the channel with the file
-    const messageResponse = await axios.post(
-      "https://slack.com/api/chat.postMessage",
-      {
-        channel: channel,
-        text: `File uploaded: ${fileName}`,
-        thread_ts: threadTs,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    // // Send a message to the channel with the file
+    // const messageResponse = await axios.post(
+    //   "https://slack.com/api/chat.postMessage",
+    //   {
+    //     channel: channel,
+    //     text: `File uploaded: ${fileName}`,
+    //     thread_ts: threadTs,
+    //   },
+    //   {
+    //     headers: {
+    //       Authorization: `Bearer ${token}`,
+    //       "Content-Type": "application/json",
+    //     },
+    //   }
+    // );
 
-    if (!messageResponse.data.ok) {
-      console.error("Error details:", messageResponse.data);
-      throw new Error("Failed to send message: " + messageResponse.data.error);
-    }
+    // if (!messageResponse.data.ok) {
+    //   console.error("Error details:", messageResponse.data);
+    //   throw new Error("Failed to send message: " + messageResponse.data.error);
+    // }
 
     return file_id;
   } catch (error) {
