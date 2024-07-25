@@ -308,7 +308,7 @@ export const archieve_candidate = async () => {
   for (const candidate of old) {
     const unique_id = candidate.unique_id;
     await archieveCandidate(unique_id);
-    // break;
+    break;
   }
 };
 

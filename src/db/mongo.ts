@@ -453,7 +453,7 @@ export const getCandidatesOlderThan30Days = async () => {
   let currentDate = new Date();
 
   // Set the time to the start of the day (00:00:00.000)
-  let startOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
+  let startOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() - 30);
   console.log("startOfDay", startOfDay);
 
   return await db
