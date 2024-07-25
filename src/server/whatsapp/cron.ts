@@ -223,7 +223,7 @@ const check_slack_thread_for_manual_msgs = async () => {
           }
         }
       } catch (error) {
-        console.error(error);
+        // console.error(error);
       }
     }
     await sleep(1000);
