@@ -51,33 +51,85 @@ export async function downloadSlackFile(fileId: string, outputPath: string): Pro
 }
 
 async function uploadFileToSlack(token: string, channel: string, filePath: string, threadTs?: string): Promise<string> {
-  const form = new FormData();
-  form.append("file", fs.createReadStream(filePath));
-  form.append("channels", channel);
-  form.append("filename", path.basename(filePath));
-  if (threadTs) form.append("thread_ts", threadTs);
-
   try {
-    const response = await axios.post("https://slack.com/api/files.upload", form, {
-      headers: {
-        ...form.getHeaders(),
-        Authorization: `Bearer ${token}`,
+    const fileName = path.basename(filePath);
+    const fileSize = fs.statSync(filePath).size;
+
+    // Step 1: Get an upload URL
+    const uploadUrlResponse = await axios.post(
+      "https://slack.com/api/files.getUploadURLExternal",
+      {
+        filename: fileName,
+        length: fileSize,
       },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (!uploadUrlResponse.data.ok) {
+      throw new Error("Failed to get upload URL: " + uploadUrlResponse.data.error);
+    }
+
+    const { upload_url, file_id } = uploadUrlResponse.data.url_upload;
+
+    // Step 2: Upload the file to the provided URL
+    const form = new FormData();
+    form.append("file", fs.createReadStream(filePath));
+
+    await axios.post(upload_url, form, {
+      headers: form.getHeaders(),
     });
 
-    // Check if the request was successful
-    if (response.data.ok) {
-      return response.data.file.id;
-    } else {
-      throw new Error(response.data.error);
+    // Step 3: Complete the upload
+    const completeResponse = await axios.post(
+      "https://slack.com/api/files.completeUploadExternal",
+      {
+        files: [
+          {
+            id: file_id,
+            title: fileName,
+          },
+        ],
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (!completeResponse.data.ok) {
+      throw new Error("Failed to complete upload: " + completeResponse.data.error);
     }
+
+    // Send a message to the channel with the file
+    const messageResponse = await axios.post(
+      "https://slack.com/api/chat.postMessage",
+      {
+        channel: channel,
+        text: `File uploaded: ${fileName}`,
+        thread_ts: threadTs,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (!messageResponse.data.ok) {
+      throw new Error("Failed to send message: " + messageResponse.data.error);
+    }
+
+    return file_id;
   } catch (error) {
-    captureException(error);
-    // If the request fails, throw an error with the reason
-    throw new Error(`Failed to upload file to Slack: ${error} ${channel}`);
+    console.error(error);
+    throw new Error("File upload failed: " + error);
   }
 }
-
 // Function to post a message to a Slack channel
 async function postMessageToSlack(token: string, channel: string, text: string): Promise<string> {
   const response = await axios.post(
