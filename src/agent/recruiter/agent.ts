@@ -85,7 +85,7 @@ export const generateConversationReply = async (
         response = STAGE_RULE_MAP[stage][action].condition_ctc_response.false;
       }
     }
-    console.log(profileID, "actions taken", conversationObj.actions_taken, `${stage}.${action}`, actions_taken.includes(`${stage}.${action}`));
+    // console.log(profileID, "actions taken", conversationObj.actions_taken, `${stage}.${action}`, actions_taken.includes(`${stage}.${action}`));
     if (action == "do_call_via_human") {
       const dayOfWeek = new Date().getDay();
       if (dayOfWeek == 0 || dayOfWeek == 6) {
@@ -247,9 +247,9 @@ Remember to check all rules before selecting the final one, and ensure that your
   action = jObj["RESPONSE"]["ACTION"].trim();
   action = `${stage}.${action}`;
 
-  console.log("got final action", action);
-  console.log("actions taken", actions_taken);
-  console.log("got candidate stage", stage);
+  // console.log("got final action", action);
+  // console.log("actions taken", actions_taken);
+  // console.log("got candidate stage", stage);
   return { action, reply, reason };
 };
 
