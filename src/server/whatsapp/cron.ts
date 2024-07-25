@@ -312,27 +312,27 @@ export const archieve_candidate = async () => {
   }
 };
 
-// export const start_cron = async () => {
-//   await evaluate_hr_screen_interview();
-//   check_slack_thread_for_manual_msgs();
-//   await get_pending_hr_screening_candidates();
+export const start_cron = async () => {
+  await evaluate_hr_screen_interview();
+  check_slack_thread_for_manual_msgs();
+  await get_pending_hr_screening_candidates();
 
-//   await remind_candidates(false); //send remainder to candidate who's conversation is not completed.. if last message was sent by agent, dont send remainder
-//   await remind_candidates(true); //send remainder to candidate who's conversation is not completed
+  await remind_candidates(false); //send remainder to candidate who's conversation is not completed.. if last message was sent by agent, dont send remainder
+  await remind_candidates(true); //send remainder to candidate who's conversation is not completed
 
-//   setInterval(async () => {
-//     //send remainders to candidate on same day
-//     await check_slack_thread_for_manual_msgs();
-//     // await keep_conversation_warm();
-//     await evaluate_hr_screen_interview();
-//     await archieve_candidate();
-//   }, 1000 * 60 * 30); //30min
+  setInterval(async () => {
+    //send remainders to candidate on same day
+    await check_slack_thread_for_manual_msgs();
+    // await keep_conversation_warm();
+    await evaluate_hr_screen_interview();
+    await archieve_candidate();
+  }, 1000 * 60 * 30); //30min
 
-//   setInterval(() => {
-//     (async () => {
-//       await get_pending_hr_screening_candidates(); // candidate who's shortlisted i.e do_human_call but interview didn't start
-//       await remind_candidates(false); //send remainder to candidate who's conversation is not completed.. if last message was sent by agent, dont send remainder
-//       await remind_candidates(true); //send remainder to candidate who's conversation is not completed
-//     })();
-//   }, 1000 * 60 * 5);
-// };
+  setInterval(() => {
+    (async () => {
+      await get_pending_hr_screening_candidates(); // candidate who's shortlisted i.e do_human_call but interview didn't start
+      await remind_candidates(false); //send remainder to candidate who's conversation is not completed.. if last message was sent by agent, dont send remainder
+      await remind_candidates(true); //send remainder to candidate who's conversation is not completed
+    })();
+  }, 1000 * 60 * 5);
+};
