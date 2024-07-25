@@ -55,6 +55,8 @@ async function uploadFileToSlack(token: string, channel: string, filePath: strin
     const fileName = path.basename(filePath);
     const fileSize = fs.statSync(filePath).size;
 
+    console.log("filename", fileName);
+    console.log("filesize", fileSize);
     // Step 1: Get an upload URL
     const uploadUrlResponse = await axios.post(
       "https://slack.com/api/files.getUploadURLExternal",
