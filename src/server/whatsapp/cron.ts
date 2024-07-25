@@ -177,49 +177,53 @@ const check_slack_thread_for_manual_msgs = async () => {
     const toNumber = candidate.whatsapp;
     const { slack_thread_id, channel_id } = await get_whatspp_conversations(candidate.unique_id);
     if (slack_thread_id && channel_id) {
-      const msgs = await getLatestMessagesFromThread(channel_id, slack_thread_id, 500);
-      console.log(`got msgs from slack for ${fromNumber} ${msgs.length}`);
+      try {
+        const msgs = await getLatestMessagesFromThread(channel_id, slack_thread_id, 500);
+        console.log(`got msgs from slack for ${fromNumber} ${msgs.length}`);
 
-      for (const msg of msgs) {
-        const text = msg.text;
-        if (text.includes(process.env.bot_user_id || "<@U017T6CK4ET>")) {
-          console.log(msg);
-          console.log("got msg to be sent to user!", msg);
-          if (msg.ts) {
-            console.log("await getSlackTsRead(msg.bot_id))", await getSlackTsRead(msg.ts));
-            if (!(await getSlackTsRead(msg.ts))) {
-              //post this msg to user via whatsapp
-              console.log("sending to user!");
-              let text_to_send = text.replace(process.env.bot_user_id || "<@U017T6CK4ET>", "");
-              text_to_send = text_to_send.trim();
+        for (const msg of msgs) {
+          const text = msg.text;
+          if (text.includes(process.env.bot_user_id || "<@U017T6CK4ET>")) {
+            console.log(msg);
+            console.log("got msg to be sent to user!", msg);
+            if (msg.ts) {
+              console.log("await getSlackTsRead(msg.bot_id))", await getSlackTsRead(msg.ts));
+              if (!(await getSlackTsRead(msg.ts))) {
+                //post this msg to user via whatsapp
+                console.log("sending to user!");
+                let text_to_send = text.replace(process.env.bot_user_id || "<@U017T6CK4ET>", "");
+                text_to_send = text_to_send.trim();
 
-              const response = await send_whatsapp_text_reply(text_to_send, fromNumber, toNumber);
-              const messageUuid = response.messageUuid;
-              await save_whatsapp_conversation("agent", fromNumber, toNumber, "text", fromNumber, text_to_send, "");
-              await add_whatsapp_message_sent_delivery_report(fromNumber, text_to_send, "text", messageUuid);
-              await postMessageToThread(slack_thread_id, `HR: ${text_to_send}. Action: ${"manual"} Stage: ${"slack"}`, channel_id);
-              await saveSlackTsRead(msg.ts);
+                const response = await send_whatsapp_text_reply(text_to_send, fromNumber, toNumber);
+                const messageUuid = response.messageUuid;
+                await save_whatsapp_conversation("agent", fromNumber, toNumber, "text", fromNumber, text_to_send, "");
+                await add_whatsapp_message_sent_delivery_report(fromNumber, text_to_send, "text", messageUuid);
+                await postMessageToThread(slack_thread_id, `HR: ${text_to_send}. Action: ${"manual"} Stage: ${"slack"}`, channel_id);
+                await saveSlackTsRead(msg.ts);
 
-              try {
-                const candidate = await getCandidateDetailsFromDB(fromNumber);
-                if (candidate.conversation) {
-                  candidate.conversation.conversation_completed = true;
-                  candidate.conversation.conversation_completed_reason = "manual_msg";
-                  await saveCandidateInterviewToDB(candidate);
-                }
-              } catch (error) {}
+                try {
+                  const candidate = await getCandidateDetailsFromDB(fromNumber);
+                  if (candidate.conversation) {
+                    candidate.conversation.conversation_completed = true;
+                    candidate.conversation.conversation_completed_reason = "manual_msg";
+                    await saveCandidateInterviewToDB(candidate);
+                  }
+                } catch (error) {}
 
-              try {
-                const interv = await getCandidateInterviewFromDB(fromNumber);
-                if (interv.interview) {
-                  interv.interview.conversation_completed = true;
-                  interv.interview.conversation_completed_reason = "manual_msg";
-                  await saveCandidateInterviewToDB(interv);
-                }
-              } catch (error) {}
+                try {
+                  const interv = await getCandidateInterviewFromDB(fromNumber);
+                  if (interv.interview) {
+                    interv.interview.conversation_completed = true;
+                    interv.interview.conversation_completed_reason = "manual_msg";
+                    await saveCandidateInterviewToDB(interv);
+                  }
+                } catch (error) {}
+              }
             }
           }
         }
+      } catch (error) {
+        console.error(error);
       }
     }
     await sleep(1000);
