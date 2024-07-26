@@ -78,7 +78,7 @@ async function uploadFileToSlack(token: string, channel: string, filePath: strin
     }
 
     console.log("uploadUrlResponse", uploadUrlResponse)
-    const { upload_url, file_id } = uploadUrlResponse.data.file;
+    const { upload_url, file_id } = uploadUrlResponse.data;
 
     console.log("upload_url, file_id ", upload_url, file_id);
 
