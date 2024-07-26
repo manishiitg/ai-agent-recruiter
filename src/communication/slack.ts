@@ -77,7 +77,7 @@ async function uploadFileToSlack(token: string, channel: string, filePath: strin
       throw new Error("Failed to get upload URL: " + uploadUrlResponse.data.error);
     }
 
-    console.log("uploadUrlResponse", uploadUrlResponse)
+    console.log("uploadUrlResponse", uploadUrlResponse);
     const { upload_url, file_id } = uploadUrlResponse.data;
 
     console.log("upload_url, file_id ", upload_url, file_id);
@@ -98,10 +98,10 @@ async function uploadFileToSlack(token: string, channel: string, filePath: strin
           {
             id: file_id,
             title: fileName,
-            channel_id: channel,
-            thread_ts: threadTs,
           },
         ],
+        channel_id: channel,
+        thread_ts: threadTs,
       },
       {
         headers: {
