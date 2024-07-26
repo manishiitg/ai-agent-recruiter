@@ -77,6 +77,7 @@ async function uploadFileToSlack(token: string, channel: string, filePath: strin
       throw new Error("Failed to get upload URL: " + uploadUrlResponse.data.error);
     }
 
+    console.log("uploadUrlResponse", uploadUrlResponse)
     const { upload_url, file_id } = uploadUrlResponse.data.file;
 
     console.log("upload_url, file_id ", upload_url, file_id);
