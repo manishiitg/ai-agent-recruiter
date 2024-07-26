@@ -94,12 +94,12 @@ async function uploadFileToSlack(token: string, channel: string, filePath: strin
     const completeResponse = await axios.post(
       "https://slack.com/api/files.completeUploadExternal",
       {
-        files: [
+        files: JSON.stringify([
           {
             id: file_id,
             title: fileName,
           },
-        ],
+        ]),
         channel_id: channel,
         thread_ts: threadTs,
       },
