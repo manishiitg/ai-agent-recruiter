@@ -67,7 +67,7 @@ async function uploadFileToSlack(token: string, channel: string, filePath: strin
       {
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
+          "Content-Type": "application/json;charset=utf-8",
         },
       }
     );
@@ -105,7 +105,7 @@ async function uploadFileToSlack(token: string, channel: string, filePath: strin
       {
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
+          "Content-Type": "application/json; charset=utf-8",
         },
       }
     );
