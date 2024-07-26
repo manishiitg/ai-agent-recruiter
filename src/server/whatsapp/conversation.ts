@@ -328,7 +328,7 @@ const callViaHuman = async (candidate: Candidate, creds: WhatsAppCreds, phoneNo:
 
       const slack_thread_id = await postMessage(msg, slack_action_channel_id);
 
-      await postMessageToThread(slack_thread_id, `Resume Rating Reason ${ratingReply.reason}`, slack_action_channel_id, false);
+      // await postMessageToThread(slack_thread_id, `Resume Rating Reason ${ratingReply.reason}`, slack_action_channel_id, false);
       for (const conv of sortedConversation) {
         if (conv.messageType == "media" && conv.body) {
           if ("Media0" in conv.body) {
