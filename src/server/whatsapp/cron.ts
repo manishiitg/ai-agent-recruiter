@@ -144,6 +144,7 @@ const get_pending_hr_screening_candidates = async () => {
       return conv.created_at;
     });
 
+    if (sortedConversation.length == 0) continue;
     if (now.getTime() - convertToIST(sortedConversation[sortedConversation.length - 1].created_at).getTime() > 1000 * 60 * 20) {
       if (unique_id) {
         const interObj = await getInterviewObject(unique_id);
