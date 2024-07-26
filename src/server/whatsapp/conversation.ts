@@ -293,6 +293,7 @@ const callViaHuman = async (candidate: Candidate, creds: WhatsAppCreds, phoneNo:
   if (info?.phone_no && info.phone_no != "no") context += `Phone No ${info.phone_no} \n`;
   if (info?.location && info.location != "no") context += `Current Location ${info.location} \n`;
   if (info?.name && info.name != "no") context += `Name ${info.name} \n`;
+  if (info?.gender && info.gender != "no") context += `Gender: ${info.gender} \n`;
 
   // context += `Resume Summary ${candidate.resume?.resume_summary} \n`;
   // context += `Shortlist Reason ${candidate.conversation?.shortlisted?.llm_response} \n`;
@@ -340,7 +341,7 @@ const callViaHuman = async (candidate: Candidate, creds: WhatsAppCreds, phoneNo:
             await postAttachment(resume_file, slack_action_channel_id, slack_thread_id);
           }
         } else {
-          await postMessageToThread(slack_thread_id, `${conv.userType == "agent" ? "HR" : `${phoneNo}`}:  ${conv.content} `, slack_action_channel_id);
+          // await postMessageToThread(slack_thread_id, `${conv.userType == "agent" ? "HR" : `${phoneNo}`}:  ${conv.content} `, slack_action_channel_id);
         }
       }
       // context += `Rating Reason ${ratingReply.reason}`;

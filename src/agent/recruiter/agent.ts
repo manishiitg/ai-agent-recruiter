@@ -285,6 +285,7 @@ export const get_context = (conversationObj: Conversation) => {
   if (info?.phone_no && info.phone_no != "no") context += `Phone No ${info.phone_no} \n`;
   if (info?.location && info.location != "no") context += `Current Location ${info.location} \n`;
   if (info?.name && info.name != "no") context += `Candidate Name: ${info.name} \n`;
+  if (info?.gender && info.gender != "no") context += `Gender: ${info.gender} \n`;
 
   return context;
 };
