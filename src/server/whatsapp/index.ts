@@ -53,7 +53,7 @@ export const queue: Record<
   }
 > = {};
 
-const DEBOUNCE_TIMEOUT = 30; // no of seconds to wait before processing messages
+const DEBOUNCE_TIMEOUT = 10; // no of seconds to wait before processing messages
 
 export const whatsapp_webhook = async (req: Request, res: Response) => {
   const { From, To, ContentType, Context, Button, Media0, Body, MessageUUID } = req.body;
