@@ -2,7 +2,7 @@ export const near_location = "Delhi, Noida, Ghaziabad, Meerut, Himachal, Nanital
 const exclude_location_rule = "Pune, Hyderabad, Kerela, Bangalore, Gwalior, Mumbai, Kolkata, Madras, Odisha, Indore, Pondicherry, West Bengal, Tamil Nadu, Andra Pradesh, Chennai";
 // const exclude_location_rule = "Odisha";
 
-export const NUMBER_OF_INTERVIEW_QUESTIONS = 8
+export const NUMBER_OF_INTERVIEW_QUESTIONS = 3
 
 export const companyInfo = `
 Company Name: Excellence Technosoft Pvt Ltd
