@@ -28,7 +28,7 @@ export const generateConversationReply = async (
   if (!RULE_MAP[stage]) {
     console.log("got candidate stage", stage, RULE_MAP);
     // throw new Error("stage not found");
-    stage = STAGE_COMPLETED
+    stage = STAGE_COMPLETED;
   }
 
   let priority_rules = ``;
@@ -39,6 +39,7 @@ export const generateConversationReply = async (
     let response = RULE_MAP[stage][action].response;
 
     if (RULE_MAP[stage][action].should_render !== undefined) {
+      // @ts-ignore
       if (!RULE_MAP[stage][action].should_render(conversationObj, stage, action)) {
         console.log(`not rendering ${stage}:${action}`);
         continue;
