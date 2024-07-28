@@ -103,12 +103,12 @@ export const linkedJobProfileRules: Record<
     - Candidate should have done multiple projects/internship related to nodejs.
     - Candidate should have worked on projects using expressjs. `,
     questions_to_ask: [
-      `candidate introduction about yourself and your projects`,
+      // `candidate introduction about yourself and your projects`,
+      // `technical question related to expressjs and rest apis`,
       `technical question related to expressjs and rest apis`,
-      `technical question related to expressjs and rest apis`,
-      `assume there is an array on integers and we need to find the nth largest element in the array. what would be your approach to find this. don't use sorting, need to use for loops and solve this problem in O(n) time complexity. let me know what be your approach`,
+      // `assume there is an array on integers and we need to find the nth largest element in the array. what would be your approach to find this. don't use sorting, need to use for loops and solve this problem in O(n) time complexity. let me know what be your approach`,
       `technical question related to nodejs`,
-      `technical question related to nodejs`,
+      // `technical question related to nodejs`,
       `technical question related to nodejs and database`,
       `technical question related to nodejs and database`
     ],
@@ -135,11 +135,11 @@ export const linkedJobProfileRules: Record<
     - If candidate has worked on reactjs it should get higher rating
     - If candidate had not done any internship ratings should get lower`,
     questions_to_ask: [
-      `candidate introduction about yourself and your projects`,
+      // `candidate introduction about yourself and your projects`,
       `technical question related to python`,
-      `assume there is an array on integers and we need to find the nth largest element in the array. what would be your approach to find this. don't use sorting, need to use for loops and solve this problem in O(n) time complexity. let me know what be your approach`,
+      // `assume there is an array on integers and we need to find the nth largest element in the array. what would be your approach to find this. don't use sorting, need to use for loops and solve this problem in O(n) time complexity. let me know what be your approach`,
       `technical question related to django`,
-      `technical question related to django`,
+      `technical question related to flask`,
       `technical question related to python`,
       `technical question related to rest api in python`,
       `technical question related to python`
