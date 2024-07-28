@@ -1,5 +1,5 @@
 import { callDeepseekViaMessages, DEEP_SEEK_V2_CHAT } from "../../llms/deepkseek";
-import { getRuleMap, STAGE_NEW, STAGE_TECH_QUES } from "./rule_map";
+import { getRuleMap, STAGE_COMPLETED, STAGE_NEW, STAGE_TECH_QUES } from "./rule_map";
 import { parseStringPromise } from "xml2js";
 import { ConversationMessage, Interview } from "./types";
 import { convertConversationToText } from "./helper";
@@ -18,7 +18,7 @@ export const generateConversationReply = async (
   reason: string;
   output: string;
 }> => {
-  const stage = conversationObj.interview?.stage || STAGE_NEW;
+  let stage = conversationObj.interview?.stage || STAGE_NEW;
   const actions_taken = conversationObj.interview?.actions_taken || [];
   const context = get_context(conversationObj);
 
@@ -27,7 +27,8 @@ export const generateConversationReply = async (
   console.log("got candidate stage", stage);
   if (!RULE_MAP[stage]) {
     console.log("got candidate stage", stage, RULE_MAP);
-    throw new Error("stage not found");
+    // throw new Error("stage not found");
+    stage = STAGE_COMPLETED
   }
 
   let priority_rules = ``;
