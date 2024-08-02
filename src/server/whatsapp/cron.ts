@@ -35,7 +35,7 @@ import { createRequire } from "module";
 import { send_whatsapp_text_reply } from "../../integrations/plivo";
 import { conduct_interview, getInterviewObject } from "./interview";
 import { converToMp3 } from "../../integrations/mp3";
-import { queue, schedule_message_to_be_processed } from ".";
+import { CLOSE_BOT, queue, schedule_message_to_be_processed } from ".";
 import { transcribe_file_deepgram } from "../../integrations/deepgram";
 import { transribe_file_assembly_ai } from "../../integrations/assembly";
 import { rate_interview } from "../../agent/prompts/rate_interview";
@@ -319,8 +319,10 @@ export const start_cron = async () => {
   // check_slack_thread_for_manual_msgs();
   await get_pending_hr_screening_candidates();
 
-  await remind_candidates(false); //send remainder to candidate who's conversation is not completed.. if last message was sent by agent, dont send remainder
-  await remind_candidates(true); //send remainder to candidate who's conversation is not completed
+  if (!CLOSE_BOT) {
+    await remind_candidates(false); //send remainder to candidate who's conversation is not completed.. if last message was sent by agent, dont send remainder
+    await remind_candidates(true); //send remainder to candidate who's conversation is not completed
+  }
 
   setInterval(async () => {
     //send remainders to candidate on same day
@@ -333,8 +335,10 @@ export const start_cron = async () => {
   setInterval(() => {
     (async () => {
       await get_pending_hr_screening_candidates(); // candidate who's shortlisted i.e do_human_call but interview didn't start
-      await remind_candidates(false); //send remainder to candidate who's conversation is not completed.. if last message was sent by agent, dont send remainder
-      await remind_candidates(true); //send remainder to candidate who's conversation is not completed
+      if (!CLOSE_BOT) {
+        await remind_candidates(false); //send remainder to candidate who's conversation is not completed.. if last message was sent by agent, dont send remainder
+        await remind_candidates(true); //send remainder to candidate who's conversation is not completed
+      }
     })();
   }, 1000 * 60 * 5);
 };
