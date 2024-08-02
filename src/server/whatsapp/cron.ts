@@ -35,10 +35,11 @@ import { createRequire } from "module";
 import { send_whatsapp_text_reply } from "../../integrations/plivo";
 import { conduct_interview, getInterviewObject } from "./interview";
 import { converToMp3 } from "../../integrations/mp3";
-import { CLOSE_BOT, queue, schedule_message_to_be_processed } from ".";
+import { queue, schedule_message_to_be_processed } from ".";
 import { transcribe_file_deepgram } from "../../integrations/deepgram";
 import { transribe_file_assembly_ai } from "../../integrations/assembly";
 import { rate_interview } from "../../agent/prompts/rate_interview";
+import { CLOSE_BOT } from "./config";
 
 export const remind_candidates = async (remainders: boolean) => {
   const candidates = await getPendingNotCompletedCandidates(remainders);

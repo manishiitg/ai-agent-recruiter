@@ -31,6 +31,7 @@ import { conduct_interview, getInterviewObject } from "./interview";
 import { converToMp3 } from "../../integrations/mp3";
 import { transcribe_file_deepgram } from "../../integrations/deepgram";
 import { transribe_file_assembly_ai } from "../../integrations/assembly";
+import { CLOSE_BOT } from "./config";
 var textract = require("textract");
 
 //find whats app creds bsaed on toNumber, for now only a single cred
@@ -42,9 +43,6 @@ export const cred: WhatsAppCreds = {
 };
 
 const ADMIN_PHNO = "919717071555";
-
-const CLOSE_BOT = true;
-
 export const queue: Record<
   string,
   {
