@@ -269,6 +269,10 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
               await postAttachment(resume_file, channel_id || process.env.slack_action_channel_id, ts);
             }
 
+            if (CLOSE_BOT) {
+              return;
+            }
+
             let resume_text: string = "";
             // Extract text from the file
             try {
