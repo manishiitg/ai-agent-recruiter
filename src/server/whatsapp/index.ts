@@ -376,28 +376,28 @@ export const schedule_message_to_be_processed = async (fromNumber: string, toNum
     stage: string;
   };
 
-  const candidateObj = await getCandidate(fromNumber, toNumber);
-
-  if (candidateObj.conversation?.conversation_completed_reason?.includes("do_call_via_human")) {
-    agentReply = await conduct_interview(
-      fromNumber,
-      sortedConversation
-        .filter((row) => row.conversationType == CONVERSION_TYPE_INTERVIEW)
-        .map((conv) => {
-          return {
-            name: conv.userType,
-            content: conv.content,
-            date: conv.created_at,
-          };
-        }),
-      cred
-    );
+  if (CLOSE_BOT) {
+    const text = `Currently we are getting lot of candidates and cannot process anymore! Just send your resume, we will try to process 2-3 days again!`;
+    await save_whatsapp_conversation("agent", fromNumber, toNumber, "text", text, "", "");
+    await send_whatsapp_text_reply(text, fromNumber, toNumber);
+    return;
   } else {
-    if (CLOSE_BOT) {
-      const text = `Currently we are getting lot of candidates and cannot process anymore! Just send your resume, we will try to process 2-3 days again!`;
-      await save_whatsapp_conversation("agent", fromNumber, toNumber, "text", text, "", "");
-      await send_whatsapp_text_reply(text, fromNumber, toNumber);
-      return;
+    const candidateObj = await getCandidate(fromNumber, toNumber);
+
+    if (candidateObj.conversation?.conversation_completed_reason?.includes("do_call_via_human")) {
+      agentReply = await conduct_interview(
+        fromNumber,
+        sortedConversation
+          .filter((row) => row.conversationType == CONVERSION_TYPE_INTERVIEW)
+          .map((conv) => {
+            return {
+              name: conv.userType,
+              content: conv.content,
+              date: conv.created_at,
+            };
+          }),
+        cred
+      );
     } else {
       agentReply = await process_whatsapp_conversation(
         fromNumber,
@@ -427,56 +427,56 @@ export const schedule_message_to_be_processed = async (fromNumber: string, toNum
         }
       );
     }
-  }
 
-  if (agentReply && agentReply.message) {
-    if (agentReply.action.includes("no_action")) {
-      const { slack_thread_id, channel_id } = await get_whatspp_conversations(fromNumber);
-      if (slack_thread_id) {
-        await postMessageToThread(
-          slack_thread_id,
-          `HR: ${agentReply.message}. Action: ${agentReply.action} Stage: ${agentReply.stage} ${scheduled_from} ${formatTime(convertToIST(new Date()))}`,
-          channel_id || process.env.slack_action_channel_id
-        );
+    if (agentReply && agentReply.message) {
+      if (agentReply.action.includes("no_action")) {
+        const { slack_thread_id, channel_id } = await get_whatspp_conversations(fromNumber);
+        if (slack_thread_id) {
+          await postMessageToThread(
+            slack_thread_id,
+            `HR: ${agentReply.message}. Action: ${agentReply.action} Stage: ${agentReply.stage} ${scheduled_from} ${formatTime(convertToIST(new Date()))}`,
+            channel_id || process.env.slack_action_channel_id
+          );
+        } else {
+          const ts = await postMessage(`HR: ${agentReply.message}. Action: ${agentReply.action} Stage: ${agentReply.stage}`, channel_id || process.env.slack_action_channel_id);
+          await update_slack_thread_id_for_conversion(fromNumber, ts, channel_id || process.env.slack_action_channel_id);
+        }
       } else {
-        const ts = await postMessage(`HR: ${agentReply.message}. Action: ${agentReply.action} Stage: ${agentReply.stage}`, channel_id || process.env.slack_action_channel_id);
-        await update_slack_thread_id_for_conversion(fromNumber, ts, channel_id || process.env.slack_action_channel_id);
+        // let should_reply = true;
+        // if (queue[fromNumber] && queue[fromNumber].canDelete === false) {
+        //   should_reply = false;
+        // }
+        // if (should_reply) {
+        //if not can delete, means there is another process in queue which will run and reply to user
+
+        const response = await send_whatsapp_text_reply(agentReply.message, fromNumber, toNumber);
+        const messageUuid = response.messageUuid;
+        console.log(fromNumber, "got messageUuid", messageUuid);
+        await save_whatsapp_conversation("agent", fromNumber, toNumber, "text", agentReply.message, "", "");
+        await add_whatsapp_message_sent_delivery_report(fromNumber, agentReply.message, "text", messageUuid);
+
+        const { slack_thread_id, channel_id } = await get_whatspp_conversations(fromNumber);
+        if (slack_thread_id) {
+          await postMessageToThread(
+            slack_thread_id,
+            `HR: ${agentReply.message}. Action: ${agentReply.action} Stage: ${agentReply.stage} ${scheduled_from} ${formatTime(convertToIST(new Date()))}`,
+            channel_id || process.env.slack_action_channel_id
+          );
+        } else {
+          const ts = await postMessage(`HR: ${agentReply.message}. Action: ${agentReply.action} Stage: ${agentReply.stage}`, channel_id || process.env.slack_action_channel_id);
+          await update_slack_thread_id_for_conversion(fromNumber, ts, channel_id || process.env.slack_action_channel_id);
+        }
+      }
+      // }
+      // got_shortlisted.do_call_via_human
+      if (agentReply.action == "do_call_via_human") {
+        setTimeout(() => {
+          schedule_message_to_be_processed(fromNumber, toNumber, "human-interview-start");
+        }, (fromNumber === ADMIN_PHNO ? 5 : DEBOUNCE_TIMEOUT) * 1000);
       }
     } else {
-      // let should_reply = true;
-      // if (queue[fromNumber] && queue[fromNumber].canDelete === false) {
-      //   should_reply = false;
-      // }
-      // if (should_reply) {
-      //if not can delete, means there is another process in queue which will run and reply to user
-
-      const response = await send_whatsapp_text_reply(agentReply.message, fromNumber, toNumber);
-      const messageUuid = response.messageUuid;
-      console.log(fromNumber, "got messageUuid", messageUuid);
-      await save_whatsapp_conversation("agent", fromNumber, toNumber, "text", agentReply.message, "", "");
-      await add_whatsapp_message_sent_delivery_report(fromNumber, agentReply.message, "text", messageUuid);
-
-      const { slack_thread_id, channel_id } = await get_whatspp_conversations(fromNumber);
-      if (slack_thread_id) {
-        await postMessageToThread(
-          slack_thread_id,
-          `HR: ${agentReply.message}. Action: ${agentReply.action} Stage: ${agentReply.stage} ${scheduled_from} ${formatTime(convertToIST(new Date()))}`,
-          channel_id || process.env.slack_action_channel_id
-        );
-      } else {
-        const ts = await postMessage(`HR: ${agentReply.message}. Action: ${agentReply.action} Stage: ${agentReply.stage}`, channel_id || process.env.slack_action_channel_id);
-        await update_slack_thread_id_for_conversion(fromNumber, ts, channel_id || process.env.slack_action_channel_id);
-      }
+      console.log(fromNumber, "debug!");
     }
-    // }
-    // got_shortlisted.do_call_via_human
-    if (agentReply.action == "do_call_via_human") {
-      setTimeout(() => {
-        schedule_message_to_be_processed(fromNumber, toNumber, "human-interview-start");
-      }, (fromNumber === ADMIN_PHNO ? 5 : DEBOUNCE_TIMEOUT) * 1000);
-    }
-  } else {
-    console.log(fromNumber, "debug!");
   }
   if (queue[fromNumber] && queue[fromNumber].canDelete) {
     console.log(`${fromNumber} delete queue`);
