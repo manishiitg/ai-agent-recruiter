@@ -380,6 +380,10 @@ export const schedule_message_to_be_processed = async (fromNumber: string, toNum
     const text = `Currently we are getting lot of candidates and cannot process anymore! Just send your resume, we will try to process 2-3 days again!`;
     await save_whatsapp_conversation("agent", fromNumber, toNumber, "text", text, "", "");
     await send_whatsapp_text_reply(text, fromNumber, toNumber);
+    const { slack_thread_id, channel_id } = await get_whatspp_conversations(fromNumber);
+    if (slack_thread_id) {
+      await postMessageToThread(slack_thread_id, `HR: ${text}.`, channel_id || process.env.slack_action_channel_id);
+    }
     return;
   } else {
     const candidateObj = await getCandidate(fromNumber, toNumber);
