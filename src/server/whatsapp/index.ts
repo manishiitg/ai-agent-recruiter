@@ -66,6 +66,12 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
   //ACK
   res.sendStatus(200);
 
+  if (CLOSE_BOT) {
+    const text = `Currently we are getting lot of candidates and cannot process anymore! Just send your resume, we will try to process 2-3 days again!`;
+    await save_whatsapp_conversation("candidate", fromNumber, toNumber, ContentType, text, MessageUUID, req.body);
+    return;
+  }
+
   if (!(await check_whatsapp_convsation_exists(MessageUUID))) {
     console.log("ContentType", ContentType);
 
