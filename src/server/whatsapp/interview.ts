@@ -395,6 +395,8 @@ const callViaHuman = async (phoneNo: string, interview: Interview) => {
               const avg_rating = total_rating / total_questions;
               interview.interview.avg_rating = avg_rating;
               await saveCandidateInterviewToDB(interview);
+
+              
             }
           }
         }

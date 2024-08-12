@@ -31,7 +31,7 @@ import { conduct_interview, getInterviewObject } from "./interview";
 import { converToMp3 } from "../../integrations/mp3";
 import { transcribe_file_deepgram } from "../../integrations/deepgram";
 import { transribe_file_assembly_ai } from "../../integrations/assembly";
-import { CLOSE_BOT } from "./config";
+import { CLOSE_BOT, CLOSE_INTERVIEW } from "./config";
 var textract = require("textract");
 
 //find whats app creds bsaed on toNumber, for now only a single cred
@@ -388,7 +388,7 @@ export const schedule_message_to_be_processed = async (fromNumber: string, toNum
   } else {
     const candidateObj = await getCandidate(fromNumber, toNumber);
 
-    if (candidateObj.conversation?.conversation_completed_reason?.includes("do_call_via_human")) {
+    if (candidateObj.conversation?.conversation_completed_reason?.includes("do_call_via_human") && CLOSE_INTERVIEW) {
       agentReply = await conduct_interview(
         fromNumber,
         sortedConversation

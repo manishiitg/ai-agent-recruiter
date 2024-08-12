@@ -15,7 +15,8 @@ export const STAGE_RULE_MAP: Record<
   new: {
     greeting: {
       rule: "If conversation is just a greeting, like Hello, How are you, etc and nothing else.",
-      response: `introduce yourself and ask his resume for job application. mention that this is an AI based screening process to quickly shortlist your application.`,
+      // response: `introduce yourself and ask his resume for job application. mention that this is an AI based screening process to quickly shortlist your application.`,
+      response: `introduce yourself and ask candidate his resume, expected CTC, current location. job profile he is looking for`,
     },
     tell_job_profiles: {
       rule: "If candidate is asking about open job profiles",
@@ -144,14 +145,14 @@ export const STAGE_RULE_MAP: Record<
     },
   },
   got_shortlisted: {
-    schedule_call: {
-      rule: "if candidate has not provided his phone number",
-      response: "ask candidate for phone number and available time",
-    },
-    schedule_call_availablity: {
-      rule: "if candidate has not provided his availablity but has provided his phone number",
-      response: "ask candidate for phone number and available time",
-    },
+    // schedule_call: {
+    //   rule: "if candidate has not provided his phone number",
+    //   response: "ask candidate for phone number and available time",
+    // },
+    // schedule_call_availablity: {
+    //   rule: "if candidate has not provided his availablity but has provided his phone number",
+    //   response: "ask candidate for phone number and available time",
+    // },
     do_call_via_human: {
       rule: "if candidate has provided his phone number and also provided his availability",
       response: `mention that you are shortlisted and we will start next round soon.

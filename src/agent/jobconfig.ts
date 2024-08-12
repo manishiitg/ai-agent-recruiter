@@ -100,8 +100,19 @@ export const linkedJobProfileRules: Record<
     - Candidate should have maximum salary of 50,000 per month or 6LPA per year. If candidates salary is not mentioned, assume he passes this criteria.
     - Candidate should have done multiple experiance/projects/internship related to nodejs. This is an important rule.`,
     resume_rating: `
-    - Candidate should have done multiple projects/internship related to nodejs.
-    - Candidate should have worked on projects using expressjs. `,
+    Rate the following Node.js developer candidate on a scale of 1-10 based on their demonstrated proficiency in the following areas:
+    Keep point no 1 to 7 as most priority, if even one of things mentioned in these points are not mentioned in resume reduce more points.
+    Also try to keep rating as diverse as possible to filter out good node.js developer, there might be 1000s of resume and we want to filter best
+    1. Candidate should have done multiple internships related to Node.js.
+    2. Candidate should have worked on projects using Express.js.
+    3. Core Node.js concepts: event loop, asynchronous programming, modules, and core APIs.
+    4. JavaScript proficiency: ES6+ syntax, data structures, algorithms, and functional programming paradigms.
+    5.Framework/library expertise: Experience with popular Node.js frameworks (Express, NestJS, Koa) and libraries (Mongoose, Sequelize).
+    6. Database interactions: Proficiency in MongoDB, PostgreSQL, or other relevant databases.
+    7. API development: RESTful and GraphQL API design and implementation.
+    8. Testing: Unit, integration, and end-to-end testing methodologies.
+    9. Problem-solving and debugging skills: Ability to identify, analyze, and resolve complex issues.
+    10. Code quality and maintainability: Adherence to best practices, clean code principles, and code readability.`,
     questions_to_ask: [
       // `candidate introduction about yourself and your projects`,
       // `technical question related to expressjs and rest apis`,
@@ -125,15 +136,18 @@ export const linkedJobProfileRules: Record<
     - Candidate should have maximum salary of 50,000 per month or 6LPA per year. If candidates salary is not mentioned, assume he passes this criteria.
     - Candidate should have done multiple work/projects/internship related python. This is an important rule`,
     resume_rating: `
-    - Candidate should have done multiple projects/internship related to python
-    - Candidate should have done multiple projects/internship related mongodb or mysql database
-    - If candidate has worked on projects related to machine learning, this should reduce resume rating.
-    - Candidate should ideally have worked in web development or api development and not pure ML projects.
-    - experiance with technologies like aws, docker, google cloud are a plus point
-    - simple html/css projects should be considered negative point
-    - If Candidate has not worked on flask or django the resume should get lower rating
-    - If candidate has worked on reactjs it should get higher rating
-    - If candidate had not done any internship ratings should get lower`,
+      Certainly! Here's a similar rating criteria for a Python developer candidate on a scale of 1-10, keeping points 1 to 7 as the highest priority:
+      Candidate should have completed multiple internships related to Python development.
+      Candidate should have worked on projects using web frameworks like Django or Flask.
+      Core Python concepts: understanding of Python's execution model, data structures, and object-oriented programming.
+      Python proficiency: Python 3.x syntax, list comprehensions, generators, decorators, and functional programming paradigms.
+      Framework/library expertise: Experience with popular Python frameworks (Django, Flask, FastAPI) and libraries (NumPy, Pandas, Requests).
+      Database interactions: Proficiency in SQL databases (PostgreSQL, MySQL) and ORM tools (SQLAlchemy, Django ORM).
+      API development: RESTful API design and implementation, familiarity with API frameworks like Django REST framework.
+      Testing: Unit testing with pytest or unittest, integration testing, and test-driven development (TDD) practices.
+      Problem-solving and algorithmic skills: Ability to solve complex problems and implement efficient algorithms.
+      Code quality and maintainability: Adherence to PEP 8 style guide, clean code principles, and code readability.
+      When evaluating candidates, prioritize points 1-7. If a candidate lacks experience in any of these areas, reduce their score more significantly. Aim to create diverse ratings to effectively filter out the best Python developers from potentially thousands of resumes.`,
     questions_to_ask: [
       // `candidate introduction about yourself and your projects`,
       `technical question related to python`,

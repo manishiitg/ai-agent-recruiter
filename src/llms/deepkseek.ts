@@ -34,6 +34,8 @@ interface ChatCompletion {
     prompt_tokens: number;
     completion_tokens: number;
     total_tokens: number;
+    prompt_cache_hit_tokens: number;
+    prompt_cache_miss_tokens: number;
   };
 }
 
@@ -126,6 +128,7 @@ export async function callDeepseekViaMessages(
     },
     version: model,
   });
+  console.log("typedData.usage", typedData.usage);
   console.log("deepseek system costs", (typedData.usage.prompt_tokens * 0.14) / 1000000 + (typedData.usage.completion_tokens * 0.28) / 1000000);
   return responseText;
 }
@@ -158,7 +161,7 @@ export async function callDeepkSeek(prompt: string, user: string, temperature = 
     input: messages,
   });
 
-  console.log("messages", messages);
+  // console.log("messages", messages);
 
   let data = JSON.stringify({
     messages: messages,
@@ -217,6 +220,8 @@ export async function callDeepkSeek(prompt: string, user: string, temperature = 
     },
     version: model,
   });
+
+  console.log("typedData.usage", typedData.usage);
   console.log("deepseek costs", (typedData.usage.prompt_tokens * 0.14) / 1000000 + (typedData.usage.completion_tokens * 0.28) / 1000000);
   return responseText;
 }

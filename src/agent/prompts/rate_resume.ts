@@ -5,14 +5,14 @@ import { callDeepkSeek, DEEP_SEEK_V2_CODER } from "../../llms/deepkseek";
 
 export const rate_resume = async (profileID: string, conversationObj: Conversation) => {
   const classified_job_profile = conversationObj.info?.suitable_job_profile;
-  let job_description = "";
+  let resume_rating = "";
 
   console.log("candidate shortling existing", classified_job_profile);
   if (classified_job_profile) {
     for (const k in linkedJobProfileRules) {
       if (linkedJobProfileRules[k].is_open)
         if (classified_job_profile.includes(k) || k == classified_job_profile) {
-          job_description = linkedJobProfileRules[k].resume_rating;
+          resume_rating = linkedJobProfileRules[k].resume_rating;
           break;
         }
     }
@@ -30,7 +30,7 @@ export const rate_resume = async (profileID: string, conversationObj: Conversati
   ${classified_job_profile}
   </JOB_TITLE>
   <JOB_CRITERIA>
-  ${job_description}
+  ${resume_rating}
   </JOB_CRITERIA>
   
   Please read through the resume and job criteria carefully. Once you have reviewed them, I would like you to evaluate the resume on the following criteria:
