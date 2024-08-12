@@ -2,7 +2,7 @@ export const near_location = "Delhi, Noida, Ghaziabad, Meerut, Himachal, Nanital
 const exclude_location_rule = "Pune, Hyderabad, Kerela, Bangalore, Gwalior, Mumbai, Kolkata, Madras, Odisha, Indore, Pondicherry, West Bengal, Tamil Nadu, Andra Pradesh, Chennai";
 // const exclude_location_rule = "Odisha";
 
-export const NUMBER_OF_INTERVIEW_QUESTIONS = 3
+export const NUMBER_OF_INTERVIEW_QUESTIONS = 3;
 
 export const companyInfo = `
 Company Name: Excellence Technosoft Pvt Ltd
@@ -97,8 +97,8 @@ export const linkedJobProfileRules: Record<
     // Rule 3. Candidate should have done multiple experiance/projects/internship related to nodejs. This is an important rule.`,
     full_criteria: `
     - Candidate should not belong to locations ${exclude_location_rule}
-    - Candidate should have maximum salary of 50,000 per month or 6LPA per year. If candidates salary is not mentioned, assume he passes this criteria.
-    - Candidate should have done multiple experiance/projects/internship related to nodejs. This is an important rule.`,
+    - Candidate should have maximum salary of 40,000 per month or 6LPA per year. If candidates salary is not mentioned, assume he passes this criteria.
+    `,
     resume_rating: `
     Rate the following Node.js developer candidate on a scale of 1-10 based on their demonstrated proficiency in the following areas:
     Keep point no 1 to 7 as most priority, if even one of things mentioned in these points are not mentioned in resume reduce more points.
@@ -121,7 +121,7 @@ export const linkedJobProfileRules: Record<
       `technical question related to nodejs`,
       // `technical question related to nodejs`,
       `technical question related to nodejs and database`,
-      `technical question related to nodejs and database`
+      `technical question related to nodejs and database`,
     ],
   },
   "Jr Python Developer": {
@@ -133,8 +133,8 @@ export const linkedJobProfileRules: Record<
     // Rule 4. Candidate should have done multiple work/projects/internship related python and flask/django. This is an important rule.`,
     full_criteria: `
     - Candidate should not belong to locations ${exclude_location_rule}
-    - Candidate should have maximum salary of 50,000 per month or 6LPA per year. If candidates salary is not mentioned, assume he passes this criteria.
-    - Candidate should have done multiple work/projects/internship related python. This is an important rule`,
+    - Candidate should have maximum salary of 40,000 per month or 6LPA per year. If candidates salary is not mentioned, assume he passes this criteria.
+    `,
     resume_rating: `
       Certainly! Here's a similar rating criteria for a Python developer candidate on a scale of 1-10, keeping points 1 to 7 as the highest priority:
       Candidate should have completed multiple internships related to Python development.
@@ -156,7 +156,7 @@ export const linkedJobProfileRules: Record<
       `technical question related to flask`,
       `technical question related to python`,
       `technical question related to rest api in python`,
-      `technical question related to python`
+      `technical question related to python`,
     ],
   },
   "Python Internship (Cuvette)": {
