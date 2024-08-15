@@ -1,2 +1,2 @@
-export const CLOSE_BOT = true;
-export const CLOSE_INTERVIEW = false
+export const CLOSE_BOT = false;
+export const CLOSE_INTERVIEW = true
