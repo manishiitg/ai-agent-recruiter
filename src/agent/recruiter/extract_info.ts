@@ -110,7 +110,6 @@ export const extractInfo = async (profileID: string, me: string, conversation: s
   Reply in xml format below:
 
   <RESPONSE>
-    <REASON_FOR_SELECTING_JOB_PROFILE>reason for selecting job profile and are we hiring for this job profile</REASON_FOR_SELECTING_JOB_PROFILE>
     <SUITABLE_JOB_PROFILE>select a single job profile most suitable based on resume from open job profiles</SUITABLE_JOB_PROFILE>
     <HIRING_FOR_JOB_PROFILE>are we hiring for the job profile yes or no</HIRING_FOR_JOB_PROFILE>
     <CURRENT_CTC>current ctc if any</CURRENT_CTC>
@@ -124,6 +123,7 @@ export const extractInfo = async (profileID: string, me: string, conversation: s
   </RESPONSE>
   `;
 
+  // <REASON_FOR_SELECTING_JOB_PROFILE>reason for selecting job profile and are we hiring for this job profile</REASON_FOR_SELECTING_JOB_PROFILE>
   const llm_output = await callDeepkSeek(prompt, profileID, 0, DEEP_SEEK_V2_CODER, { type: "extractinfo" }, async (llm_output: string): Promise<Record<string, string>> => {
     const jObj = await parseStringPromise(llm_output, {
       explicitArray: false,
