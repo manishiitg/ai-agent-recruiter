@@ -184,7 +184,7 @@ export const generateConversationReply = async (
 
 <RESPONSE>
   <scratchpad>
-  Your step by step reasoning for selecting a rule
+  Your breif step by step reasoning for selecting a rule
   </scratchpad>
   <FINAL_REASON>
   Detailed reason for selecting the rule
