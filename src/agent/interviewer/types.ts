@@ -24,7 +24,7 @@ export interface Interview {
     actions_taken: string[];
     resume?: {
       created_at?: Date;
-      SUMMARY?: string;
+      // SUMMARY?: string;
       full_resume_text: string;
     };
     tech_questions?: {

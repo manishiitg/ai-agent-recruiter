@@ -203,9 +203,8 @@ Remember to check all rules before selecting the final one, and ensure that your
     role: "user" | "assistant";
   }[] = [];
 
-
   // <scratchpad>
-  // Provide step-by-step analysis of every rule, including rule names in format 
+  // Provide step-by-step analysis of every rule, including rule names in format
   // <action_name></action_name> <rule_condition></rule_condition><analysis>reason if/why action sould be executed</analysis>
   // </scratchpad>
 
@@ -264,7 +263,7 @@ export const get_context = (conversationObj: Conversation) => {
   let context = "";
   if (conversationObj.resume && conversationObj.resume.full_resume_text && conversationObj.resume.full_resume_text.length) {
     context += `<candidate_resume>
-      ${conversationObj.resume.SUMMARY || conversationObj.resume.full_resume_text}
+      ${conversationObj.resume.full_resume_text}
     </candidate_resume>\n`;
     // context += `<candidate_resume>
     //   <work_experiance>${conversationObj.resume.WORK_EXP}</work_experiance>

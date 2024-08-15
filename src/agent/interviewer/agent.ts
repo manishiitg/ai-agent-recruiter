@@ -212,7 +212,7 @@ export const get_context = (conversationObj: Interview) => {
   let context = "";
   if (conversationObj.interview && conversationObj.interview.resume?.full_resume_text && conversationObj.interview.resume.full_resume_text.length) {
     context += `<candidate_resume>
-      ${conversationObj.interview.resume.SUMMARY || conversationObj.interview.resume.full_resume_text}
+      ${conversationObj.interview.resume.full_resume_text}
     </candidate_resume>\n`;
   }
   if (suitable_job_profile.length > 0) {

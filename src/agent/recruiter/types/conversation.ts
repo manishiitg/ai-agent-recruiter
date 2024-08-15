@@ -13,7 +13,7 @@ export interface Conversation {
   actions_taken: string[];
   resume?: {
     created_at?: Date;
-    SUMMARY?: string;
+    // SUMMARY?: string;
     // CONTACT_INFO?: string;
     // WORK_EXP?: string;
     // PROJECTS?: string;

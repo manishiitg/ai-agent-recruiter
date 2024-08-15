@@ -37,7 +37,7 @@ export const getInterviewObject = async (phoneNo: string) => {
         resume: {
           full_resume_text: candidate.conversation?.resume?.full_resume_text || "",
           created_at: new Date(),
-          SUMMARY: candidate.conversation?.resume?.SUMMARY || "",
+          // SUMMARY: candidate.conversation?.resume?.SUMMARY || "",
         },
         info: candidate.conversation?.info,
         shortlisted: candidate.conversation?.shortlisted,
@@ -395,8 +395,6 @@ const callViaHuman = async (phoneNo: string, interview: Interview) => {
               const avg_rating = total_rating / total_questions;
               interview.interview.avg_rating = avg_rating;
               await saveCandidateInterviewToDB(interview);
-
-              
             }
           }
         }

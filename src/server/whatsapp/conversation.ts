@@ -107,12 +107,14 @@ export const process_whatsapp_conversation = async (
     throw new Error("candidate conversion not found!");
   }
 
-  if (candidate.conversation.resume?.full_resume_text && (!candidate.conversation.resume.SUMMARY || candidate.conversation.resume.SUMMARY.length === 0)) {
+  if (candidate.conversation.resume?.full_resume_text) {
+    // && (!candidate.conversation.resume.SUMMARY || candidate.conversation.resume.SUMMARY.length === 0)
+
     callback("Please wait while i go through your resume");
-    const summaryResponse = await summariseResume(candidate.conversation.resume?.full_resume_text, phoneNo);
+    // const summaryResponse = await summariseResume(candidate.conversation.resume?.full_resume_text, phoneNo);
     candidate.conversation.resume = {
       created_at: new Date(),
-      SUMMARY: summaryResponse.SUMMARY,
+      // SUMMARY: summaryResponse.SUMMARY,
       full_resume_text: candidate.conversation.resume?.full_resume_text,
     };
     await saveCandidateDetailsToDB(candidate);
