@@ -30,10 +30,10 @@ export const STAGE_RULE_MAP: Record<
         false: "ask his resume and current location",
       },
     },
-    ask_resume_messages: {
-      rule: "If candidate is asking for email to send resume",
-      response: "ask candidate to reply here on conversion",
-    },
+    // ask_resume_messages: {
+    //   rule: "If candidate is asking for email to send resume",
+    //   response: "ask candidate to reply here on conversion",
+    // },
     tell_no_recommend_job: {
       rule: "If candidate has mentioned interest in a job profile in his conversation and if it is not similar to our open job profiles",
       response: "Tell we don't have an open job profile matching his interest",
