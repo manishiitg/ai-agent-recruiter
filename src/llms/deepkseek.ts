@@ -51,6 +51,7 @@ export async function callDeepseekViaMessages(
   meta = {},
   cb: (output: string) => Promise<Record<string, string>>
 ): Promise<string> {
+  const ttl = new Date().getTime();
   const trace = langfuse.trace({
     name: user,
     sessionId: sessionID,
@@ -104,7 +105,7 @@ export async function callDeepseekViaMessages(
   responseText = responseText.replace("```", "");
   responseText = responseText.replace("xml", "");
   responseText = responseText.trim();
-  // console.log("deepakseek system response");
+  console.log("deepakseek system response", (new Date().getTime() - ttl) / 1000);
   // console.log(responseText);
 
   let metadata: Record<string, string> = {};
@@ -134,6 +135,7 @@ export async function callDeepseekViaMessages(
 }
 
 export async function callDeepkSeek(prompt: string, user: string, temperature = 0, model = DEEP_SEEK_V2_CODER, meta = {}, cb: (output: string) => Promise<Record<string, string>>) {
+  const ttl = new Date().getTime();
   prompt = prompt.replace(/[^\x00-\x7F]/g, "");
   const trace = langfuse.trace({
     name: user,
@@ -196,7 +198,7 @@ export async function callDeepkSeek(prompt: string, user: string, temperature = 
   responseText = responseText.replace("```", "");
   responseText = responseText.replace("xml", "");
   responseText = responseText.trim();
-  console.log("deepakseek response");
+  console.log("deepakseek response time taken", (new Date().getTime() - ttl) / 1000);
   console.log(responseText);
 
   let metadata: Record<string, string> = {};
