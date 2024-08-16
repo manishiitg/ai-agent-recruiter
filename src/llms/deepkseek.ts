@@ -106,7 +106,7 @@ export async function callDeepseekMessages(
   responseText = responseText.replace("xml", "");
   responseText = responseText.trim();
   console.log("deepakseek system response", (new Date().getTime() - ttl) / 1000);
-  // console.log(responseText);
+  console.log(responseText);
 
   let metadata: Record<string, string> = {};
   if (cb) {
