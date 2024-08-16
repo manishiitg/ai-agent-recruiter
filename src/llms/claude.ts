@@ -81,13 +81,20 @@ export async function callClaudeViaMessages(
 
   let input_cost = model === CLAUDE_HAIKU ? 0.25 : 3;
   let output_cost = model === CLAUDE_HAIKU ? 1.25 : 15;
+  let caching_write_cost = model === CLAUDE_HAIKU ? 0.3 : 3.75;
+  let caching_read_costs = model === CLAUDE_HAIKU ? 0.3 : 0.3;
 
   generation.end({
     output: responseData,
     usage: {
-      inputCost: response.usage.input_tokens * input_cost,
+      inputCost:
+        response.usage.input_tokens * input_cost + (response.usage.cache_creation_input_tokens || 0) * caching_read_costs + (response.usage.cache_creation_input_tokens || 0) * caching_write_cost,
       outputCost: response.usage.output_tokens * output_cost,
-      totalCost: response.usage.input_tokens * input_cost + response.usage.output_tokens * output_cost,
+      totalCost:
+        response.usage.input_tokens * input_cost +
+        response.usage.output_tokens * output_cost +
+        (response.usage.cache_creation_input_tokens || 0) * caching_read_costs +
+        (response.usage.cache_creation_input_tokens || 0) * caching_write_cost,
       promptTokens: response.usage.input_tokens,
       completionTokens: response.usage.output_tokens,
     },
@@ -95,7 +102,12 @@ export async function callClaudeViaMessages(
   });
 
   console.log("typedData.usage", response.usage);
-  console.log(`claude ${model} system costs`, (response.usage.input_tokens * input_cost) / 1000000 + (response.usage.output_tokens * output_cost) / 1000000);
+  console.log(
+    `claude ${model} system costs`,
+    (response.usage.input_tokens * input_cost + (response.usage.cache_creation_input_tokens || 0) * caching_read_costs + (response.usage.cache_creation_input_tokens || 0) * caching_write_cost) /
+      1000000 +
+      (response.usage.output_tokens * output_cost) / 1000000
+  );
   return responseText;
 }
 
@@ -128,7 +140,7 @@ export async function callClaudeLLM(prompt: string, user: string, temperature = 
     input: messages,
   });
 
-  const response = await anthropic.messages.create({
+  const response = await anthropic.beta.promptCaching.messages.create({
     max_tokens: 4096,
     temperature: 0,
     messages: messages,
@@ -154,11 +166,14 @@ export async function callClaudeLLM(prompt: string, user: string, temperature = 
 
   let input_cost = model === CLAUDE_HAIKU ? 0.25 : 3;
   let output_cost = model === CLAUDE_HAIKU ? 1.25 : 15;
+  let caching_write_cost = model === CLAUDE_HAIKU ? 0.3 : 3.75;
+  let caching_read_costs = model === CLAUDE_HAIKU ? 0.3 : 0.3;
 
   generation.end({
     output: responseData,
     usage: {
-      inputCost: response.usage.input_tokens * input_cost,
+      inputCost:
+        response.usage.input_tokens * input_cost + (response.usage.cache_creation_input_tokens || 0) * caching_read_costs + (response.usage.cache_creation_input_tokens || 0) * caching_write_cost,
       outputCost: response.usage.output_tokens * output_cost,
       totalCost: response.usage.input_tokens * input_cost + response.usage.output_tokens * output_cost,
       promptTokens: response.usage.input_tokens,
@@ -168,6 +183,11 @@ export async function callClaudeLLM(prompt: string, user: string, temperature = 
   });
 
   console.log("typedData.usage", response.usage);
-  console.log(`claude ${model} costs`, (response.usage.input_tokens * input_cost) / 1000000 + (response.usage.output_tokens * output_cost) / 1000000);
+  console.log(
+    `claude ${model} costs`,
+    (response.usage.input_tokens * input_cost + (response.usage.cache_creation_input_tokens || 0) * caching_read_costs + (response.usage.cache_creation_input_tokens || 0) * caching_write_cost) /
+      1000000 +
+      (response.usage.output_tokens * output_cost) / 1000000
+  );
   return responseText;
 }
