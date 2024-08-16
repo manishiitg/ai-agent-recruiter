@@ -104,7 +104,7 @@ export const linkedJobProfileRules: Record<
     Keep point no 1 to 7 as most priority, if even one of things mentioned in these points are not mentioned in resume reduce more points.
     Also try to keep rating as diverse as possible to filter out good node.js developer, there might be 1000s of resume and we want to filter best
     1. Candidate should have done multiple internships related to Node.js.
-    2. Candidate should have worked on projects using Express.js.
+    2. Candidate should have worked on internships using Express.js.
     3. Core Node.js concepts: event loop, asynchronous programming, modules, and core APIs.
     4. JavaScript proficiency: ES6+ syntax, data structures, algorithms, and functional programming paradigms.
     5.Framework/library expertise: Experience with popular Node.js frameworks (Express, NestJS, Koa) and libraries (Mongoose, Sequelize).
