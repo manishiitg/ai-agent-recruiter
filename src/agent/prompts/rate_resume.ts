@@ -27,9 +27,6 @@ export const rate_resume = async (profileID: string, conversationObj: Conversati
   </CANDIDATE_RESUME>
 
   And here is the job description to evaluate the resume against:
-  <JOB_TITLE>
-  ${classified_job_profile}
-  </JOB_TITLE>
   <JOB_CRITERIA>
   ${resume_rating}
   </JOB_CRITERIA>
@@ -37,24 +34,34 @@ export const rate_resume = async (profileID: string, conversationObj: Conversati
   Please read through the resume and job criteria carefully. Once you have reviewed them, I would like you to evaluate the resume on the following criteria:
   - Difficulty, complexity and impact of internships/ work experiance / training the applicant has completed that are relevant to the role. Give high rating only if worked on complex .
 
-  Give a rating of more than 5 only if candidate has worked on complex internships/ work experiance / training and has worked on multiple complex  / internships/ work experiance / training related to job criteria.
-
-  For each of the internships/ work experiance / training, please write a analysis inside <INTERNSHIP_WORK_TRAINING_ANALYSIS> tags that examines how technically difficult is the project. Cite specific examples from the resume and job description in your analysis. Do not assume difficulty level based on the title of the project as candidates lie a lot on resume. Actually check the project description mentioned by candidates in their resule and if they have used multiple tech stacks or written some complex problems they have solved in the project.  Complex project should involved multiple technologies or complex problems they have solved and should be mentioned in resume. In your analysis reference lines from candidate to justify difficulty level on project and don't know make up difficulty level yourself. Rating of more than 5 should be given only if candidate has used multiple technologies in a project.
-
+  For each of the internships/ work experiance / training, please write a analysis inside <INTERNSHIP_WORK_TRAINING_ANALYSIS> tags. 
+  Cite specific examples from the resume and job description in your analysis. 
+  
   For each of these criteria, please write a analysis inside <analysis> tags that examines how complex / difficult is the project. Cite specific examples from the resume and job description in your analysis.
 
-  After you have completed your analysis of the three criteria, please provide an overall score from 1 to 10 indicating how good of a fit the applicant is for this specific role based on their resume. In this scoring system, a 1 means the applicant is a very poor fit, and a 5 means the applicant is an excellent fit. Provide your overall score inside <RATING> tags.
+  After you have completed your analysis of the three criteria, please provide an overall score from 1 to 10 indicating how good of a fit the applicant is for this specific role based on their resume. 
+  In this scoring system, a 1 means the applicant is a very poor fit, and a 10 means the applicant is an excellent fit. 
+  Provide your overall score inside <RATING> tags.
 
-  Please be objective in your analysis and base your evaluation only on the contents of the applicant's resume and how it compares to the job description. Do not make inferences or assumptions that are not directly supported by the resume or job description.
+  Please be objective in your analysis and base your evaluation only on the contents of the applicant's resume and how it compares to the job description. 
+  Do not make inferences or assumptions that are not directly supported by the resume or job description.
   Remember to provide your analysis for each criterion inside <ANALYSIS> tags first, and then provide the overall score inside <RATING> tags at the end of your response.
 
 
 Respond only in xml format as below.
   <RESPONSE>
-    <INTERNSHIP_WORK_TRAINING_ANALYSIS>step by step reasoning for project analysis and provide rating for every project done</INTERNSHIP_WORK_TRAINING_ANALYSIS>
+    <INTERNSHIP_WORK_TRAINING_ANALYSIS>step by step reasoning for internship analysis and provide rating for every project done</INTERNSHIP_WORK_TRAINING_ANALYSIS>
     <ANALYSIS>Step-by-step reasoning for rating</ANALYSIS>
     <RATING>final rating</RATING>
   </RESPONSE>`;
+
+  // Give a rating of more than 5 only if candidate has worked on complex internships/ work experiance / training and has worked on multiple complex  / internships/ work experiance / training related to job criteria.
+
+
+  // <JOB_TITLE>
+  // ${classified_job_profile}
+  // </JOB_TITLE>
+  
 
   llm_output = await callLLM(prompt, profileID, 0, DEEP_SEEK_V2_CODER, { type: "rate_resume" }, async (llm_output: string): Promise<Record<string, string>> => {
     const jObj = await parseStringPromise(llm_output, {
