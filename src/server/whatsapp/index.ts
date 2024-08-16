@@ -101,7 +101,7 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
           }
 
           if (is_new_candidate) {
-            const text = `Hi! I'm Mahima from Excellence Technologies. Can you send your resume, expected CTC, current location, job profile you are looking for and your phone no. This is an AI assisted process to quickly shortlist your candidature.`;
+            const text = `Hi! I'm Mahima from Excellence Technologies. Can you send me your resume, expected CTC, current location and job profile you are looking for. This is an AI assisted process to quickly shortlist your candidature.`;
             await save_whatsapp_conversation("agent", fromNumber, toNumber, "text", text, "", "");
             await send_whatsapp_text_reply(text, fromNumber, toNumber);
             const { slack_thread_id, channel_id } = await get_whatspp_conversations(fromNumber);
