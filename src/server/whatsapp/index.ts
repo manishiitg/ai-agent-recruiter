@@ -62,6 +62,8 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
   const fromNumber = From;
   const toNumber = To;
 
+  console.log(!ALLOW_SPECIFIC_USERS[fromNumber]);
+
   const time = formatTime(new Date());
   //ACK
   res.sendStatus(200);
@@ -403,8 +405,8 @@ export const schedule_message_to_be_processed = async (fromNumber: string, toNum
             }),
           cred
         );
-      }else{
-        agentReply = null
+      } else {
+        agentReply = null;
       }
     } else {
       agentReply = await process_whatsapp_conversation(
