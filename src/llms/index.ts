@@ -1,4 +1,4 @@
-import { CLAUDE_HAIKU, CLAUDE_SONNET } from "./claude";
+import { callClaudeLLM, CLAUDE_HAIKU, CLAUDE_SONNET } from "./claude";
 import { callDeepkSeekLLM, callDeepseekMessages, DEEP_SEEK_V2_CHAT, DEEP_SEEK_V2_CODER } from "./deepkseek";
 
 export async function callViaMessages(
@@ -15,6 +15,8 @@ export async function callViaMessages(
 ): Promise<string> {
   if (model === DEEP_SEEK_V2_CODER || model === DEEP_SEEK_V2_CHAT) {
     return callDeepseekMessages(system, messages, user, temperature, model, meta, cb);
+  } else if (model == CLAUDE_HAIKU || model == CLAUDE_SONNET) {
+    return callViaMessages(system, messages, user, temperature, model, meta, cb);
   }
 
   throw new Error(`${model} not found!`);
@@ -24,7 +26,7 @@ export async function callLLM(prompt: string, user: string, temperature = 0, mod
   if (model === DEEP_SEEK_V2_CODER || model === DEEP_SEEK_V2_CHAT) {
     return callDeepkSeekLLM(prompt, user, temperature, model, meta, cb);
   } else if (model == CLAUDE_HAIKU || model == CLAUDE_SONNET) {
-    return callDeepkSeekLLM(prompt, user, temperature, model, meta, cb);
+    return callClaudeLLM(prompt, user, temperature, model, meta, cb);
   }
   throw new Error(`${model} not found!`);
 }
