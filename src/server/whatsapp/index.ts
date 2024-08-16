@@ -96,6 +96,8 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
           } catch (error) {
             is_new_candidate = true;
 
+            console.log("is now candidate!", fromNumber);
+
             const text = `Can you send your resume, expected CTC, current location, job profile you are looking for and your phone no.`;
             await save_whatsapp_conversation("agent", fromNumber, toNumber, "text", text, "", "");
             await send_whatsapp_text_reply(text, fromNumber, toNumber);
