@@ -76,6 +76,16 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
       case "text":
         const text = Body;
         console.log(`Text Message received - From: ${fromNumber}, To: ${toNumber}, Text: ${text}`);
+
+        let is_new_candidate = false;
+
+        const { slack_thread_id, conversation } = await get_whatspp_conversations(fromNumber);
+        console.log("existing conversations", conversation.length, fromNumber);
+
+        if (conversation.length == 0) {
+          is_new_candidate = true;
+          console.log("is new candidate!", fromNumber);
+        }
         if (text == "CLEAR") {
           // only for debugging/ remove in production
           await deleteDataForCandidateToDebug(fromNumber);
@@ -90,14 +100,7 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
             await update_slack_thread_id_for_conversion(fromNumber, ts, channel_id || process.env.slack_action_channel_id);
           }
 
-          let is_new_candidate = false;
-          try {
-            await getCandidateDetailsFromDB(fromNumber);
-          } catch (error) {
-            is_new_candidate = true;
-
-            console.log("is now candidate!", fromNumber);
-
+          if (is_new_candidate) {
             const text = `Can you send your resume, expected CTC, current location, job profile you are looking for and your phone no.`;
             await save_whatsapp_conversation("agent", fromNumber, toNumber, "text", text, "", "");
             await send_whatsapp_text_reply(text, fromNumber, toNumber);
@@ -106,7 +109,6 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
               await postMessageToThread(slack_thread_id, `HR: ${text}.`, channel_id || process.env.slack_action_channel_id);
             }
           }
-
           if (queue[fromNumber]) {
             if (queue[fromNumber].status == "PENDING") {
               console.log(fromNumber, "cancelling previous timeout!");
