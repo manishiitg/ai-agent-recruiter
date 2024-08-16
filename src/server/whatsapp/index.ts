@@ -106,38 +106,39 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
             await send_whatsapp_text_reply(text, fromNumber, toNumber);
             const { slack_thread_id, channel_id } = await get_whatspp_conversations(fromNumber);
             if (slack_thread_id) {
-              await postMessageToThread(slack_thread_id, `HR: ${text}.`, channel_id || process.env.slack_action_channel_id);
+              await postMessageToThread(slack_thread_id, `HR: ${text}. Init Msg`, channel_id || process.env.slack_action_channel_id);
             }
-          }
-          if (queue[fromNumber]) {
-            if (queue[fromNumber].status == "PENDING") {
-              console.log(fromNumber, "cancelling previous timeout!");
-              clearTimeout(queue[fromNumber].ts);
+          } else {
+            if (queue[fromNumber]) {
+              if (queue[fromNumber].status == "PENDING") {
+                console.log(fromNumber, "cancelling previous timeout!");
+                clearTimeout(queue[fromNumber].ts);
+                queue[fromNumber] = {
+                  ts: setTimeout(() => {
+                    schedule_message_to_be_processed(fromNumber, toNumber, "requeue-text-api");
+                  }, (fromNumber === ADMIN_PHNO ? 5 : is_new_candidate ? DEBOUNCE_TIMEOUT * 10 : DEBOUNCE_TIMEOUT) * 1000),
+                  status: "PENDING",
+                  canDelete: true,
+                  startedAt: new Date(),
+                };
+              } else {
+                console.log(
+                  fromNumber,
+                  `previous msg processing started so not queueing again! ${queue[fromNumber].canDelete} ${queue[fromNumber].status} ${formatTime(convertToIST(queue[fromNumber].startedAt))}`
+                );
+                queue[fromNumber].canDelete = false;
+              }
+            } else {
+              console.log(fromNumber, "scheduling queue");
               queue[fromNumber] = {
                 ts: setTimeout(() => {
-                  schedule_message_to_be_processed(fromNumber, toNumber, "requeue-text-api");
+                  schedule_message_to_be_processed(fromNumber, toNumber, "first-text-api");
                 }, (fromNumber === ADMIN_PHNO ? 5 : is_new_candidate ? DEBOUNCE_TIMEOUT * 10 : DEBOUNCE_TIMEOUT) * 1000),
                 status: "PENDING",
                 canDelete: true,
                 startedAt: new Date(),
               };
-            } else {
-              console.log(
-                fromNumber,
-                `previous msg processing started so not queueing again! ${queue[fromNumber].canDelete} ${queue[fromNumber].status} ${formatTime(convertToIST(queue[fromNumber].startedAt))}`
-              );
-              queue[fromNumber].canDelete = false;
             }
-          } else {
-            console.log(fromNumber, "scheduling queue");
-            queue[fromNumber] = {
-              ts: setTimeout(() => {
-                schedule_message_to_be_processed(fromNumber, toNumber, "first-text-api");
-              }, (fromNumber === ADMIN_PHNO ? 5 : is_new_candidate ? DEBOUNCE_TIMEOUT * 10 : DEBOUNCE_TIMEOUT) * 1000),
-              status: "PENDING",
-              canDelete: true,
-              startedAt: new Date(),
-            };
           }
         }
         break;
