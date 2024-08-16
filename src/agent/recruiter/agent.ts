@@ -185,9 +185,6 @@ export const generateConversationReply = async (
   Provide your response in the following XML format:
 
 <RESPONSE>
-  <scratchpad>
-  Your breif step by step reasoning for selecting a rule
-  </scratchpad>
   <FINAL_REASON>
   Detailed reason for selecting the rule
   </FINAL_REASON>
