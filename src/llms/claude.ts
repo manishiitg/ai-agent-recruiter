@@ -54,10 +54,10 @@ export async function callClaudeMessages(
     input: [{ role: "system", content: system }, ...messages],
   });
 
-  const response = await anthropic.messages.create({
+  const response = await anthropic.beta.promptCaching.messages.create({
     max_tokens: 4096,
     temperature: 0,
-    system: system,
+    system: [{ text: system, type: "text", cache_control: { type: "ephemeral" } }],
     messages: messages,
     model: model,
   });
