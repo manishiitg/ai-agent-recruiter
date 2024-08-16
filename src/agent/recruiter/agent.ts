@@ -5,7 +5,6 @@ import { parseStringPromise } from "xml2js";
 import { convertConversationToText } from "./helper";
 import { Conversation, ConversationMessage } from "./types/conversation";
 import { callViaMessages } from "../../llms";
-import { CLAUDE_HAIKU } from "../../llms/claude";
 
 export const STAGE_NEW = "new";
 export const STAGE_GOT_RESUME = "got_resume";
@@ -185,6 +184,9 @@ export const generateConversationReply = async (
   Provide your response in the following XML format:
 
 <RESPONSE>
+  <scratchpad>
+  Your breif step by step reasoning for selecting a rule
+  </scratchpad>
   <FINAL_REASON>
   Detailed reason for selecting the rule
   </FINAL_REASON>
@@ -223,7 +225,7 @@ Remember to check all rules before selecting the final one, and ensure that your
 
   console.log("messages", messages);
 
-  const llm_output = await callViaMessages(prompt, messages, profileID, 0, DEEP_SEEK_V2_CODER, { type: "reply" }, async (llm_output: string): Promise<Record<string, string>> => {
+  const llm_output = await callViaMessages(prompt, messages, profileID, 0, DEEP_SEEK_V2_CHAT, { type: "reply" }, async (llm_output: string): Promise<Record<string, string>> => {
     const jObj = await parseStringPromise(llm_output, {
       explicitArray: false,
       strict: false,
