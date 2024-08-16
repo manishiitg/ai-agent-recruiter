@@ -117,12 +117,17 @@ export async function callDeepseekMessages(
     output: responseText,
     metadata: metadata,
   });
+
+  let input_costs = 0.14;
+  let output_costs = 0.28;
+  let cache_hit_costs = 0.014;
+
   generation.end({
     output: responseData,
     usage: {
-      inputCost: typedData.usage.prompt_tokens * 0.14,
-      outputCost: typedData.usage.completion_tokens * 0.28,
-      totalCost: typedData.usage.prompt_tokens * 0.14 + typedData.usage.completion_tokens * 0.28,
+      inputCost: typedData.usage.prompt_cache_hit_tokens * cache_hit_costs + typedData.usage.prompt_cache_miss_tokens * input_costs,
+      outputCost: typedData.usage.completion_tokens * output_costs,
+      totalCost: typedData.usage.prompt_cache_hit_tokens * cache_hit_costs + typedData.usage.prompt_cache_miss_tokens * input_costs + typedData.usage.completion_tokens * output_costs,
       promptTokens: typedData.usage.prompt_tokens,
       completionTokens: typedData.usage.completion_tokens,
       totalTokens: typedData.usage.total_tokens,
@@ -130,7 +135,10 @@ export async function callDeepseekMessages(
     version: model,
   });
   console.log("typedData.usage", typedData.usage);
-  console.log("deepseek system costs", (typedData.usage.prompt_tokens * 0.14) / 1000000 + (typedData.usage.completion_tokens * 0.28) / 1000000);
+  console.log(
+    "deepseek system costs",
+    (typedData.usage.prompt_cache_hit_tokens * cache_hit_costs + typedData.usage.prompt_cache_miss_tokens * input_costs) / 1000000 + (typedData.usage.completion_tokens * output_costs) / 1000000
+  );
   return responseText;
 }
 
