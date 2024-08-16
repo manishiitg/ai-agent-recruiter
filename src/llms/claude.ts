@@ -20,7 +20,7 @@ const langfuse = new Langfuse({
 
 const sessionID = uuidv4();
 
-export async function callClaudeMessages(
+export async function callClaudeViaMessages(
   system: string,
   messages: {
     content: string;
