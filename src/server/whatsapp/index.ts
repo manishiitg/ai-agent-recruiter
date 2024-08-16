@@ -271,7 +271,7 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
               await postAttachment(resume_file, channel_id || process.env.slack_action_channel_id, ts);
             }
 
-            if (CLOSE_BOT && !ALLOW_SPECIFIC_USERS[fromNumber]) {
+            if (CLOSE_BOT && ALLOW_SPECIFIC_USERS[fromNumber] === undefined) {
               return;
             }
 
@@ -378,7 +378,7 @@ export const schedule_message_to_be_processed = async (fromNumber: string, toNum
     stage: string;
   } | null;
 
-  if (CLOSE_BOT && !ALLOW_SPECIFIC_USERS[fromNumber]) {
+  if (CLOSE_BOT && ALLOW_SPECIFIC_USERS[fromNumber] === undefined) {
     const text = `Currently we are getting lot of candidates and cannot process anymore! Just send your resume, expected CTC, current location. job profile you are looking for and your phone no. We will try to process 2-3 days again!`;
     await save_whatsapp_conversation("agent", fromNumber, toNumber, "text", text, "", "");
     await send_whatsapp_text_reply(text, fromNumber, toNumber);
