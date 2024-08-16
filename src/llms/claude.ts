@@ -2,7 +2,6 @@ import dotenv from "dotenv";
 dotenv.config();
 import { Langfuse } from "langfuse";
 import { v4 as uuidv4 } from "uuid";
-import axios from "axios";
 import Anthropic from "@anthropic-ai/sdk";
 import { MessageParam, TextBlock } from "@anthropic-ai/sdk/resources";
 
