@@ -146,7 +146,7 @@ export const extractInfo = async (profileID: string, me: string, conversation: s
     ],
     profileID,
     0,
-    DEEP_SEEK_V2_CODER,
+    CLAUDE_HAIKU,
     { type: "extractinfo" },
     async (llm_output: string): Promise<Record<string, string>> => {
       const jObj = await parseStringPromise(llm_output, {

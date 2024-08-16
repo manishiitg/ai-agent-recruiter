@@ -5,6 +5,7 @@ import { parseStringPromise } from "xml2js";
 import { convertConversationToText } from "./helper";
 import { Conversation, ConversationMessage } from "./types/conversation";
 import { callViaMessages } from "../../llms";
+import { CLAUDE_HAIKU } from "../../llms/claude";
 
 export const STAGE_NEW = "new";
 export const STAGE_GOT_RESUME = "got_resume";
@@ -170,7 +171,6 @@ export const generateConversationReply = async (
   - Select the best fitting rule based on the conversation and context.
   - If no actions are applicable, reply with "no_action" and do not create new actions.
   - Prioritize using the <priority_rules> first, and only use <other_rules> if the priority rules are not applicable.
-  - Provide a step-by-step analysis of every rule in the <scratchpad> tag.
   - Give a detailed reason for selecting the final rule in the <FINAL_REASON> tag.
   
   9. Response Guidelines:
@@ -184,9 +184,6 @@ export const generateConversationReply = async (
   Provide your response in the following XML format:
 
 <RESPONSE>
-  <scratchpad>
-  Your breif step by step reasoning for selecting a rule
-  </scratchpad>
   <FINAL_REASON>
   Detailed reason for selecting the rule
   </FINAL_REASON>
@@ -203,6 +200,12 @@ Remember to check all rules before selecting the final one, and ensure that your
     content: string;
     role: "user" | "assistant";
   }[] = [];
+
+  // - Provide a step-by-step analysis of every rule in the <scratchpad> tag.
+
+  // <scratchpad>
+  // Your breif step by step reasoning for selecting a rule
+  // </scratchpad>
 
   // <scratchpad>
   // Provide step-by-step analysis of every rule, including rule names in format
@@ -225,7 +228,7 @@ Remember to check all rules before selecting the final one, and ensure that your
 
   console.log("messages", messages);
 
-  const llm_output = await callViaMessages(prompt, messages, profileID, 0, DEEP_SEEK_V2_CHAT, { type: "reply" }, async (llm_output: string): Promise<Record<string, string>> => {
+  const llm_output = await callViaMessages(prompt, messages, profileID, 0, CLAUDE_HAIKU, { type: "reply" }, async (llm_output: string): Promise<Record<string, string>> => {
     const jObj = await parseStringPromise(llm_output, {
       explicitArray: false,
       strict: false,
