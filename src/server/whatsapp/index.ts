@@ -374,7 +374,7 @@ export const schedule_message_to_be_processed = async (fromNumber: string, toNum
     message: string;
     action: string;
     stage: string;
-  };
+  } | null;
 
   if (CLOSE_BOT && !ALLOW_SPECIFIC_USERS[fromNumber]) {
     const text = `Currently we are getting lot of candidates and cannot process anymore! Just send your resume, expected CTC, current location. job profile you are looking for and your phone no. We will try to process 2-3 days again!`;
@@ -388,20 +388,24 @@ export const schedule_message_to_be_processed = async (fromNumber: string, toNum
   } else {
     const candidateObj = await getCandidate(fromNumber, toNumber);
 
-    if (candidateObj.conversation?.conversation_completed_reason?.includes("do_call_via_human") && !CLOSE_INTERVIEW) {
-      agentReply = await conduct_interview(
-        fromNumber,
-        sortedConversation
-          .filter((row) => row.conversationType == CONVERSION_TYPE_INTERVIEW)
-          .map((conv) => {
-            return {
-              name: conv.userType,
-              content: conv.content,
-              date: conv.created_at,
-            };
-          }),
-        cred
-      );
+    if (candidateObj.conversation?.conversation_completed_reason?.includes("do_call_via_human")) {
+      if (!CLOSE_INTERVIEW || ALLOW_SPECIFIC_USERS[fromNumber]) {
+        agentReply = await conduct_interview(
+          fromNumber,
+          sortedConversation
+            .filter((row) => row.conversationType == CONVERSION_TYPE_INTERVIEW)
+            .map((conv) => {
+              return {
+                name: conv.userType,
+                content: conv.content,
+                date: conv.created_at,
+              };
+            }),
+          cred
+        );
+      }else{
+        agentReply = null
+      }
     } else {
       agentReply = await process_whatsapp_conversation(
         fromNumber,
