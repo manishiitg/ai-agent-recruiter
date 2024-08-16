@@ -81,7 +81,6 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
           await deleteDataForCandidateToDebug(fromNumber);
           await send_whatsapp_text_reply("DEBUG: YOUR CONVERSION HISTORY IS DELETED. START FRESH!.", fromNumber, toNumber);
         } else {
-          
           await save_whatsapp_conversation("candidate", fromNumber, toNumber, ContentType, text, MessageUUID, req.body);
           const { slack_thread_id, channel_id } = await get_whatspp_conversations(fromNumber);
           if (slack_thread_id) {
@@ -105,7 +104,6 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
               await postMessageToThread(slack_thread_id, `HR: ${text}.`, channel_id || process.env.slack_action_channel_id);
             }
           }
-
 
           if (queue[fromNumber]) {
             if (queue[fromNumber].status == "PENDING") {
@@ -289,10 +287,6 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
               await postAttachment(resume_file, channel_id || process.env.slack_action_channel_id, ts);
             }
 
-            if (CLOSE_BOT && ALLOW_SPECIFIC_USERS[fromNumber] === undefined) {
-              return;
-            }
-
             let resume_text: string = "";
             // Extract text from the file
             try {
@@ -323,6 +317,10 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
                 created_at: new Date(),
               };
             await saveCandidateDetailsToDB(candidate);
+
+            if (CLOSE_BOT && ALLOW_SPECIFIC_USERS[fromNumber] === undefined) {
+              return;
+            }
 
             if (queue[fromNumber] && queue[fromNumber].status === "BLOCKING") {
               clearTimeout(queue[fromNumber].ts);
