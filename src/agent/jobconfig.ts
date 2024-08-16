@@ -51,7 +51,7 @@ export const linkedJobProfileRules: Record<
     questions_to_ask: [`expressjs middleware`, `interact with mongodb`],
   },
   "Jr React Developer": {
-    is_open: true,
+    is_open: false,
     job_description: `This opening is only for candidates from 0 to 1 year of experience.
     Good Knowledge in javascript, reactjs`,
     full_criteria: `
@@ -103,6 +103,7 @@ export const linkedJobProfileRules: Record<
     Rate the following Node.js developer candidate on a scale of 1-10 based on their demonstrated proficiency in the following areas:
     Keep point no 1 to 7 as most priority, if even one of things mentioned in these points are not mentioned in resume reduce more points.
     Also try to keep rating as diverse as possible to filter out good node.js developer, there might be 1000s of resume and we want to filter best
+    0. Very important for candidate to have done internships or have work experiance
     1. Candidate should have done multiple internships related to Node.js.
     2. Candidate should have worked on internships using Express.js.
     3. Core Node.js concepts: event loop, asynchronous programming, modules, and core APIs.
@@ -136,18 +137,20 @@ export const linkedJobProfileRules: Record<
     - Candidate should have maximum salary of 40,000 per month or 6LPA per year. If candidates salary is not mentioned, assume he passes this criteria.
     `,
     resume_rating: `
-      Certainly! Here's a similar rating criteria for a Python developer candidate on a scale of 1-10, keeping points 1 to 7 as the highest priority:
-      Candidate should have completed multiple internships related to Python development.
-      Candidate should have worked on projects using web frameworks like Django or Flask.
-      Core Python concepts: understanding of Python's execution model, data structures, and object-oriented programming.
-      Python proficiency: Python 3.x syntax, list comprehensions, generators, decorators, and functional programming paradigms.
-      Framework/library expertise: Experience with popular Python frameworks (Django, Flask, FastAPI) and libraries (NumPy, Pandas, Requests).
-      Database interactions: Proficiency in SQL databases (PostgreSQL, MySQL) and ORM tools (SQLAlchemy, Django ORM).
-      API development: RESTful API design and implementation, familiarity with API frameworks like Django REST framework.
-      Testing: Unit testing with pytest or unittest, integration testing, and test-driven development (TDD) practices.
+      Rating criteria for a Python developer candidate on a scale of 1-10, keeping points 1 to 7 as the highest priority:
+      0. Very important for candidate to have done internships or have work experiance
+      1. Candidate should have completed multiple internships related to Python development.
+      2. Candidate should have worked on internships using web frameworks like Django or Flask.
+      3. Core Python concepts: understanding of Python's execution model, data structures, and object-oriented programming.
+      4. Python proficiency: Python 3.x syntax, list comprehensions, generators, decorators, and functional programming paradigms.
+      5. Framework/library expertise: Experience with popular Python frameworks (Django, Flask, FastAPI) and libraries (NumPy, Pandas, Requests).
+      6. Database interactions: Proficiency in SQL databases (PostgreSQL, MySQL) and ORM tools (SQLAlchemy, Django ORM).
+      7. API development: RESTful API design and implementation, familiarity with API frameworks like Django REST framework.
+
       Problem-solving and algorithmic skills: Ability to solve complex problems and implement efficient algorithms.
       Code quality and maintainability: Adherence to PEP 8 style guide, clean code principles, and code readability.
-      When evaluating candidates, prioritize points 1-7. If a candidate lacks experience in any of these areas, reduce their score more significantly. Aim to create diverse ratings to effectively filter out the best Python developers from potentially thousands of resumes.`,
+      When evaluating candidates, prioritize points 1-7. If a candidate lacks experience in any of these areas, reduce their score more significantly. 
+      Aim to create diverse ratings to effectively filter out the best Python developers from potentially thousands of resumes.`,
     questions_to_ask: [
       // `candidate introduction about yourself and your projects`,
       `technical question related to python`,
