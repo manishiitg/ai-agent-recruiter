@@ -107,18 +107,16 @@ export const process_whatsapp_conversation = async (
     throw new Error("candidate conversion not found!");
   }
 
-  if (candidate.conversation.resume?.full_resume_text) {
-    // && (!candidate.conversation.resume.SUMMARY || candidate.conversation.resume.SUMMARY.length === 0)
-
-    callback("Please wait while i go through your resume");
-    // const summaryResponse = await summariseResume(candidate.conversation.resume?.full_resume_text, phoneNo);
-    candidate.conversation.resume = {
-      created_at: new Date(),
-      // SUMMARY: summaryResponse.SUMMARY,
-      full_resume_text: candidate.conversation.resume?.full_resume_text,
-    };
-    await saveCandidateDetailsToDB(candidate);
-  }
+  // if (candidate.conversation.resume?.full_resume_text && (!candidate.conversation.resume.SUMMARY || candidate.conversation.resume.SUMMARY.length === 0)) {
+  //   callback("Please wait while i go through your resume");
+  //   // const summaryResponse = await summariseResume(candidate.conversation.resume?.full_resume_text, phoneNo);
+  //   candidate.conversation.resume = {
+  //     created_at: new Date(),
+  //     // SUMMARY: summaryResponse.SUMMARY,
+  //     full_resume_text: candidate.conversation.resume?.full_resume_text,
+  //   };
+  //   await saveCandidateDetailsToDB(candidate);
+  // }
 
   // if (!candidate.conversation.classifed_to || !candidate.conversation.classifed_to.category.includes(CONV_CLASSIFY_CANDIDATE_JOB)) {
   // const classifyResponse = await classify_conversation(phoneNo, convertConversationToText(conversation));
