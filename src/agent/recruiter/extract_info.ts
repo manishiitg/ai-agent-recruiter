@@ -136,7 +136,7 @@ export const extractInfo = async (profileID: string, me: string, conversation: s
   `;
 
   // <REASON_FOR_SELECTING_JOB_PROFILE>reason for selecting job profile and are we hiring for this job profile</REASON_FOR_SELECTING_JOB_PROFILE>
-  const llm_output = await callLLM(prompt, profileID, 0, CLAUDE_HAIKU, { type: "extractinfo" }, async (llm_output: string): Promise<Record<string, string>> => {
+  const llm_output = await callLLM(prompt, profileID, 0, DEEP_SEEK_V2_CODER, { type: "extractinfo" }, async (llm_output: string): Promise<Record<string, string>> => {
     const jObj = await parseStringPromise(llm_output, {
       explicitArray: false,
       strict: false,

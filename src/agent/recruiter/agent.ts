@@ -223,7 +223,7 @@ Remember to check all rules before selecting the final one, and ensure that your
 
   console.log("messages", messages);
 
-  const llm_output = await callViaMessages(prompt, messages, profileID, 0, CLAUDE_HAIKU, { type: "reply" }, async (llm_output: string): Promise<Record<string, string>> => {
+  const llm_output = await callViaMessages(prompt, messages, profileID, 0, DEEP_SEEK_V2_CHAT, { type: "reply" }, async (llm_output: string): Promise<Record<string, string>> => {
     const jObj = await parseStringPromise(llm_output, {
       explicitArray: false,
       strict: false,
