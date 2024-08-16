@@ -62,7 +62,7 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
   const fromNumber = From;
   const toNumber = To;
 
-  console.log(!ALLOW_SPECIFIC_USERS[fromNumber]);
+  console.log(ALLOW_SPECIFIC_USERS[fromNumber]);
 
   const time = formatTime(new Date());
   //ACK
