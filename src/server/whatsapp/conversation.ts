@@ -336,7 +336,7 @@ const callViaHuman = async (candidate: Candidate, creds: WhatsAppCreds, phoneNo:
           // await postMessageToThread(slack_thread_id, `${conv.userType == "agent" ? "HR" : `${phoneNo}`}:  ${conv.content} `, slack_action_channel_id);
         }
       }
-      // context += `Rating Reason ${ratingReply.reason}`;
+      context += `Rating Reason ${ratingReply.reason}`;
       await postMessageToThread(slack_thread_id, context, slack_action_channel_id);
       await update_slack_thread_id_for_conversion(phoneNo, slack_thread_id, slack_action_channel_id);
     } else {
