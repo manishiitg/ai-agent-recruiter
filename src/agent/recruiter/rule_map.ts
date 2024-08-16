@@ -16,7 +16,7 @@ export const STAGE_RULE_MAP: Record<
     greeting: {
       rule: "If conversation is just a greeting, like Hello, How are you, etc and nothing else.",
       // response: `introduce yourself and ask his resume for job application. mention that this is an AI based screening process to quickly shortlist your application.`,
-      response: `introduce yourself and ask candidate his resume, expected CTC, current location. job profile he is looking for`,
+      response: `introduce yourself and ask candidate his resume, expected CTC, current location. job profile he is looking for. mention this is an ai assisted automated process`,
     },
     tell_job_profiles: {
       rule: "If candidate is asking about open job profiles",
