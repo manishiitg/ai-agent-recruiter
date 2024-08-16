@@ -1,5 +1,6 @@
 import { parseStringPromise } from "xml2js";
-import { callDeepkSeek, DEEP_SEEK_V2_CODER } from "./../../llms/deepkseek";
+import { DEEP_SEEK_V2_CODER } from "./../../llms/deepkseek";
+import { callLLM } from "../../llms";
 
 export const ask_question_for_tech_interview = async (hiring_for_profile: string, interview_question_topic: string, previous_questions: string[]) => {
   let llm_output = "";
@@ -37,7 +38,7 @@ export const ask_question_for_tech_interview = async (hiring_for_profile: string
         </EXPECTED_ANSWER_1>
     </RESPONSE>   `;
 
-  llm_output = await callDeepkSeek(prompt, "resume_ques_gen", 0.5, DEEP_SEEK_V2_CODER, { type: "resume_ques_gen" }, async (llm_output: string): Promise<Record<string, string>> => {
+  llm_output = await callLLM(prompt, "resume_ques_gen", 0.5, DEEP_SEEK_V2_CODER, { type: "resume_ques_gen" }, async (llm_output: string): Promise<Record<string, string>> => {
     const jObj = await parseStringPromise(llm_output, {
       explicitArray: false,
       strict: false,

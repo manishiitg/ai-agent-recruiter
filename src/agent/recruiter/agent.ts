@@ -1,9 +1,10 @@
 import { linkedJobProfileRules } from "../jobconfig";
-import { callDeepkSeek, callDeepseekViaMessages, DEEP_SEEK_V2_CHAT, DEEP_SEEK_V2_CODER } from "../../llms/deepkseek";
+import { DEEP_SEEK_V2_CHAT, DEEP_SEEK_V2_CODER } from "../../llms/deepkseek";
 import { STAGE_RULE_MAP } from "./rule_map";
 import { parseStringPromise } from "xml2js";
 import { convertConversationToText } from "./helper";
 import { Conversation, ConversationMessage } from "./types/conversation";
+import { callViaMessages } from "../../llms";
 
 export const STAGE_NEW = "new";
 export const STAGE_GOT_RESUME = "got_resume";
@@ -224,7 +225,7 @@ Remember to check all rules before selecting the final one, and ensure that your
 
   console.log("messages", messages);
 
-  const llm_output = await callDeepseekViaMessages(prompt, messages, profileID, 0, DEEP_SEEK_V2_CHAT, { type: "reply" }, async (llm_output: string): Promise<Record<string, string>> => {
+  const llm_output = await callViaMessages(prompt, messages, profileID, 0, DEEP_SEEK_V2_CHAT, { type: "reply" }, async (llm_output: string): Promise<Record<string, string>> => {
     const jObj = await parseStringPromise(llm_output, {
       explicitArray: false,
       strict: false,

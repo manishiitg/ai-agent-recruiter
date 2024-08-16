@@ -39,7 +39,7 @@ interface ChatCompletion {
   };
 }
 
-export async function callDeepseekViaMessages(
+export async function callDeepseekMessages(
   system: string,
   messages: {
     content: string;
@@ -134,7 +134,7 @@ export async function callDeepseekViaMessages(
   return responseText;
 }
 
-export async function callDeepkSeek(prompt: string, user: string, temperature = 0, model = DEEP_SEEK_V2_CODER, meta = {}, cb: (output: string) => Promise<Record<string, string>>) {
+export async function callDeepkSeekLLM(prompt: string, user: string, temperature = 0, model = DEEP_SEEK_V2_CODER, meta = {}, cb: (output: string) => Promise<Record<string, string>>) {
   const ttl = new Date().getTime();
   prompt = prompt.replace(/[^\x00-\x7F]/g, "");
   const trace = langfuse.trace({

@@ -2,8 +2,8 @@ import { parseStringPromise } from "xml2js";
 import { Conversation } from "../recruiter/types/conversation";
 import { get_context } from "./../recruiter/agent";
 import { linkedJobProfileRules } from "../jobconfig";
-import { callDeepkSeek, DEEP_SEEK_V2_CODER } from "../../llms/deepkseek";
-
+import { DEEP_SEEK_V2_CODER } from "../../llms/deepkseek";
+import { callLLM } from "../../llms";
 
 export const shortlist = async (
   profileID: string,
@@ -74,7 +74,7 @@ export const shortlist = async (
   
   Remember, the candidate must meet ALL of the job's shortlisting rules to be accepted, otherwise they must be rejected. Review the candidate's information carefully and make your decision based solely on the facts provided. Do not make any assumptions that are not supported by the candidate's resume or data.`;
 
-  llm_output = await callDeepkSeek(prompt, profileID, 0, DEEP_SEEK_V2_CODER, { type: "shortlist" }, async (llm_output: string): Promise<Record<string, string>> => {
+  llm_output = await callLLM(prompt, profileID, 0, DEEP_SEEK_V2_CODER, { type: "shortlist" }, async (llm_output: string): Promise<Record<string, string>> => {
     const jObj = await parseStringPromise(llm_output, {
       explicitArray: false,
       strict: false,

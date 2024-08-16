@@ -1,8 +1,10 @@
-import { callDeepkSeek, DEEP_SEEK_V2_CODER } from "../../llms/deepkseek";
+import { DEEP_SEEK_V2_CODER } from "../../llms/deepkseek";
 import { parseStringPromise } from "xml2js";
 import { linkedJobProfileRules } from "../jobconfig";
 import { CandidateInfo } from "./types/conversation";
 import { validateEmail } from "./helper";
+import { callLLM } from "../../llms";
+import { CLAUDE_HAIKU } from "../../llms/claude";
 
 export const CONV_CLASSIFY_CANDIDATE_JOB_PREFIX = "1";
 export const CONV_CLASSIFY_CANDIDATE_JOB = `${CONV_CLASSIFY_CANDIDATE_JOB_PREFIX}. Candidate applying or enquiring for job`;
@@ -43,7 +45,7 @@ export const classify_conversation = async (profileID: string, conversation: str
   </RESPONSE>
   `;
 
-  const llm_output = await callDeepkSeek(prompt, profileID, 0, DEEP_SEEK_V2_CODER, { type: "classify_conversation" }, async (llm_output: string): Promise<Record<string, string>> => {
+  const llm_output = await callLLM(prompt, profileID, 0, DEEP_SEEK_V2_CODER, { type: "classify_conversation" }, async (llm_output: string): Promise<Record<string, string>> => {
     const jObj = await parseStringPromise(llm_output, {
       explicitArray: false,
       strict: false,
@@ -84,6 +86,15 @@ export const extractInfo = async (profileID: string, me: string, conversation: s
   Below is the conversation till now. Conversion are sorted from first conversion to most recent. 
   <conversation>${conversation}</conversation>  
 
+  You need to classify this conversation into any of the categories below
+
+  Categories
+  ${CONV_CLASSIFY_CANDIDATE_JOB}
+  ${CONV_CLASSIFY_INSTITUTE_PLACEMENT}  
+  ${CONV_CLASSIFY_WISHES}
+  ${CONV_CLASSIFY_FRIEND}
+  ${CONV_CLASSIFY_OTHERS}
+
   Job Profiles we are hiring for right now:
   <open_jobs>${open_jobs}</open_jobs>
 
@@ -110,6 +121,7 @@ export const extractInfo = async (profileID: string, me: string, conversation: s
   Reply in xml format below:
 
   <RESPONSE>
+    <CLASSIFIED_CATEGORY>full selected classified category with its number</CLASSIFIED_CATEGORY>
     <SUITABLE_JOB_PROFILE>select a single job profile most suitable based on resume from open job profiles</SUITABLE_JOB_PROFILE>
     <HIRING_FOR_JOB_PROFILE>are we hiring for the job profile yes or no</HIRING_FOR_JOB_PROFILE>
     <CURRENT_CTC>current ctc if any</CURRENT_CTC>
@@ -124,7 +136,7 @@ export const extractInfo = async (profileID: string, me: string, conversation: s
   `;
 
   // <REASON_FOR_SELECTING_JOB_PROFILE>reason for selecting job profile and are we hiring for this job profile</REASON_FOR_SELECTING_JOB_PROFILE>
-  const llm_output = await callDeepkSeek(prompt, profileID, 0, DEEP_SEEK_V2_CODER, { type: "extractinfo" }, async (llm_output: string): Promise<Record<string, string>> => {
+  const llm_output = await callLLM(prompt, profileID, 0, CLAUDE_HAIKU, { type: "extractinfo" }, async (llm_output: string): Promise<Record<string, string>> => {
     const jObj = await parseStringPromise(llm_output, {
       explicitArray: false,
       strict: false,

@@ -1,5 +1,6 @@
 import { parseStringPromise } from "xml2js";
-import { callDeepkSeek, DEEP_SEEK_V2_CODER } from "../../llms/deepkseek";
+import { DEEP_SEEK_V2_CODER } from "../../llms/deepkseek";
+import { callLLM } from "../../llms";
 
 export const summariseResume = async (resume_text: string, profileID: string) => {
   const prompt = `
@@ -35,7 +36,7 @@ Present your final output in the following XML format:
 
 Remember to be objective and accurate in your analysis and summary. Do not include any personal opinions or judgments about the candidate's qualifications.`;
 
-  const llm_output = await callDeepkSeek(prompt, profileID, 0, DEEP_SEEK_V2_CODER, { type: "summary" }, async (llm_output: string): Promise<Record<string, string>> => {
+  const llm_output = await callLLM(prompt, profileID, 0, DEEP_SEEK_V2_CODER, { type: "summary" }, async (llm_output: string): Promise<Record<string, string>> => {
     return {};
   });
 
@@ -87,7 +88,7 @@ Present your final output in the following XML format:
 
 Remember to be objective and accurate in your analysis and summary. Do not include any personal opinions or judgments about the candidate's qualifications.`;
 
-  const llm_output = await callDeepkSeek(prompt, profileID, 0, DEEP_SEEK_V2_CODER, { type: "extract_resume" }, async (llm_output: string): Promise<Record<string, string>> => {
+  const llm_output = await callLLM(prompt, profileID, 0, DEEP_SEEK_V2_CODER, { type: "extract_resume" }, async (llm_output: string): Promise<Record<string, string>> => {
     return {};
   });
 

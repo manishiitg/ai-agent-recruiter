@@ -1,9 +1,10 @@
-import { callDeepseekViaMessages, DEEP_SEEK_V2_CHAT } from "../../llms/deepkseek";
+import { DEEP_SEEK_V2_CHAT } from "../../llms/deepkseek";
 import { getRuleMap, STAGE_COMPLETED, STAGE_NEW, STAGE_TECH_QUES } from "./rule_map";
 import { parseStringPromise } from "xml2js";
 import { ConversationMessage, Interview } from "./types";
 import { convertConversationToText } from "./helper";
 import { companyInfo, NUMBER_OF_INTERVIEW_QUESTIONS } from "../jobconfig";
+import { callViaMessages } from "../../llms";
 
 export const generateConversationReply = async (
   profileID: string,
@@ -172,7 +173,7 @@ Remember to check all rules before selecting the final one, and ensure that your
 
   console.log(profileID, "messages", messages);
 
-  const llm_output = await callDeepseekViaMessages(prompt, messages, profileID, 0, DEEP_SEEK_V2_CHAT, { type: "reply_interview" }, async (llm_output: string): Promise<Record<string, string>> => {
+  const llm_output = await callViaMessages(prompt, messages, profileID, 0, DEEP_SEEK_V2_CHAT, { type: "reply_interview" }, async (llm_output: string): Promise<Record<string, string>> => {
     const jObj = await parseStringPromise(llm_output, {
       explicitArray: false,
       strict: false,

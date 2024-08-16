@@ -89,18 +89,10 @@ export const process_whatsapp_conversation = async (
     candidate.conversation.actions_taken = [];
   }
 
-  // if (!classified_now && (candidate.conversation?.classifed_to?.category.includes(CONV_CLASSIFY_OTHERS) || candidate.conversation?.classifed_to?.category.includes(CONV_CLASSIFY_GREETINGS))) {
-  //   const classifed_to = await classifyConversation(messageFrom ? messageFrom : "", creds.name, convertConversationToText(conversation));
-  //   candidate.conversation.classifed_to = classifed_to;
-  //   await saveCandidateDetailsToDB(candidate);
-  // }
-
   if (candidate.conversation?.conversation_completed) {
     console.log(phoneNo, "auto message processing completed", candidate.conversation.conversation_completed_reason);
     return { message: "", action: "completed", stage: "completed" };
   }
-
-  // console.log(phoneNo, "candidate", candidate);
 
   if (!candidate.conversation) {
     console.log("not conversation found!");

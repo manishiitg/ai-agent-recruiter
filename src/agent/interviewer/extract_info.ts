@@ -1,6 +1,7 @@
-import { callDeepkSeek, DEEP_SEEK_V2_CODER } from "../../llms/deepkseek";
+import { DEEP_SEEK_V2_CODER } from "../../llms/deepkseek";
 import { parseStringPromise } from "xml2js";
 import { CandidateInfo } from "./types";
+import { callLLM } from "../../llms";
 
 export const extractInfo = async (profileID: string, me: string, conversation: string, type: "gmail" | "linkedin" | "whatsapp" = "whatsapp") => {
   const prompt = `You are an HR recruiter on ${type}.
@@ -28,7 +29,7 @@ export const extractInfo = async (profileID: string, me: string, conversation: s
   </RESPONSE>
   `;
 
-  const llm_output = await callDeepkSeek(prompt, profileID, 0, DEEP_SEEK_V2_CODER, { type: "extractinterviewinfo" }, async (llm_output: string): Promise<Record<string, string>> => {
+  const llm_output = await callLLM(prompt, profileID, 0, DEEP_SEEK_V2_CODER, { type: "extractinterviewinfo" }, async (llm_output: string): Promise<Record<string, string>> => {
     const jObj = await parseStringPromise(llm_output, {
       explicitArray: false,
       strict: false,

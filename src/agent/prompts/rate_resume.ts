@@ -1,7 +1,8 @@
 import { parseStringPromise } from "xml2js";
 import { Conversation } from "../recruiter/types/conversation";
 import { linkedJobProfileRules } from "../jobconfig";
-import { callDeepkSeek, DEEP_SEEK_V2_CODER } from "../../llms/deepkseek";
+import {  DEEP_SEEK_V2_CODER } from "../../llms/deepkseek";
+import { callLLM } from "../../llms";
 
 export const rate_resume = async (profileID: string, conversationObj: Conversation) => {
   const classified_job_profile = conversationObj.info?.suitable_job_profile;
@@ -55,7 +56,7 @@ Respond only in xml format as below.
     <RATING>final rating</RATING>
   </RESPONSE>`;
 
-  llm_output = await callDeepkSeek(prompt, profileID, 0, DEEP_SEEK_V2_CODER, { type: "rate_resume" }, async (llm_output: string): Promise<Record<string, string>> => {
+  llm_output = await callLLM(prompt, profileID, 0, DEEP_SEEK_V2_CODER, { type: "rate_resume" }, async (llm_output: string): Promise<Record<string, string>> => {
     const jObj = await parseStringPromise(llm_output, {
       explicitArray: false,
       strict: false,

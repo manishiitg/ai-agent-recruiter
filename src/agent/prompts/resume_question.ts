@@ -1,5 +1,6 @@
 import { parseStringPromise } from "xml2js";
-import { callDeepkSeek, DEEP_SEEK_V2_CODER } from "./../../llms/deepkseek";
+import {  DEEP_SEEK_V2_CODER } from "./../../llms/deepkseek";
+import { callLLM } from "../../llms";
 
 
 export const single_question_to_ask_from_resume = async (resume: string, hiring_for_profile: string, job_criteria: string) => {
@@ -47,7 +48,7 @@ export const single_question_to_ask_from_resume = async (resume: string, hiring_
     }. Aim is to ask questions that will give you meaningful signal about the candidate's technical abilities.
           `;
 
-  llm_output = await callDeepkSeek(prompt, "resume_ques_gen", 0, DEEP_SEEK_V2_CODER, { type: "resume_ques_gen_single" }, async (llm_output: string): Promise<Record<string, string>> => {
+  llm_output = await callLLM(prompt, "resume_ques_gen", 0, DEEP_SEEK_V2_CODER, { type: "resume_ques_gen_single" }, async (llm_output: string): Promise<Record<string, string>> => {
     const jObj = await parseStringPromise(llm_output, {
       explicitArray: false,
       strict: false,
@@ -132,7 +133,7 @@ export const question_to_ask_from_resume = async (resume: string, hiring_for_pro
     }. Aim is to ask questions that will give you meaningful signal about the candidate's technical abilities.
           `;
 
-  llm_output = await callDeepkSeek(prompt, "resume_ques_gen", 0, DEEP_SEEK_V2_CODER, { type: "resume_ques_gen" }, async (llm_output: string): Promise<Record<string, string>> => {
+  llm_output = await callLLM(prompt, "resume_ques_gen", 0, DEEP_SEEK_V2_CODER, { type: "resume_ques_gen" }, async (llm_output: string): Promise<Record<string, string>> => {
     const jObj = await parseStringPromise(llm_output, {
       explicitArray: false,
       strict: false,
