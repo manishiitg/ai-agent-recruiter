@@ -147,10 +147,10 @@ export const linkedJobProfileRules: Record<
       4. Python proficiency: Python 3.x syntax, list comprehensions, generators, decorators, and functional programming paradigms.
       5. Framework/library expertise: Experience with popular Python frameworks (Django, Flask, FastAPI) and libraries (NumPy, Pandas, Requests).
       6. Database interactions: Proficiency in SQL databases (PostgreSQL, MySQL) and ORM tools (SQLAlchemy, Django ORM).
-      7. API development: RESTful API design and implementation, familiarity with API frameworks like Django REST framework.
+      7. If candidate has only worked on Machine learning projects, that should act as a negative and reduce the resume rating.
+      
 
       Problem-solving and algorithmic skills: Ability to solve complex problems and implement efficient algorithms.
-      Code quality and maintainability: Adherence to PEP 8 style guide, clean code principles, and code readability.
       When evaluating candidates, prioritize points 1-7. If a candidate lacks experience in any of these areas, reduce their score more significantly. 
       Aim to create diverse ratings to effectively filter out the best Python developers from potentially thousands of resumes.`,
     questions_to_ask: [
