@@ -213,6 +213,7 @@ export const process_whatsapp_conversation = async (
 
     candidate.conversation.resume_ratings = ratingReply.rating;
     candidate.conversation.resume_ratings_reason = ratingReply.reason;
+    candidate.conversation.resume_ratings_dump = JSON.stringify(ratingReply);
     await saveCandidateDetailsToDB(candidate);
     // }
 

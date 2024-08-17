@@ -23,6 +23,7 @@ export interface Conversation {
   };
   resume_ratings?: string;
   resume_ratings_reason?: string;
+  resume_ratings_dump?: string;
 }
 
 export interface CandidateInfo {
