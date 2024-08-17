@@ -32,12 +32,12 @@ export const rate_resume = async (profileID: string, conversationObj: Conversati
   </JOB_CRITERIA>
   
   Please read through the resume and job criteria carefully. Once you have reviewed them, I would like you to evaluate the resume on the following criteria:
-  - Difficulty, complexity and impact of internships/ work experiance / training the applicant has completed that are relevant to the role. Give high rating only if worked on complex .
+  - Difficulty, complexity and impact of internships/ work experiance the applicant has completed that are relevant to the role. Give high rating only if worked on complex .
 
-  For each of the internships/ work experiance / training, please write a analysis inside <INTERNSHIP_WORK_TRAINING_ANALYSIS> tags. 
+  For each of the internships/ work experiance, please write a analysis inside <INTERNSHIP_WORK_ANALYSIS> tags. 
   Cite specific examples from the resume and job description in your analysis. 
   
-  For each of these criteria, please write a analysis inside <analysis> tags that examines how complex / difficult is the project. Cite specific examples from the resume and job description in your analysis.
+  For each of these criteria, please write a analysis inside <analysis> tags based on their internships done.
 
   After you have completed your analysis of the three criteria, please provide an overall score from 1 to 10 indicating how good of a fit the applicant is for this specific role based on their resume. 
   In this scoring system, a 1 means the applicant is a very poor fit, and a 10 means the applicant is an excellent fit. 
@@ -50,7 +50,7 @@ export const rate_resume = async (profileID: string, conversationObj: Conversati
 
 Respond only in xml format as below.
   <RESPONSE>
-    <INTERNSHIP_WORK_TRAINING_ANALYSIS>step by step reasoning for internship analysis and provide rating for every project done</INTERNSHIP_WORK_TRAINING_ANALYSIS>
+    <INTERNSHIP_WORK_ANALYSIS>step by step reasoning for internship analysis and provide rating for every project done</INTERNSHIP_WORK_ANALYSIS>
     <ANALYSIS>Step-by-step reasoning for rating</ANALYSIS>
     <RATING>final rating</RATING>
   </RESPONSE>`;
