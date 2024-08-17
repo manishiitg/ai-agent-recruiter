@@ -98,6 +98,7 @@ export const linkedJobProfileRules: Record<
     full_criteria: `
     - Candidate should not belong to locations ${exclude_location_rule}
     - Candidate should have maximum salary of 40,000 per month or 6LPA per year. If candidates salary is not mentioned, assume he passes this criteria.
+    - resume rating should be more than 6
     `,
     resume_rating: `
     Rate the following Node.js developer candidate on a scale of 1-10 based on their demonstrated proficiency in the following areas:
@@ -135,6 +136,7 @@ export const linkedJobProfileRules: Record<
     full_criteria: `
     - Candidate should not belong to locations ${exclude_location_rule}
     - Candidate should have maximum salary of 40,000 per month or 6LPA per year. If candidates salary is not mentioned, assume he passes this criteria.
+    - resume rating should be more than 6
     `,
     resume_rating: `
       Rating criteria for a Python developer candidate on a scale of 1-10, keeping points 1 to 7 as the highest priority:

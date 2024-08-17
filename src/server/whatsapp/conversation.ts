@@ -200,7 +200,14 @@ export const process_whatsapp_conversation = async (
       throw new Error("cannot shortlist without resume");
     }
 
-    const shortlist_reply = await shortlist(phoneNo, candidate.conversation);
+    // if (!candidate.conversation.resume_ratings) {
+    const ratingReply = await rate_resume(candidate.id, candidate.conversation);
+    candidate.conversation.resume_ratings = ratingReply.rating;
+    candidate.conversation.resume_ratings_reason = ratingReply.reason;
+    await saveCandidateDetailsToDB(candidate);
+    // }
+
+    const shortlist_reply = await shortlist(phoneNo, candidate.conversation, ratingReply.rating);
     if (shortlist_reply.is_shortlisted) if (candidate.conversation) candidate.conversation.stage = STAGE_SHORTLISTED;
     if (!shortlist_reply.is_shortlisted)
       if (candidate.conversation) {
@@ -301,20 +308,20 @@ const callViaHuman = async (candidate: Candidate, creds: WhatsAppCreds, phoneNo:
 
   if (slack_action_channel_id) {
     if (candidate.conversation && candidate.conversation.resume) {
-      const ratingReply = await rate_resume(candidate.id, candidate.conversation);
+      // const ratingReply = await rate_resume(candidate.id, candidate.conversation);
 
       let { conversation } = await get_whatspp_conversations(phoneNo);
       const sortedConversation = sortBy(conversation, (conv: WhatsAppConversaion) => {
         return conv.created_at;
       });
 
-      candidate.conversation.resume_ratings = ratingReply.rating;
-      candidate.conversation.resume_ratings_reason = ratingReply.reason;
-      await saveCandidateDetailsToDB(candidate);
+      // candidate.conversation.resume_ratings = ratingReply.rating;
+      // candidate.conversation.resume_ratings_reason = ratingReply.reason;
+      // await saveCandidateDetailsToDB(candidate);
 
       const msg = `call the candidate ${candidate.id} ${
         candidate.conversation.info?.name
-      } for job profile ${candidate.conversation?.shortlisted?.job_profile.trim()} Resume Rating ${ratingReply.rating.trim()}
+      } for job profile ${candidate.conversation?.shortlisted?.job_profile.trim()} Resume Rating ${candidate.conversation.resume_ratings?.trim()}
     ${candidate.conversation.info?.location} ${candidate.conversation.info?.expected_ctc} ${candidate.conversation.info?.years_of_experiance}
       `;
 
@@ -336,7 +343,7 @@ const callViaHuman = async (candidate: Candidate, creds: WhatsAppCreds, phoneNo:
           // await postMessageToThread(slack_thread_id, `${conv.userType == "agent" ? "HR" : `${phoneNo}`}:  ${conv.content} `, slack_action_channel_id);
         }
       }
-      context += `Rating Reason ${ratingReply.reason}`;
+      context += `Rating Reason ${candidate.conversation.resume_ratings_reason}`;
       await postMessageToThread(slack_thread_id, context, slack_action_channel_id);
       await update_slack_thread_id_for_conversion(phoneNo, slack_thread_id, slack_action_channel_id);
     } else {
