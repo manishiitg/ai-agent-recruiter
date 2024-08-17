@@ -170,7 +170,7 @@ export const process_whatsapp_conversation = async (
   let has_already_asked_user_input = false;
   let user_input_reply = false;
 
-  if (!action.includes("do_shortlist") && !action.includes("do_call_via_human")) {
+  if (!action.includes("do_shortlist") && !action.includes("do_complete_process")) {
     has_already_asked_user_input = true;
     user_input_reply = true;
     candidate.conversation.actions_taken.push(action);
@@ -253,7 +253,7 @@ export const process_whatsapp_conversation = async (
     });
   }
 
-  if (action.includes("do_call_via_human") || action.includes("no_job_profile")) {
+  if (action.includes("do_complete_process") || action.includes("no_job_profile")) {
     candidate.conversation.conversation_completed = true;
     candidate.conversation.conversation_completed_reason = action;
     await saveCandidateDetailsToDB(candidate);
@@ -263,7 +263,7 @@ export const process_whatsapp_conversation = async (
     candidate.conversation.conversation_completed_reason = action;
     await saveCandidateDetailsToDB(candidate);
   }
-  if (action.includes("do_call_via_human")) {
+  if (action.includes("do_complete_process")) {
     callViaHuman(candidate, creds, phoneNo);
   }
   console.log(phoneNo, "final action", action);

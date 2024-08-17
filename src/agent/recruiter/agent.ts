@@ -88,7 +88,7 @@ export const generateConversationReply = async (
       }
     }
     // console.log(profileID, "actions taken", conversationObj.actions_taken, `${stage}.${action}`, actions_taken.includes(`${stage}.${action}`));
-    if (action == "do_call_via_human") {
+    if (action == "do_complete_process") {
       const dayOfWeek = new Date().getDay();
       if (dayOfWeek == 0 || dayOfWeek == 6) {
         response = response + `. I will call you on monday`;
@@ -120,7 +120,7 @@ export const generateConversationReply = async (
   if (pending_actions.length == 0) {
     console.log(profileID, "all possible actions completed!", stage);
     if (stage == STAGE_SHORTLISTED) {
-      return { action: `${stage}.do_call_via_human_no_pending_actions`, reply: "", reason: "" };
+      return { action: `${stage}.do_complete_process_no_pending_actions`, reply: "", reason: "" };
     } else if (stage == STAGE_GOT_REJECTED) {
       return { action: `${stage}.no_action`, reply: "", reason: "" };
     } else {

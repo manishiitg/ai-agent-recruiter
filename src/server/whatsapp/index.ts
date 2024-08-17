@@ -411,7 +411,7 @@ export const schedule_message_to_be_processed = async (fromNumber: string, toNum
   } else {
     const candidateObj = await getCandidate(fromNumber, toNumber);
 
-    if (candidateObj.conversation?.conversation_completed_reason?.includes("do_call_via_human")) {
+    if (candidateObj.conversation?.conversation_completed_reason?.includes("do_complete_process")) {
       if (!CLOSE_INTERVIEW || ALLOW_SPECIFIC_USERS[fromNumber]) {
         agentReply = await conduct_interview(
           fromNumber,
@@ -500,7 +500,7 @@ export const schedule_message_to_be_processed = async (fromNumber: string, toNum
       }
       // }
       // got_shortlisted.do_call_via_human
-      if (agentReply.action == "do_call_via_human") {
+      if (agentReply.action == "do_complete_process") {
         setTimeout(() => {
           schedule_message_to_be_processed(fromNumber, toNumber, "human-interview-start");
         }, (fromNumber === ADMIN_PHNO ? 5 : DEBOUNCE_TIMEOUT) * 1000);

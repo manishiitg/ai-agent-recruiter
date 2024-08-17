@@ -112,7 +112,7 @@ export const save_whatsapp_conversation = async (type: "agent" | "candidate", fr
   const candidateObj = await getCandidate(from, whatsapp);
 
   let conversationType = CONVERSION_TYPE_CANDIDATE;
-  if (candidateObj.conversation?.conversation_completed_reason?.includes("do_call_via_human")) {
+  if (candidateObj.conversation?.conversation_completed_reason?.includes("do_complete_process")) {
     conversationType = CONVERSION_TYPE_INTERVIEW;
   }
   if (existingConversation) {
@@ -348,7 +348,7 @@ export async function getPendingNotCompletedCandidates(remainders: boolean) {
           $or: [
             { "conversation.conversation_completed": false },
             { "conversation.conversation_completed": { $exists: false } },
-            { "conversation.conversation_completed_reason": "got_shortlisted.do_call_via_human" }, // need to now check even for interview
+            { "conversation.conversation_completed_reason": "got_shortlisted.do_complete_process" }, // need to now check even for interview
           ],
           "conversation.started_at": {
             $gte: startOfDay,
@@ -375,7 +375,7 @@ export async function getPendingNotCompletedCandidates(remainders: boolean) {
           $or: [
             { "conversation.conversation_completed": false },
             { "conversation.conversation_completed": { $exists: false } },
-            { "conversation.conversation_completed_reason": "got_shortlisted.do_call_via_human" }, // need to now check even for interview
+            { "conversation.conversation_completed_reason": "got_shortlisted.do_complete_process" }, // need to now check even for interview
           ],
           "conversation.started_at": {
             $gte: startOfDay,
@@ -491,7 +491,7 @@ export const getShortlistedCandidates = async () => {
     .collection("candidates")
     .find(
       {
-        "conversation.conversation_completed_reason": "got_shortlisted.do_call_via_human",
+        "conversation.conversation_completed_reason": "got_shortlisted.do_complete_process",
         "conversation.started_at": {
           $gte: startOfDay,
           $lt: startOfNextDay,

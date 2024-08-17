@@ -153,7 +153,7 @@ export const STAGE_RULE_MAP: Record<
     //   rule: "if candidate has not provided his availablity but has provided his phone number",
     //   response: "ask candidate for phone number and available time",
     // },
-    do_call_via_human: {
+    do_complete_process: {
       rule: "if candidate has provided his phone number and also provided his availability",
       response: `mention that you are shortlisted and we will start next round soon.
       `,
