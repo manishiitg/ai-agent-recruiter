@@ -499,7 +499,7 @@ export const schedule_message_to_be_processed = async (fromNumber: string, toNum
         }
       }
       // }
-      // got_shortlisted.do_call_via_human
+      // got_shortlisted.do_complete_process
       if (agentReply.action == "do_complete_process") {
         setTimeout(() => {
           schedule_message_to_be_processed(fromNumber, toNumber, "human-interview-start");

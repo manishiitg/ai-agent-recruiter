@@ -207,7 +207,7 @@ export const process_whatsapp_conversation = async (
     await saveCandidateDetailsToDB(candidate);
     // }
 
-    const shortlist_reply = await shortlist(phoneNo, candidate.conversation, ratingReply.rating);
+    const shortlist_reply = await shortlist(phoneNo, candidate.conversation, ratingReply.rating, ratingReply.reason);
     if (shortlist_reply.is_shortlisted) if (candidate.conversation) candidate.conversation.stage = STAGE_SHORTLISTED;
     if (!shortlist_reply.is_shortlisted)
       if (candidate.conversation) {

@@ -8,7 +8,8 @@ import { callLLM } from "../../llms";
 export const shortlist = async (
   profileID: string,
   conversationObj: Conversation,
-  resumeRating: string
+  resumeRating: string,
+  resumeRatingReason: string,
 ): Promise<{
   is_shortlisted: boolean;
   reason: string;
@@ -55,6 +56,9 @@ export const shortlist = async (
   <RESUME_RATING>
   ${resumeRating}
   </RESUME_RATING>
+  <RESUME_RATING_REASON>
+  ${resumeRatingReason}
+  </RESUME_RATING_REASON>
   
   To make your decision, carefully review the candidate's resume and current data against all of the shortlisting rules provided for the job profile. The candidate must meet every rule in order to be shortlisted.
   
