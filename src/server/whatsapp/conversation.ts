@@ -202,6 +202,15 @@ export const process_whatsapp_conversation = async (
 
     // if (!candidate.conversation.resume_ratings) {
     const ratingReply = await rate_resume(candidate.id, candidate.conversation);
+
+    let resume_context = `
+    Resume Rating ${ratingReply.rating}
+    Rating Reason ${ratingReply.reason}
+    `;
+    const { slack_thread_id, channel_id } = await get_whatspp_conversations(candidate.id);
+    await postMessageToThread(slack_thread_id, resume_context, channel_id);
+    await update_slack_thread_id_for_conversion(phoneNo, slack_thread_id, channel_id);
+
     candidate.conversation.resume_ratings = ratingReply.rating;
     candidate.conversation.resume_ratings_reason = ratingReply.reason;
     await saveCandidateDetailsToDB(candidate);
