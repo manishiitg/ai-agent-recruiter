@@ -224,7 +224,7 @@ export const process_whatsapp_conversation = async (
     if (shortlist_reply.is_shortlisted) {
       const ratingReply = await rate_resume(candidate.id, candidate.conversation);
       cost.push({
-        cost: shortlist_reply.cost,
+        cost: ratingReply.cost,
         type: `rate_resume`,
       });
 
@@ -358,16 +358,11 @@ const callViaHuman = async (candidate: Candidate, creds: WhatsAppCreds, phoneNo:
 
   if (slack_action_channel_id) {
     if (candidate.conversation && candidate.conversation.resume) {
-      // const ratingReply = await rate_resume(candidate.id, candidate.conversation);
 
       let { conversation } = await get_whatspp_conversations(phoneNo);
       const sortedConversation = sortBy(conversation, (conv: WhatsAppConversaion) => {
         return conv.created_at;
       });
-
-      // candidate.conversation.resume_ratings = ratingReply.rating;
-      // candidate.conversation.resume_ratings_reason = ratingReply.reason;
-      // await saveCandidateDetailsToDB(candidate);
 
       const msg = `call the candidate ${candidate.id} ${
         candidate.conversation.info?.name
