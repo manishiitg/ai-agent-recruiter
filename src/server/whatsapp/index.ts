@@ -464,7 +464,7 @@ export const schedule_message_to_be_processed = async (fromNumber: string, toNum
       let costBreakUp = ``;
       let totalCost = 0;
       for (const x of agentReply.cost) {
-        costBreakUp += `${Math.round(x.cost * 100) / 100}:${x.type} -> `;
+        costBreakUp += `${x.type}:${Math.round(x.cost * 100) / 100} -> `;
         totalCost += x.cost;
       }
       costBreakUp += `totalCost:${Math.round(totalCost * 100) / 100}`;
