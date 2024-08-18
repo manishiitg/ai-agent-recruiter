@@ -101,7 +101,7 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
           }
 
           if (is_new_candidate) {
-            const text = `Hi! I'm Mahima from Excellence Technologies. Can you send me your resume, expected CTC, current location and job profile you are looking for. This is an AI assisted process to quickly shortlist your candidature.`;
+            const text = `Hi! I'm Mahima from Excellence Technologies. Can you send me your resume, expected CTC, current location and job profile you are looking for. This is an AI assisted process to quickly shortlist your profile.`;
             await save_whatsapp_conversation("agent", fromNumber, toNumber, "text", text, "", "");
             await send_whatsapp_text_reply(text, fromNumber, toNumber);
             const { slack_thread_id, channel_id } = await get_whatspp_conversations(fromNumber);
@@ -464,10 +464,10 @@ export const schedule_message_to_be_processed = async (fromNumber: string, toNum
       let costBreakUp = ``;
       let totalCost = 0;
       for (const x of agentReply.cost) {
-        costBreakUp += `${x.cost}:${x.type} -> `;
+        costBreakUp += `${Math.round(x.cost * 100) / 100}:${x.type} -> `;
         totalCost += x.cost;
       }
-      costBreakUp += `totalCost:${totalCost}`;
+      costBreakUp += `totalCost:${Math.round(totalCost * 100) / 100}`;
       if (agentReply.action.includes("no_action")) {
         const { slack_thread_id, channel_id } = await get_whatspp_conversations(fromNumber);
         if (slack_thread_id) {
