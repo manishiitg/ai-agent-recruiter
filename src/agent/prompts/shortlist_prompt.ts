@@ -7,9 +7,7 @@ import { callLLM } from "../../llms";
 
 export const shortlist = async (
   profileID: string,
-  conversationObj: Conversation,
-  resumeRating: string,
-  resumeRatingReason: string,
+  conversationObj: Conversation
 ): Promise<{
   is_shortlisted: boolean;
   reason: string;
@@ -17,7 +15,6 @@ export const shortlist = async (
   job_profile: string;
 }> => {
   const classified_job_profile = conversationObj.info?.suitable_job_profile;
-  const full_resume_text = conversationObj.resume?.full_resume_text;
   const context = get_context(conversationObj);
   let shortlisting = "";
 
@@ -53,13 +50,6 @@ export const shortlist = async (
   ${classified_job_profile}
   </CLASSIFIED_JOB_PROFILE>
 
-  <RESUME_RATING>
-  ${resumeRating}
-  </RESUME_RATING>
-  <RESUME_RATING_REASON>
-  ${resumeRatingReason}
-  </RESUME_RATING_REASON>
-  
   To make your decision, carefully review the candidate's resume and current data against all of the shortlisting rules provided for the job profile. The candidate must meet every rule in order to be shortlisted.
   
   In your response, show your reasoning and calculations step-by-step:
@@ -117,4 +107,90 @@ export const shortlist = async (
   <final_rejection_reason>${jObj["RESPONSE"]["FINAL_REASON"]}</final_rejection_reason>`;
 
   return { job_profile, is_shortlisted, reason, llm_output };
+};
+
+export const shorlist_by_resume = async (profileID: string, conversationObj: Conversation, resume_rating: string, resume_rating_reason: string) => {
+  const classified_job_profile = conversationObj.info?.suitable_job_profile;
+  let shortlisting = "";
+
+  console.log("candidate shortling existing", classified_job_profile);
+  if (classified_job_profile) {
+    for (const k in linkedJobProfileRules) {
+      if (linkedJobProfileRules[k].is_open)
+        if (classified_job_profile.includes(k) || k == classified_job_profile) {
+          shortlisting += `Job Profile: ${k} \n Shortlisting Criteria: ${linkedJobProfileRules[k].resume_criteria} \n\n`;
+          break;
+        }
+    }
+  }
+
+  let llm_output = "";
+  const prompt = `You will be acting as an HR recruiter tasked with shortlisting or rejecting a job candidate based on their resume and profile. 
+  
+  You are provided with a resume rating and you need to check if candidate fullfills the resume ratings as per criteria
+
+  <RULES_FOR_SHORTLISTING>
+  ${shortlisting}
+  </RULES_FOR_SHORTLISTING>
+  
+
+  Your task is to determine if the candidate meets the criteria to be shortlisted for this specific job profile:
+  <CLASSIFIED_JOB_PROFILE>
+  ${classified_job_profile}
+  </CLASSIFIED_JOB_PROFILE>
+
+  <RESUME_RATING>
+  ${resume_rating}
+  </RESUME_RATING>
+  <RESUME_RATING_REASON>
+  ${resume_rating_reason}
+  </RESUME_RATING_REASON>
+  
+  To make your decision, carefully review the candidate's resume rating against all of the shortlisting rules provided for the job profile. The candidate must meet every rule in order to be shortlisted.
+  
+  After you have checked all the shortlisting rules, make a final decision on whether to shortlist the candidate or not:
+  - In <SHORTLIST> tags, write "YES" if the candidate meets all the rules and should be shortlisted, or "NO" if the candidate fails to meet any of the rules and should be rejected. 
+  - In <FINAL_REASON> tags, summarize the key reasons for your decision in 1-2 concise sentences.
+  
+  If any information is missing and you are unable to evaluate a critira, that should not result in rejection a candidate.
+  If information is missing, assume the rule gets passed.
+
+  Your entire response should be formatted like this, with no extra tags or placeholders:
+  <RESPONSE>
+    <REASON>Step-by-step reasoning for every rule</REASON>
+    <SHORTLIST>YES or NO</SHORTLIST>
+  </RESPONSE>
+  
+  Remember, the candidate must meet ALL of the job's shortlisting rules to be accepted, otherwise they must be rejected. Review the candidate's information carefully and make your decision based solely on the facts provided. Do not make any assumptions that are not supported by the candidate's resume or data.`;
+
+  llm_output = await callLLM(prompt, profileID, 0, DEEP_SEEK_V2_CODER, { type: "resume_shortlist" }, async (llm_output: string): Promise<Record<string, string>> => {
+    const jObj = await parseStringPromise(llm_output, {
+      explicitArray: false,
+      strict: false,
+    });
+    return {
+      SHORTLIST: jObj["RESPONSE"]["SHORTLIST"],
+      JOB_PROFILE: jObj["RESPONSE"]["REASON"],
+    };
+  });
+
+  let is_shortlisted = false;
+  let reason = "";
+  const jObj = await parseStringPromise(llm_output, {
+    explicitArray: false,
+    strict: false,
+  });
+  if (!("RESPONSE" in jObj)) {
+    throw new Error("response not found!");
+  }
+
+  const SHORTLIST = jObj["RESPONSE"]["SHORTLIST"];
+  if (SHORTLIST.includes("NO")) {
+    is_shortlisted = false;
+  } else {
+    is_shortlisted = true;
+  }
+  reason = `<final_rejection_reason>${jObj["RESPONSE"]["REASON"]}</final_rejection_reason>`;
+
+  return {is_shortlisted, reason, llm_output };
 };

@@ -25,7 +25,7 @@ import { summariseResume } from "../../agent/prompts/summary_resume_prompt";
 import { transitionStage } from "../../agent/recruiter/transitions";
 import { ConversationMessage } from "../../agent/recruiter/types/conversation";
 import { askOptionsFromConsole } from "../../communication/console";
-import { shortlist } from "../../agent/prompts/shortlist_prompt";
+import { shorlist_by_resume, shortlist } from "../../agent/prompts/shortlist_prompt";
 import { postAttachment, postMessage, postMessageToThread } from "../../communication/slack";
 import sortBy from "lodash/sortBy";
 import { downloadFile } from "./util";
@@ -200,25 +200,32 @@ export const process_whatsapp_conversation = async (
       throw new Error("cannot shortlist without resume");
     }
 
-    // if (!candidate.conversation.resume_ratings) {
-    const ratingReply = await rate_resume(candidate.id, candidate.conversation);
+    let shortlist_reply = await shortlist(phoneNo, candidate.conversation);
+    if (shortlist_reply.is_shortlisted) {
+      const ratingReply = await rate_resume(candidate.id, candidate.conversation);
 
-    let resume_context = `
-    Resume Rating ${ratingReply.rating}
-    Rating Reason ${ratingReply.reason}
+      let resume_context = `
+      Resume Rating ${ratingReply.rating}
+      Rating Reason ${ratingReply.reason}
     `;
-    const { slack_thread_id, channel_id } = await get_whatspp_conversations(candidate.id);
-    await postMessageToThread(slack_thread_id, resume_context, channel_id);
-    await update_slack_thread_id_for_conversion(phoneNo, slack_thread_id, channel_id);
+      const { slack_thread_id, channel_id } = await get_whatspp_conversations(candidate.id);
+      await postMessageToThread(slack_thread_id, resume_context, channel_id);
+      await update_slack_thread_id_for_conversion(phoneNo, slack_thread_id, channel_id);
 
-    candidate.conversation.resume_ratings = ratingReply.rating;
-    candidate.conversation.resume_ratings_reason = ratingReply.reason;
-    candidate.conversation.resume_ratings_dump = JSON.stringify(ratingReply);
-    await saveCandidateDetailsToDB(candidate);
-    // }
+      candidate.conversation.resume_ratings = ratingReply.rating;
+      candidate.conversation.resume_ratings_reason = ratingReply.reason;
+      candidate.conversation.resume_ratings_dump = JSON.stringify(ratingReply);
+      await saveCandidateDetailsToDB(candidate);
 
-    const shortlist_reply = await shortlist(phoneNo, candidate.conversation, ratingReply.rating, ratingReply.reason);
-    if (shortlist_reply.is_shortlisted) if (candidate.conversation) candidate.conversation.stage = STAGE_SHORTLISTED;
+      const shortlistByResume = await shorlist_by_resume(phoneNo, candidate.conversation, ratingReply.rating, ratingReply.reason);
+      if (shortlistByResume.is_shortlisted) {
+        candidate.conversation.stage = STAGE_SHORTLISTED;
+      } else {
+        candidate.conversation.stage = STAGE_GOT_REJECTED;
+        shortlist_reply.is_shortlisted = false;
+        shortlist_reply.reason = shortlistByResume.reason;
+      }
+    }
     if (!shortlist_reply.is_shortlisted)
       if (candidate.conversation) {
         candidate.conversation.stage = STAGE_GOT_REJECTED;

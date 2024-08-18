@@ -18,6 +18,7 @@ export const linkedJobProfileRules: Record<
     is_open: boolean;
     job_description: string;
     resume_rating: string;
+    resume_criteria: string;
     questions_to_ask: string[];
   }
 > = {
@@ -34,6 +35,7 @@ export const linkedJobProfileRules: Record<
     Rule 5. Candidate should have worked on recuitment, interview scheduling, linkedin. 
     Rule 6. Candidate should have worked on projects/internship related to recruitment, hiring, hr administration.
     Rule 7. Candidate should only be a female.`,
+    resume_criteria: `Resume rating should be more than 6`,
     resume_rating: `
     - Candidate should have worked on projects/internship related to recruitment, hiring, hr administration.`,
     questions_to_ask: [`How do you hire candidates from naukri!`, `Whats your apprach to hire candidates from linkedin`],
@@ -46,6 +48,7 @@ export const linkedJobProfileRules: Record<
     Rule 2. Candidate should not belong to locations ${exclude_location_rule}
     Rule 3. Candidate should have maximum salary of 40,000 per month. If candidates salary is not mentioned, assume he passes this criteria.
     Rule 4. Candidate should have done multiple experiance/projects/internship related reactjs or vuejs or javascript. This is an important rule.`,
+    resume_criteria: `Resume rating should be more than 6`,
     resume_rating: `
     - Candidate should have done multiple experiance/projects/internship related to reactjs or vuejs.`,
     questions_to_ask: [`expressjs middleware`, `interact with mongodb`],
@@ -59,6 +62,7 @@ export const linkedJobProfileRules: Record<
     Rule 3. Candidate should have maximum salary of 30,000 per month or 4LPA per year. If candidates salary is not mentioned, assume he passes this criteria.
     Rule 5. Candidate should have done multiple experiance/projects/internship related reactjs. This is an important rule.`,
     // full_criteria: `Candidate should have done multiple experiance/projects/internship related reactjs. This is an important rule.`,
+    resume_criteria: `Resume rating should be more than 6`,
     resume_rating: `
     - Candidate should have done multiple experiance/projects/internship related to reactjs
     - experiance with technologies like aws, docker, google cloud are a plus point
@@ -82,6 +86,7 @@ export const linkedJobProfileRules: Record<
     Rule 4. Candidate should not have more than 1year of Experience.
     Rule 5. Candidate should have done multiple work/projects/internship related vuejs. This is an important rule.`,
     // full_criteria: `Candidate should have done multiple work/projects/internship related vuejs/javascript. This is an important rule.`,
+    resume_criteria: `Resume rating should be more than 6`,
     resume_rating: `
     - Candidate should have done multiple experiance/projects/internship related to vuejs
     - experiance with technologies like aws, docker, google cloud are a plus point
@@ -95,10 +100,10 @@ export const linkedJobProfileRules: Record<
     // full_criteria: `
     // Rule 2. Candidate should have maximum salary of 40,000 per month. If candidates salary is not mentioned, assume he passes this criteria.
     // Rule 3. Candidate should have done multiple experiance/projects/internship related to nodejs. This is an important rule.`,
+    resume_criteria: `Resume rating should be more than 6`,
     full_criteria: `
     - Candidate should not belong to locations ${exclude_location_rule}
     - Candidate should have maximum salary of 40,000 per month or 6LPA per year. If candidates salary is not mentioned, assume he passes this criteria.
-    - resume rating should be more than 6
     `,
     resume_rating: `
     Rate the following Node.js developer candidate on a scale of 1-10 based on their demonstrated proficiency in the following areas:
@@ -136,8 +141,8 @@ export const linkedJobProfileRules: Record<
     full_criteria: `
     - Candidate should not belong to locations ${exclude_location_rule}
     - Candidate should have maximum salary of 40,000 per month or 6LPA per year. If candidates salary is not mentioned, assume he passes this criteria.
-    - resume rating should be more than 6
     `,
+    resume_criteria: `Resume rating should be more than 6`,
     resume_rating: `
       Rating criteria for a Python developer candidate on a scale of 1-10, keeping points 1 to 7 as the highest priority:
       0. Very important for candidate to have done internships or have work experiance
@@ -175,6 +180,7 @@ export const linkedJobProfileRules: Record<
     full_criteria: `
     - Rule 1. Candidate should have maximum salary of 50,000 per month or 6LPA per year. If candidates salary is not mentioned, assume he passes this criteria.
     - Candidate should have done multiple work/projects/internship related python. This is an important rule.`,
+    resume_criteria: `Resume rating should be more than 6`,
     resume_rating: `
     - Candidate should have done multiple experiance/projects/internship related to python and flask/django
     - Candidate should have done multiple experiance/projects/internship related mongodb or mysql database
@@ -199,6 +205,7 @@ export const linkedJobProfileRules: Record<
     Rule 2. Candidate should not belong to locations ${exclude_location_rule}
     Rule 3. Candidate should have maximum salary of 40,000 per month. If candidates salary is not mentioned, assume he passes this criteria.
     Rule 5. Candidate should have done multiple work/projects/internship related php. This is an important rule.`,
+    resume_criteria: `Resume rating should be more than 6`,
     resume_rating: `
     - Candidate should have done multiple experiance/projects/internship related to laravel.
     - Candidate should have done multiple experiance/projects/internship related mongodb or mysql database`,
@@ -213,6 +220,7 @@ export const linkedJobProfileRules: Record<
     Rule 3. Candidate should have maximum salary of 40,000 per month. If candidates salary is not mentioned, assume he passes this criteria.
     Rule 4. Candidate should not have more than 1year of Experience.
     Rule 5. Candidate should have done multiple work/projects/internship related php. This is an important rule.`,
+    resume_criteria: `Resume rating should be more than 6`,
     resume_rating: `
     - Candidate should have done multiple experiance/projects/internship related to laravel.
     - Candidate should have done multiple experiance/projects/internship related mongodb or mysql database`,
@@ -231,6 +239,7 @@ export const linkedJobProfileRules: Record<
     Rule 4. Candidate should not have more than 10year of Experience.
     Rule 5. Candidate should have worked on work he should have worked in linkedin lead generation or email marketin or lead generation or project bidding
     Rule 6. Knows about Linkedin or Email Marketing or B2B Sales or Upwork or Lead Generation`,
+    resume_criteria: `Resume rating should be more than 6`,
     resume_rating: `
     - Candidate should have done multiple experiance/projects/internship related to Linkedin or Email Marketing or B2B Sales or Upwork or Lead Generation`,
     questions_to_ask: [`what is states vs props`],
