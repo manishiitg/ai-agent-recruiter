@@ -398,6 +398,8 @@ const callViaHuman = async (phoneNo: string, interview: Interview, cost: { type:
                   } catch (error) {
                     console.error(error);
                   }
+
+                  await postMessageToThread(slack_thread_id, `${file.transcribe}`, process.env.slack_hr_screening_channel_id);
                 }
               }
             } catch (error) {
