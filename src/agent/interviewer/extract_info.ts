@@ -40,7 +40,7 @@ export const extractInfo = async (profileID: string, me: string, conversation: s
   });
   console.log("LLM Output:", llm_output);
 
-  const jObj = await parseStringPromise(llm_output, {
+  const jObj = await parseStringPromise(llm_output.response, {
     explicitArray: false,
     strict: false,
   });
@@ -69,5 +69,5 @@ export const extractInfo = async (profileID: string, me: string, conversation: s
     }
   }
 
-  return { llm_output, start_interview, reject_interview };
+  return { llm_output, start_interview, reject_interview, cost: llm_output.cost };
 };

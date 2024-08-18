@@ -31,7 +31,10 @@ export async function callClaudeViaMessages(
   model = CLAUDE_HAIKU,
   meta = {},
   cb: (output: string) => Promise<Record<string, string>>
-): Promise<string> {
+): Promise<{
+  response: string;
+  cost: number;
+}> {
   const ttl = new Date().getTime();
   const trace = langfuse.trace({
     name: user,
@@ -101,17 +104,26 @@ export async function callClaudeViaMessages(
     version: model,
   });
 
-  console.log("typedData.usage", response.usage);
-  console.log(
-    `claude ${model} system costs`,
+  const cost =
     (response.usage.input_tokens * input_cost + (response.usage.cache_creation_input_tokens || 0) * caching_read_costs + (response.usage.cache_creation_input_tokens || 0) * caching_write_cost) /
       1000000 +
-      (response.usage.output_tokens * output_cost) / 1000000
-  );
-  return responseText;
+    (response.usage.output_tokens * output_cost) / 1000000;
+  console.log("typedData.usage", response.usage);
+  console.log(`claude ${model} system costs`, cost);
+  return {
+    response: responseText,
+    cost: cost,
+  };
 }
 
-export async function callClaudeLLM(prompt: string, user: string, temperature = 0, model = CLAUDE_HAIKU, meta = {}, cb: (output: string) => Promise<Record<string, string>>) {
+export async function callClaudeLLM(
+  prompt: string,
+  user: string,
+  temperature = 0,
+  model = CLAUDE_HAIKU,
+  meta = {},
+  cb: (output: string) => Promise<Record<string, string>>
+): Promise<{ response: string; cost: number }> {
   const ttl = new Date().getTime();
   prompt = prompt.replace(/[^\x00-\x7F]/g, "");
   const trace = langfuse.trace({
@@ -182,12 +194,14 @@ export async function callClaudeLLM(prompt: string, user: string, temperature = 
     version: model,
   });
 
-  console.log("typedData.usage", response.usage);
-  console.log(
-    `claude ${model} costs`,
+  const cost =
     (response.usage.input_tokens * input_cost + (response.usage.cache_creation_input_tokens || 0) * caching_read_costs + (response.usage.cache_creation_input_tokens || 0) * caching_write_cost) /
       1000000 +
-      (response.usage.output_tokens * output_cost) / 1000000
-  );
-  return responseText;
+    (response.usage.output_tokens * output_cost) / 1000000;
+  console.log("typedData.usage", response.usage);
+  console.log(`claude ${model} costs ${cost}`);
+  return {
+    response: responseText,
+    cost: cost,
+  };
 }

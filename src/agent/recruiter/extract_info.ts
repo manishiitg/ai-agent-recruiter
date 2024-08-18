@@ -56,16 +56,22 @@ export const classify_conversation = async (profileID: string, conversation: str
   });
   console.log("LLM Output:", llm_output);
 
-  const jObj = await parseStringPromise(llm_output, {
+  const jObj = await parseStringPromise(llm_output.response, {
     explicitArray: false,
     strict: false,
   });
   if (!("RESPONSE" in jObj)) {
     throw new Error("response not found!");
   }
-  return { CLASSIFIED_CATEGORY: jObj["RESPONSE"]["CLASSIFIED_CATEGORY"], REASON: jObj["RESPONSE"]["REASON"] };
+  return { CLASSIFIED_CATEGORY: jObj["RESPONSE"]["CLASSIFIED_CATEGORY"], REASON: jObj["RESPONSE"]["REASON"], cost: llm_output.cost };
 };
-export const extractInfo = async (profileID: string, me: string, conversation: string, short_profile: string, type: "gmail" | "linkedin" | "whatsapp" = "whatsapp"): Promise<CandidateInfo> => {
+export const extractInfo = async (
+  profileID: string,
+  me: string,
+  conversation: string,
+  short_profile: string,
+  type: "gmail" | "linkedin" | "whatsapp" = "whatsapp"
+): Promise<{ info: CandidateInfo; cost: number }> => {
   let open_jobs = "";
   let ix = 1;
   for (const k in linkedJobProfileRules) {
@@ -147,7 +153,7 @@ export const extractInfo = async (profileID: string, me: string, conversation: s
   });
   console.log("LLM Output:", llm_output);
 
-  const jObj = await parseStringPromise(llm_output, {
+  const jObj = await parseStringPromise(llm_output.response, {
     explicitArray: false,
     strict: false,
   });
@@ -216,5 +222,8 @@ export const extractInfo = async (profileID: string, me: string, conversation: s
     info.gender = extractedFields["GENDER"];
   }
 
-  return info;
+  return {
+    info: info,
+    cost: llm_output.cost,
+  };
 };

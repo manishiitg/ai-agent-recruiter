@@ -12,7 +12,7 @@ export async function callViaMessages(
   model = DEEP_SEEK_V2_CODER,
   meta = {},
   cb: (output: string) => Promise<Record<string, string>>
-): Promise<string> {
+): Promise<{ response: string; cost: number }> {
   if (model === DEEP_SEEK_V2_CODER || model === DEEP_SEEK_V2_CHAT) {
     return callDeepseekMessages(system, messages, user, temperature, model, meta, cb);
   } else if (model == CLAUDE_HAIKU || model == CLAUDE_SONNET) {
@@ -22,7 +22,14 @@ export async function callViaMessages(
   throw new Error(`${model} not found!`);
 }
 
-export async function callLLM(prompt: string, user: string, temperature = 0, model = DEEP_SEEK_V2_CODER, meta = {}, cb: (output: string) => Promise<Record<string, string>>) {
+export async function callLLM(
+  prompt: string,
+  user: string,
+  temperature = 0,
+  model = DEEP_SEEK_V2_CODER,
+  meta = {},
+  cb: (output: string) => Promise<Record<string, string>>
+): Promise<{ response: string; cost: number }> {
   if (model === DEEP_SEEK_V2_CODER || model === DEEP_SEEK_V2_CHAT) {
     return callDeepkSeekLLM(prompt, user, temperature, model, meta, cb);
   } else if (model == CLAUDE_HAIKU || model == CLAUDE_SONNET) {

@@ -18,6 +18,7 @@ export const generateConversationReply = async (
   reply: string;
   reason: string;
   output: string;
+  cost: number;
 }> => {
   let stage = conversationObj.interview?.stage || STAGE_NEW;
   const actions_taken = conversationObj.interview?.actions_taken || [];
@@ -186,7 +187,7 @@ Remember to check all rules before selecting the final one, and ensure that your
   let action = "";
   let reason = "";
 
-  const jObj = await parseStringPromise(llm_output, {
+  const jObj = await parseStringPromise(llm_output.response, {
     explicitArray: false,
     strict: false,
   });
@@ -204,7 +205,7 @@ Remember to check all rules before selecting the final one, and ensure that your
   console.log(profileID, "got final action", action);
   console.log(profileID, "actions already taken", actions_taken);
   console.log(profileID, "got candidate stage", stage);
-  return { action, reply, reason, output: llm_output };
+  return { action, reply, reason, output: llm_output.response, cost: llm_output.cost };
 };
 
 export const get_context = (conversationObj: Interview) => {

@@ -24,6 +24,7 @@ export const generateConversationReply = async (
   action: string;
   reply: string;
   reason: string;
+  cost: number;
 }> => {
   const stage = conversationObj.stage;
   const actions_taken = conversationObj.actions_taken;
@@ -120,9 +121,9 @@ export const generateConversationReply = async (
   if (pending_actions.length == 0) {
     console.log(profileID, "all possible actions completed!", stage);
     if (stage == STAGE_SHORTLISTED) {
-      return { action: `${stage}.do_complete_process_no_pending_actions`, reply: "", reason: "" };
+      return { action: `${stage}.do_complete_process_no_pending_actions`, reply: "", reason: "", cost: 0 };
     } else if (stage == STAGE_GOT_REJECTED) {
-      return { action: `${stage}.no_action`, reply: "", reason: "" };
+      return { action: `${stage}.no_action`, reply: "", reason: "", cost: 0 };
     } else {
       throw new Error("debug"); //TODO
     }
@@ -241,7 +242,7 @@ Remember to check all rules before selecting the final one, and ensure that your
   let action = "";
   let reason = "";
 
-  const jObj = await parseStringPromise(llm_output, {
+  const jObj = await parseStringPromise(llm_output.response, {
     explicitArray: false,
     strict: false,
   });
@@ -258,7 +259,7 @@ Remember to check all rules before selecting the final one, and ensure that your
   // console.log("got final action", action);
   // console.log("actions taken", actions_taken);
   // console.log("got candidate stage", stage);
-  return { action, reply, reason };
+  return { action, reply, reason, cost: llm_output.cost };
 };
 
 export const get_context = (conversationObj: Conversation) => {

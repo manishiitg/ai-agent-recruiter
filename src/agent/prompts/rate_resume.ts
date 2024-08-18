@@ -1,7 +1,7 @@
 import { parseStringPromise } from "xml2js";
 import { Conversation } from "../recruiter/types/conversation";
 import { linkedJobProfileRules } from "../jobconfig";
-import {  DEEP_SEEK_V2_CODER } from "../../llms/deepkseek";
+import { DEEP_SEEK_V2_CODER } from "../../llms/deepkseek";
 import { callLLM } from "../../llms";
 
 export const rate_resume = async (profileID: string, conversationObj: Conversation) => {
@@ -57,11 +57,9 @@ Respond only in xml format as below.
 
   // Give a rating of more than 5 only if candidate has worked on complex internships/ work experiance / training and has worked on multiple complex  / internships/ work experiance / training related to job criteria.
 
-
   // <JOB_TITLE>
   // ${classified_job_profile}
   // </JOB_TITLE>
-  
 
   llm_output = await callLLM(prompt, profileID, 0, DEEP_SEEK_V2_CODER, { type: "rate_resume" }, async (llm_output: string): Promise<Record<string, string>> => {
     const jObj = await parseStringPromise(llm_output, {
@@ -75,6 +73,7 @@ Respond only in xml format as below.
 
   let reason = "";
   let rating = "";
+  let analysis = "";
   const jObj = await parseStringPromise(llm_output, {
     explicitArray: false,
     strict: false,
@@ -83,7 +82,8 @@ Respond only in xml format as below.
     throw new Error("response not found!");
   }
   rating = jObj["RESPONSE"]["RATING"].trim();
-  reason = jObj["RESPONSE"]["ANALYSIS"] + JSON.stringify(jObj["RESPONSE"]["INTERNSHIP_WORK_TRAINING_ANALYSIS"]);
+  reason = jObj["RESPONSE"]["ANALYSIS"];
+  analysis = JSON.stringify(jObj["RESPONSE"]["INTERNSHIP_WORK_ANALYSIS"]);
 
-  return { rating, reason };
+  return { rating, reason, analysis };
 };

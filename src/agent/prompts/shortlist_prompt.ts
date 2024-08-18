@@ -13,6 +13,7 @@ export const shortlist = async (
   reason: string;
   llm_output: string;
   job_profile: string;
+  cost: number;
 }> => {
   const classified_job_profile = conversationObj.info?.suitable_job_profile;
   const context = get_context(conversationObj);
@@ -73,7 +74,7 @@ export const shortlist = async (
   
   Remember, the candidate must meet ALL of the job's shortlisting rules to be accepted, otherwise they must be rejected. Review the candidate's information carefully and make your decision based solely on the facts provided. Do not make any assumptions that are not supported by the candidate's resume or data.`;
 
-  llm_output = await callLLM(prompt, profileID, 0, DEEP_SEEK_V2_CODER, { type: "shortlist" }, async (llm_output: string): Promise<Record<string, string>> => {
+  const llm_output_reply = await callLLM(prompt, profileID, 0, DEEP_SEEK_V2_CODER, { type: "shortlist" }, async (llm_output: string): Promise<Record<string, string>> => {
     const jObj = await parseStringPromise(llm_output, {
       explicitArray: false,
       strict: false,
@@ -83,6 +84,7 @@ export const shortlist = async (
       JOB_PROFILE: jObj["RESPONSE"]["JOB_PROFILE"],
     };
   });
+  llm_output = llm_output_reply.response;
 
   let is_shortlisted = false;
   let reason = "";
@@ -106,7 +108,7 @@ export const shortlist = async (
   reason = `<full_rejection_evaluation>${jObj["RESPONSE"]["REASON"]}</full_rejection_evaluation>
   <final_rejection_reason>${jObj["RESPONSE"]["FINAL_REASON"]}</final_rejection_reason>`;
 
-  return { job_profile, is_shortlisted, reason, llm_output };
+  return { job_profile, is_shortlisted, reason, llm_output, cost: llm_output_reply.cost };
 };
 
 export const shorlist_by_resume = async (profileID: string, conversationObj: Conversation, resume_rating: string, resume_rating_reason: string) => {
@@ -163,7 +165,7 @@ export const shorlist_by_resume = async (profileID: string, conversationObj: Con
   
   Remember, the candidate must meet ALL of the job's shortlisting rules to be accepted, otherwise they must be rejected. Review the candidate's information carefully and make your decision based solely on the facts provided. Do not make any assumptions that are not supported by the candidate's resume or data.`;
 
-  llm_output = await callLLM(prompt, profileID, 0, DEEP_SEEK_V2_CODER, { type: "resume_shortlist" }, async (llm_output: string): Promise<Record<string, string>> => {
+  const llm_output_reply = await callLLM(prompt, profileID, 0, DEEP_SEEK_V2_CODER, { type: "resume_shortlist" }, async (llm_output: string): Promise<Record<string, string>> => {
     const jObj = await parseStringPromise(llm_output, {
       explicitArray: false,
       strict: false,
@@ -173,6 +175,8 @@ export const shorlist_by_resume = async (profileID: string, conversationObj: Con
       JOB_PROFILE: jObj["RESPONSE"]["REASON"],
     };
   });
+
+  llm_output = llm_output_reply.response;
 
   let is_shortlisted = false;
   let reason = "";
@@ -192,5 +196,5 @@ export const shorlist_by_resume = async (profileID: string, conversationObj: Con
   }
   reason = `<final_rejection_reason>${jObj["RESPONSE"]["REASON"]}</final_rejection_reason>`;
 
-  return {is_shortlisted, reason, llm_output };
+  return { is_shortlisted, reason, llm_output, cost: llm_output_reply.cost };
 };

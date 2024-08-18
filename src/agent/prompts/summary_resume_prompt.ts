@@ -40,7 +40,7 @@ Remember to be objective and accurate in your analysis and summary. Do not inclu
     return {};
   });
 
-  const jObj = await parseStringPromise(llm_output, {
+  const jObj = await parseStringPromise(llm_output.response, {
     explicitArray: false,
     strict: false,
   });
@@ -49,7 +49,7 @@ Remember to be objective and accurate in your analysis and summary. Do not inclu
   }
 
   const SUMMARY = jObj["RESPONSE"]["SUMMARY"];
-  return { SUMMARY };
+  return { SUMMARY, cost: llm_output.cost };
 };
 
 export const extractResume = async (resume_text: string, profileID: string) => {
@@ -92,7 +92,7 @@ Remember to be objective and accurate in your analysis and summary. Do not inclu
     return {};
   });
 
-  const jObj = await parseStringPromise(llm_output, {
+  const jObj = await parseStringPromise(llm_output.response, {
     explicitArray: false,
     strict: false,
   });
@@ -106,5 +106,5 @@ Remember to be objective and accurate in your analysis and summary. Do not inclu
   const PROJECTS = jObj["RESPONSE"]["PROJECTS"];
   const EDUCATION = jObj["RESPONSE"]["EDUCATION"];
   const TECHNICAL_SKILLS = jObj["RESPONSE"]["TECHNICAL_SKILLS"];
-  return { SUMMARY, CONTACT_INFO, WORK_EXP, PROJECTS, EDUCATION, TECHNICAL_SKILLS };
+  return { SUMMARY, CONTACT_INFO, WORK_EXP, PROJECTS, EDUCATION, TECHNICAL_SKILLS, cost: llm_output.cost };
 };

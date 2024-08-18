@@ -397,6 +397,7 @@ export const schedule_message_to_be_processed = async (fromNumber: string, toNum
     message: string;
     action: string;
     stage: string;
+    cost: { cost: number; type: string }[];
   } | null;
 
   if (CLOSE_BOT && ALLOW_SPECIFIC_USERS[fromNumber] === undefined) {
@@ -460,16 +461,23 @@ export const schedule_message_to_be_processed = async (fromNumber: string, toNum
     }
 
     if (agentReply && agentReply.message) {
+      let costBreakUp = ``;
+      let totalCost = 0;
+      for (const x of agentReply.cost) {
+        costBreakUp += `${x.cost}:${x.type} -> `;
+        totalCost += x.cost;
+      }
+      costBreakUp += `totalCost:${totalCost}`;
       if (agentReply.action.includes("no_action")) {
         const { slack_thread_id, channel_id } = await get_whatspp_conversations(fromNumber);
         if (slack_thread_id) {
           await postMessageToThread(
             slack_thread_id,
-            `HR: ${agentReply.message}. Action: ${agentReply.action} Stage: ${agentReply.stage} ${scheduled_from} ${formatTime(convertToIST(new Date()))}`,
+            `HR: ${agentReply.message}. Action: ${agentReply.action} Stage: ${agentReply.stage} ${scheduled_from} ${formatTime(convertToIST(new Date()))} Cost: ${costBreakUp}`,
             channel_id || process.env.slack_action_channel_id
           );
         } else {
-          const ts = await postMessage(`HR: ${agentReply.message}. Action: ${agentReply.action} Stage: ${agentReply.stage}`, channel_id || process.env.slack_action_channel_id);
+          const ts = await postMessage(`HR: ${agentReply.message}. Action: ${agentReply.action} Stage: ${agentReply.stage}  Cost: ${costBreakUp}`, channel_id || process.env.slack_action_channel_id);
           await update_slack_thread_id_for_conversion(fromNumber, ts, channel_id || process.env.slack_action_channel_id);
         }
       } else {
@@ -490,11 +498,11 @@ export const schedule_message_to_be_processed = async (fromNumber: string, toNum
         if (slack_thread_id) {
           await postMessageToThread(
             slack_thread_id,
-            `HR: ${agentReply.message}. Action: ${agentReply.action} Stage: ${agentReply.stage} ${scheduled_from} ${formatTime(convertToIST(new Date()))}`,
+            `HR: ${agentReply.message}. Action: ${agentReply.action} Stage: ${agentReply.stage} ${scheduled_from} ${formatTime(convertToIST(new Date()))}  Cost: ${costBreakUp}`,
             channel_id || process.env.slack_action_channel_id
           );
         } else {
-          const ts = await postMessage(`HR: ${agentReply.message}. Action: ${agentReply.action} Stage: ${agentReply.stage}`, channel_id || process.env.slack_action_channel_id);
+          const ts = await postMessage(`HR: ${agentReply.message}. Action: ${agentReply.action} Stage: ${agentReply.stage}  Cost: ${costBreakUp}`, channel_id || process.env.slack_action_channel_id);
           await update_slack_thread_id_for_conversion(fromNumber, ts, channel_id || process.env.slack_action_channel_id);
         }
       }

@@ -66,7 +66,12 @@ export const conduct_interview = async (
   message: string;
   action: string;
   stage: string;
+  cost: { cost: number; type: string }[];
 }> => {
+  let cost: {
+    cost: number;
+    type: string;
+  }[] = [];
   let interview: Interview = await getInterviewObject(phoneNo);
 
   if (!interview.interview) {
@@ -83,20 +88,24 @@ export const conduct_interview = async (
   }
   if (interview.interview?.conversation_completed) {
     console.log(phoneNo, "interview message processing completed", interview.interview.conversation_completed_reason);
-    return { message: "", action: "completed", stage: "completed" };
+    return { message: "", action: "completed", stage: "completed", cost: [] };
   }
 
   if (interview.interview.info.gender && interview.interview.info.gender?.toLowerCase().includes("female")) {
     interview.interview.conversation_completed = true;
     interview.interview.conversation_completed_reason = "gender";
     await saveCandidateInterviewToDB(interview);
-    return { message: "", action: "completed", stage: "completed" };
+    return { message: "", action: "completed", stage: "completed", cost: [] };
   }
 
   let llm = await generateConversationReply(phoneNo, interview, creds.name, conversation);
   let action = llm.action;
   let reply = llm.reply;
 
+  cost.push({
+    cost: llm.cost,
+    type: `generateConversationReply`,
+  });
   if (interview.interview.actions_taken) {
     interview.interview.actions_taken.push(action);
   } else {
@@ -195,11 +204,19 @@ export const conduct_interview = async (
       interview.interview?.interview_questions_asked?.forEach((row) => previous_questions.push(row.question_generated));
 
       const generate_questions = await ask_question_for_tech_interview(classified_job_profile || "", question_left_ask[0], previous_questions);
+      cost.push({
+        cost: generate_questions.cost,
+        type: `ask_question_for_tech_interview`,
+      });
       tech_question_to_ask = generate_questions.QUESTION1;
       tech_question_expected_answer = generate_questions.EXPECTED_ANSWER_1;
     } else {
       topic_to_ask = "resume_question";
       const generate_questions = await single_question_to_ask_from_resume(interview.interview.resume.full_resume_text, classified_job_profile || "", job_criteria);
+      cost.push({
+        cost: generate_questions.cost,
+        type: `single_question_to_ask_from_resume`,
+      });
       tech_question_to_ask = generate_questions.QUESTION1;
       tech_question_expected_answer = generate_questions.EXPECTED_ANSWER_1;
     }
@@ -207,6 +224,10 @@ export const conduct_interview = async (
 
     llm = await generateConversationReply(phoneNo, interview, creds.name, conversation, tech_question_to_ask);
     action = llm.action;
+    cost.push({
+      cost: llm.cost,
+      type: `generateConversationReply`,
+    });
     if (interview.interview.actions_taken) {
       interview.interview.actions_taken.push(action);
     } else {
@@ -238,6 +259,10 @@ export const conduct_interview = async (
     interview.interview.interview_info.got_audio_file = false;
     llm = await generateConversationReply(phoneNo, interview, creds.name, conversation);
     action = llm.action;
+    cost.push({
+      cost: llm.cost,
+      type: `generateConversationReply`,
+    });
     if (interview.interview.actions_taken) {
       interview.interview.actions_taken.push(action);
     } else {
@@ -255,15 +280,15 @@ export const conduct_interview = async (
   }
 
   if (interview.interview.stage === STAGE_COMPLETED) {
-    await callViaHuman(phoneNo, interview);
+    await callViaHuman(phoneNo, interview, cost);
   }
 
   await saveCandidateInterviewToDB(interview);
 
-  return { message: reply, action: action, stage: interview.interview?.stage || "" };
+  return { message: reply, action: action, stage: interview.interview?.stage || "", cost };
 };
 
-const callViaHuman = async (phoneNo: string, interview: Interview) => {
+const callViaHuman = async (phoneNo: string, interview: Interview, cost: { type: string; cost: number }[]) => {
   let slack_action_channel_id = process.env.slack_final_action_channel_id || process.env.slack_action_channel_id;
   if (slack_action_channel_id) {
     let { slack_thread_id, channel_id } = await get_whatspp_conversations(phoneNo);
@@ -307,6 +332,10 @@ const callViaHuman = async (phoneNo: string, interview: Interview) => {
         let question_rating: string[] = [];
         if (all_questions.length > 0) {
           const rating_response = await rate_tech_answer_all_question(phoneNo, all_questions, all_answers, all_expected_answers);
+          cost.push({
+            cost: rating_response.cost,
+            type: `rate_tech_answer_all_question`,
+          });
           question_rating = rating_response.question_rating;
           await postMessageToThread(slack_thread_id, `HR Screening Final Rating: ${JSON.stringify(rating_response)}`, channel_id || process.env.slack_action_channel_id);
         }

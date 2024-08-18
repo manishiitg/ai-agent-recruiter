@@ -83,7 +83,15 @@ export const process_whatsapp_conversation = async (
   message: string;
   action: string;
   stage: string;
+  cost: {
+    cost: number;
+    type: string;
+  }[];
 }> => {
+  let cost: {
+    cost: number;
+    type: string;
+  }[] = [];
   let candidate = await getCandidate(phoneNo, whatsapp);
   if (candidate.conversation && !candidate.conversation?.actions_taken) {
     candidate.conversation.actions_taken = [];
@@ -91,7 +99,7 @@ export const process_whatsapp_conversation = async (
 
   if (candidate.conversation?.conversation_completed) {
     console.log(phoneNo, "auto message processing completed", candidate.conversation.conversation_completed_reason);
-    return { message: "", action: "completed", stage: "completed" };
+    return { message: "", action: "completed", stage: "completed", cost };
   }
 
   if (!candidate.conversation) {
@@ -125,8 +133,12 @@ export const process_whatsapp_conversation = async (
   if (shouldExtractInfo(candidate.conversation?.info) && candidate.conversation.resume && candidate.conversation.resume?.full_resume_text.length > 0) {
     //atleast two messages
     const info = await extractInfo(phoneNo, creds.name, convertConversationToText(conversation), candidate.conversation.resume?.full_resume_text);
+    cost.push({
+      cost: info.cost,
+      type: `extractInfo`,
+    });
     if (info) {
-      candidate.conversation.info = info;
+      candidate.conversation.info = info.info;
       await saveCandidateDetailsToDB(candidate);
     }
   }
@@ -143,7 +155,7 @@ export const process_whatsapp_conversation = async (
     candidate.conversation?.classifed_to.category.includes(CONV_CLASSIFY_FRIEND_PREFIX)
   ) {
     console.log(phoneNo, "conversation type not supported skipping", candidate.conversation?.classifed_to.category);
-    return { message: "Sorry this is only regarding job", action: "classify_non_job", stage: "" };
+    return { message: "Sorry this is only regarding job", action: "classify_non_job", stage: "", cost };
   }
 
   const new_stage = await transitionStage(candidate.conversation);
@@ -162,6 +174,10 @@ export const process_whatsapp_conversation = async (
     action = llm.action;
     reply = llm.reply;
     reason = llm.reason;
+    cost.push({
+      cost: llm.cost,
+      type: `generateConversationReply`,
+    });
   } else {
     console.log(phoneNo, "do forced shortlist");
     action = "do_shortlist";
@@ -201,12 +217,21 @@ export const process_whatsapp_conversation = async (
     }
 
     let shortlist_reply = await shortlist(phoneNo, candidate.conversation);
+    cost.push({
+      cost: shortlist_reply.cost,
+      type: `shortlist`,
+    });
     if (shortlist_reply.is_shortlisted) {
       const ratingReply = await rate_resume(candidate.id, candidate.conversation);
+      cost.push({
+        cost: shortlist_reply.cost,
+        type: `rate_resume`,
+      });
 
       let resume_context = `
       Resume Rating ${ratingReply.rating}
       Rating Reason ${ratingReply.reason}
+      Rating Analysis ${ratingReply.analysis}
     `;
       const { slack_thread_id, channel_id } = await get_whatspp_conversations(candidate.id);
       await postMessageToThread(slack_thread_id, resume_context, channel_id);
@@ -218,6 +243,10 @@ export const process_whatsapp_conversation = async (
       await saveCandidateDetailsToDB(candidate);
 
       const shortlistByResume = await shorlist_by_resume(phoneNo, candidate.conversation, ratingReply.rating, ratingReply.reason);
+      cost.push({
+        cost: shortlistByResume.cost,
+        type: `shorlist_by_resume`,
+      });
       if (shortlistByResume.is_shortlisted) {
         candidate.conversation.stage = STAGE_SHORTLISTED;
       } else {
@@ -249,6 +278,10 @@ export const process_whatsapp_conversation = async (
     action = llm.action;
     reply = llm.reply;
     reason = llm.reason;
+    cost.push({
+      cost: llm.cost,
+      type: `generateConversationReply`,
+    });
     console.log(phoneNo, "2. action, reply", action, reply);
     if (llm.action != "no_action") {
       candidate.conversation.actions_taken.push(llm.action);
@@ -294,9 +327,9 @@ export const process_whatsapp_conversation = async (
   }
 
   if (user_input_reply && reply.length) {
-    return { message: reply, action, stage: candidate.conversation.stage };
+    return { message: reply, action, stage: candidate.conversation.stage, cost };
   } else {
-    return { message: "", action, stage: candidate.conversation.stage };
+    return { message: "", action, stage: candidate.conversation.stage, cost };
   }
 };
 

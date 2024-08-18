@@ -50,7 +50,7 @@ export async function callDeepseekMessages(
   model = DEEP_SEEK_V2_CODER,
   meta = {},
   cb: (output: string) => Promise<Record<string, string>>
-): Promise<string> {
+): Promise<{ response: string; cost: number }> {
   const ttl = new Date().getTime();
   const trace = langfuse.trace({
     name: user,
@@ -134,15 +134,24 @@ export async function callDeepseekMessages(
     },
     version: model,
   });
+  const cost =
+    (typedData.usage.prompt_cache_hit_tokens * cache_hit_costs + typedData.usage.prompt_cache_miss_tokens * input_costs) / 1000000 + (typedData.usage.completion_tokens * output_costs) / 1000000;
   console.log("typedData.usage", typedData.usage);
-  console.log(
-    "deepseek system costs",
-    (typedData.usage.prompt_cache_hit_tokens * cache_hit_costs + typedData.usage.prompt_cache_miss_tokens * input_costs) / 1000000 + (typedData.usage.completion_tokens * output_costs) / 1000000
-  );
-  return responseText;
+  console.log(`deepseek system costs ${cost}`);
+  return {
+    response: responseText,
+    cost: cost,
+  };
 }
 
-export async function callDeepkSeekLLM(prompt: string, user: string, temperature = 0, model = DEEP_SEEK_V2_CODER, meta = {}, cb: (output: string) => Promise<Record<string, string>>) {
+export async function callDeepkSeekLLM(
+  prompt: string,
+  user: string,
+  temperature = 0,
+  model = DEEP_SEEK_V2_CODER,
+  meta = {},
+  cb: (output: string) => Promise<Record<string, string>>
+): Promise<{ response: string; cost: number }> {
   const ttl = new Date().getTime();
   prompt = prompt.replace(/[^\x00-\x7F]/g, "");
   const trace = langfuse.trace({
@@ -218,12 +227,15 @@ export async function callDeepkSeekLLM(prompt: string, user: string, temperature
     metadata: metadata,
   });
 
+  let input_costs = 0.14;
+  let output_costs = 0.28;
+  let cache_hit_costs = 0.014;
   generation.end({
     output: responseData,
     usage: {
-      inputCost: typedData.usage.prompt_tokens * 0.14,
-      outputCost: typedData.usage.completion_tokens * 0.28,
-      totalCost: typedData.usage.prompt_tokens * 0.14 + typedData.usage.completion_tokens * 0.28,
+      inputCost: typedData.usage.prompt_cache_hit_tokens * cache_hit_costs + typedData.usage.prompt_cache_miss_tokens * input_costs,
+      outputCost: typedData.usage.completion_tokens * output_costs,
+      totalCost: typedData.usage.prompt_cache_hit_tokens * cache_hit_costs + typedData.usage.prompt_cache_miss_tokens * input_costs + typedData.usage.completion_tokens * output_costs,
       promptTokens: typedData.usage.prompt_tokens,
       completionTokens: typedData.usage.completion_tokens,
       totalTokens: typedData.usage.total_tokens,
@@ -231,7 +243,12 @@ export async function callDeepkSeekLLM(prompt: string, user: string, temperature
     version: model,
   });
 
+  const cost =
+    (typedData.usage.prompt_cache_hit_tokens * cache_hit_costs + typedData.usage.prompt_cache_miss_tokens * input_costs) / 1000000 + (typedData.usage.completion_tokens * output_costs) / 1000000;
   console.log("typedData.usage", typedData.usage);
-  console.log("deepseek costs", (typedData.usage.prompt_tokens * 0.14) / 1000000 + (typedData.usage.completion_tokens * 0.28) / 1000000);
-  return responseText;
+  console.log("deepseek costs", cost);
+  return {
+    response: responseText,
+    cost: cost,
+  };
 }
