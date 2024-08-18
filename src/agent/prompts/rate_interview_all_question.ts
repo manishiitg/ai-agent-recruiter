@@ -1,7 +1,7 @@
 import { parseStringPromise } from "xml2js";
 import { Conversation } from "../recruiter/types/conversation";
 import { linkedJobProfileRules } from "../jobconfig";
-import {  DEEP_SEEK_V2_CHAT, DEEP_SEEK_V2_CODER } from "../../llms/deepkseek";
+import { DEEP_SEEK_V2_CHAT, DEEP_SEEK_V2_CODER } from "../../llms/deepkseek";
 import { Interview } from "../interviewer/types";
 import { profile } from "console";
 import { callLLM } from "../../llms";
@@ -55,7 +55,7 @@ After completing your evaluation, provide your response in the following XML for
 Remember to provide thorough reasoning in the <SCRATCHPAD> section before giving your final ratings. Your evaluation should be fair, objective, and based solely on the information provided.
 Make sure provide output strictly in xml format.`;
 
-  llm_output = await callLLM(prompt, profileID, 0, DEEP_SEEK_V2_CHAT, { type: "rate_interview_question" }, async (llm_output: string): Promise<Record<string, string>> => {
+  const llm_output_reply = await callLLM(prompt, profileID, 0, DEEP_SEEK_V2_CHAT, { type: "rate_interview_question" }, async (llm_output: string): Promise<Record<string, string>> => {
     const jObj = await parseStringPromise(llm_output, {
       explicitArray: false,
       strict: false,
@@ -65,6 +65,8 @@ Make sure provide output strictly in xml format.`;
       RATING: jObj["RESPONSE"]["QUESTION_RATING"],
     };
   });
+
+  llm_output = llm_output_reply.response;
 
   const jObj = await parseStringPromise(llm_output, {
     explicitArray: false,
@@ -79,7 +81,7 @@ Make sure provide output strictly in xml format.`;
     const QUESTION_RATING = jObj["RESPONSE"][`QUESTION_RATING_${idx}`];
     question_rating.push(QUESTION_RATING);
   }
-  return { SCRATCHPAD, question_rating };
+  return { SCRATCHPAD, question_rating, cost: llm_output_reply.cost };
 };
 
 export const rate_interview = async (profileID: string, interviewObj: Interview) => {
@@ -151,7 +153,7 @@ After completing your evaluation, provide your response in the following XML for
 
 Remember to provide thorough reasoning in the <SCRATCHPAD> section before giving your final ratings. Your evaluation should be fair, objective, and based solely on the information provided.`;
 
-  llm_output = await callLLM(prompt, profileID, 0, DEEP_SEEK_V2_CHAT, { type: "rate_resume" }, async (llm_output: string): Promise<Record<string, string>> => {
+  const llm_output_reply = await callLLM(prompt, profileID, 0, DEEP_SEEK_V2_CHAT, { type: "rate_resume" }, async (llm_output: string): Promise<Record<string, string>> => {
     const jObj = await parseStringPromise(llm_output, {
       explicitArray: false,
       strict: false,
@@ -161,6 +163,7 @@ Remember to provide thorough reasoning in the <SCRATCHPAD> section before giving
     };
   });
 
+  llm_output = llm_output_reply.response;
   const jObj = await parseStringPromise(llm_output, {
     explicitArray: false,
     strict: false,
@@ -174,5 +177,5 @@ Remember to provide thorough reasoning in the <SCRATCHPAD> section before giving
   const TECH_QUESTION2_RATING = jObj["RESPONSE"]["TECH_QUESTION2_RATING"];
   const TECH_QUESTION3_RATING = jObj["RESPONSE"]["TECH_QUESTION3_RATING"];
 
-  return { SCRATCHPAD, HR_QUESTION_RATING, TECH_QUESTION1_RATING, TECH_QUESTION2_RATING, TECH_QUESTION3_RATING };
+  return { SCRATCHPAD, HR_QUESTION_RATING, TECH_QUESTION1_RATING, TECH_QUESTION2_RATING, TECH_QUESTION3_RATING, cost: llm_output_reply.cost };
 };

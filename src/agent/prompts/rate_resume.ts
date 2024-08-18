@@ -61,7 +61,7 @@ Respond only in xml format as below.
   // ${classified_job_profile}
   // </JOB_TITLE>
 
-  llm_output = await callLLM(prompt, profileID, 0, DEEP_SEEK_V2_CODER, { type: "rate_resume" }, async (llm_output: string): Promise<Record<string, string>> => {
+  const llm_output_reply = await callLLM(prompt, profileID, 0, DEEP_SEEK_V2_CODER, { type: "rate_resume" }, async (llm_output: string): Promise<Record<string, string>> => {
     const jObj = await parseStringPromise(llm_output, {
       explicitArray: false,
       strict: false,
@@ -70,6 +70,7 @@ Respond only in xml format as below.
       RATING: jObj["RESPONSE"]["RATING"],
     };
   });
+  llm_output = llm_output_reply.response;
 
   let reason = "";
   let rating = "";
@@ -85,5 +86,5 @@ Respond only in xml format as below.
   reason = jObj["RESPONSE"]["ANALYSIS"];
   analysis = JSON.stringify(jObj["RESPONSE"]["INTERNSHIP_WORK_ANALYSIS"]);
 
-  return { rating, reason, analysis };
+  return { rating, reason, analysis, cost: llm_output_reply.cost };
 };

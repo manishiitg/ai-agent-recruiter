@@ -38,7 +38,7 @@ export const ask_question_for_tech_interview = async (hiring_for_profile: string
         </EXPECTED_ANSWER_1>
     </RESPONSE>   `;
 
-  llm_output = await callLLM(prompt, "resume_ques_gen", 0.5, DEEP_SEEK_V2_CODER, { type: "resume_ques_gen" }, async (llm_output: string): Promise<Record<string, string>> => {
+  const llm_output_reponse = await callLLM(prompt, "resume_ques_gen", 0.5, DEEP_SEEK_V2_CODER, { type: "resume_ques_gen" }, async (llm_output: string): Promise<Record<string, string>> => {
     const jObj = await parseStringPromise(llm_output, {
       explicitArray: false,
       strict: false,
@@ -47,6 +47,8 @@ export const ask_question_for_tech_interview = async (hiring_for_profile: string
       QUESTION1: jObj["RESPONSE"]["QUESTION1"],
     };
   });
+
+  llm_output = llm_output_reponse.response;
   const jObj = await parseStringPromise(llm_output, {
     explicitArray: false,
     strict: false,
@@ -60,5 +62,5 @@ export const ask_question_for_tech_interview = async (hiring_for_profile: string
   const QUESTION1 = jObj["RESPONSE"]["QUESTION1"];
   const EXPECTED_ANSWER_1 = jObj["RESPONSE"]["EXPECTED_ANSWER_1"];
 
-  return { SCRATCHPAD, QUESTION1, EXPECTED_ANSWER_1 };
+  return { SCRATCHPAD, QUESTION1, EXPECTED_ANSWER_1, cost: llm_output_reponse.cost };
 };
