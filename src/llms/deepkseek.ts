@@ -134,8 +134,7 @@ export async function callDeepseekMessages(
     },
     version: model,
   });
-  const cost =
-    (typedData.usage.prompt_cache_hit_tokens * cache_hit_costs + typedData.usage.prompt_cache_miss_tokens * input_costs) / 1000000 + (typedData.usage.completion_tokens * output_costs) / 1000000;
+  const cost = typedData.usage.prompt_cache_hit_tokens * cache_hit_costs + typedData.usage.prompt_cache_miss_tokens * input_costs + typedData.usage.completion_tokens * output_costs;
   console.log("typedData.usage", typedData.usage);
   console.log(`deepseek system costs ${cost}`);
   return {
@@ -243,8 +242,7 @@ export async function callDeepkSeekLLM(
     version: model,
   });
 
-  const cost =
-    (typedData.usage.prompt_cache_hit_tokens * cache_hit_costs + typedData.usage.prompt_cache_miss_tokens * input_costs) / 1000000 + (typedData.usage.completion_tokens * output_costs) / 1000000;
+  const cost = typedData.usage.prompt_cache_hit_tokens * cache_hit_costs + typedData.usage.prompt_cache_miss_tokens * input_costs + typedData.usage.completion_tokens * output_costs;
   console.log("typedData.usage", typedData.usage);
   console.log("deepseek costs", cost);
   return {

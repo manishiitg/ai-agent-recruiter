@@ -105,9 +105,10 @@ export async function callClaudeViaMessages(
   });
 
   const cost =
-    (response.usage.input_tokens * input_cost + (response.usage.cache_creation_input_tokens || 0) * caching_read_costs + (response.usage.cache_creation_input_tokens || 0) * caching_write_cost) /
-      1000000 +
-    (response.usage.output_tokens * output_cost) / 1000000;
+    response.usage.input_tokens * input_cost +
+    (response.usage.cache_creation_input_tokens || 0) * caching_read_costs +
+    (response.usage.cache_creation_input_tokens || 0) * caching_write_cost +
+    response.usage.output_tokens * output_cost;
   console.log("typedData.usage", response.usage);
   console.log(`claude ${model} system costs`, cost);
   return {
@@ -195,9 +196,10 @@ export async function callClaudeLLM(
   });
 
   const cost =
-    (response.usage.input_tokens * input_cost + (response.usage.cache_creation_input_tokens || 0) * caching_read_costs + (response.usage.cache_creation_input_tokens || 0) * caching_write_cost) /
-      1000000 +
-    (response.usage.output_tokens * output_cost) / 1000000;
+    response.usage.input_tokens * input_cost +
+    (response.usage.cache_creation_input_tokens || 0) * caching_read_costs +
+    (response.usage.cache_creation_input_tokens || 0) * caching_write_cost +
+    response.usage.output_tokens * output_cost;
   console.log("typedData.usage", response.usage);
   console.log(`claude ${model} costs ${cost}`);
   return {
