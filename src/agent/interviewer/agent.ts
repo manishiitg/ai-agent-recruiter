@@ -122,7 +122,6 @@ export const generateConversationReply = async (
   - Select the best fitting rule based on the conversation and context.
   - If no actions are applicable, reply with "no_action" and do not create new actions.
   - Prioritize using the <priority_rules> first, and only use <other_rules> if the priority rules are not applicable.
-  - Provide a step-by-step analysis of every rule in the <scratchpad> tag.
   - Give a detailed reason for selecting the final rule in the <FINAL_REASON> tag.
 
   6. Analyse if candidate has sent audio recording or not only based on the tag <has_sent_recording>.
@@ -156,6 +155,7 @@ Remember to check all rules before selecting the final one, and ensure that your
     role: "user" | "assistant";
   }[] = [];
 
+  // 5. - Provide a step-by-step analysis of every rule in the <scratchpad> tag.
   // <scratchpad>
   // Provide step-by-step analysis of every rule, including rule names in format 
   // <action_name></action_name> <rule_condition></rule_condition><analysis>reason if/why action sould be executed</analysis>
