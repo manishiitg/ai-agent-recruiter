@@ -30,7 +30,6 @@ export const linkedJobProfileRules: Record<
     Handle social media profiles`,
     full_criteria: `Rule 1. Candidate location should be any of ${near_location}. 
     Rule 2. Candidate should not belong to locations ${exclude_location_rule}
-    Rule 3. Candidate should have maximum salary of 40,000 per month. If candidates salary is not mentioned, assume he passes this criteria.
     Rule 4. Candidate should not have more than 1year of Experience. 
     Rule 5. Candidate should have worked on recuitment, interview scheduling, linkedin. 
     Rule 6. Candidate should have worked on projects/internship related to recruitment, hiring, hr administration.
@@ -40,15 +39,16 @@ export const linkedJobProfileRules: Record<
     - Candidate should have worked on projects/internship related to recruitment, hiring, hr administration.`,
     questions_to_ask: [`How do you hire candidates from naukri!`, `Whats your apprach to hire candidates from linkedin`],
   },
+  // Rule 3. Candidate should have maximum salary of 40,000 per month. If candidates salary is not mentioned, assume he passes this criteria.
   "Jr Web Developer": {
     is_open: false,
     job_description: `This opening is only for candidates from 0 to 1 year of experience.
     Good Knowledge in javascript, reactjs or vuejs`,
     full_criteria: `Rule 1. Candidate location should be any of ${near_location}.
     Rule 2. Candidate should not belong to locations ${exclude_location_rule}
-    Rule 3. Candidate should have maximum salary of 40,000 per month. If candidates salary is not mentioned, assume he passes this criteria.
     Rule 4. Candidate should have done multiple experiance/projects/internship related reactjs or vuejs or javascript. This is an important rule.`,
     resume_criteria: `Resume rating should be more than 6`,
+    // Rule 3. Candidate should have maximum salary of 40,000 per month. If candidates salary is not mentioned, assume he passes this criteria.
     resume_rating: `
     - Candidate should have done multiple experiance/projects/internship related to reactjs or vuejs.`,
     questions_to_ask: [`expressjs middleware`, `interact with mongodb`],
@@ -58,10 +58,10 @@ export const linkedJobProfileRules: Record<
     job_description: `This opening is only for candidates from 0 to 1 year of experience.
     Good Knowledge in javascript, reactjs`,
     full_criteria: `
-    Rule 2. Candidate should not belong to locations ${exclude_location_rule}
-    Rule 3. Candidate should have maximum salary of 30,000 per month or 4LPA per year. If candidates salary is not mentioned, assume he passes this criteria.
+    Rule 2. Candidate should not belong to locations ${exclude_location_rule} 
     Rule 5. Candidate should have done multiple experiance/projects/internship related reactjs. This is an important rule.`,
     // full_criteria: `Candidate should have done multiple experiance/projects/internship related reactjs. This is an important rule.`,
+    // /Rule 3. Candidate should have maximum salary of 30,000 per month or 4LPA per year. If candidates salary is not mentioned, assume he passes this criteria.
     resume_criteria: `Resume rating should be more than 6`,
     resume_rating: `
     - Candidate should have done multiple experiance/projects/internship related to reactjs
@@ -82,10 +82,10 @@ export const linkedJobProfileRules: Record<
     job_description: `This opening is only for candidates from 0 to 1 year of experience.
     Good Knowledge in vuejs`,
     full_criteria: `Rule 2. Candidate should not belong to locations ${exclude_location_rule}
-    Rule 3. Candidate should have maximum salary of 50,000 per month or 6LPA per year. If candidates salary is not mentioned, assume he passes this criteria.
     Rule 4. Candidate should not have more than 1year of Experience.
     Rule 5. Candidate should have done multiple work/projects/internship related vuejs. This is an important rule.`,
     // full_criteria: `Candidate should have done multiple work/projects/internship related vuejs/javascript. This is an important rule.`,
+    //Rule 3. Candidate should have maximum salary of 50,000 per month or 6LPA per year. If candidates salary is not mentioned, assume he passes this criteria.
     resume_criteria: `Resume rating should be more than 6`,
     resume_rating: `
     - Candidate should have done multiple experiance/projects/internship related to vuejs
@@ -103,8 +103,8 @@ export const linkedJobProfileRules: Record<
     resume_criteria: `Resume rating should be more than 6`,
     full_criteria: `
     - Candidate should not belong to locations ${exclude_location_rule}
-    - Candidate should have maximum salary of 40,000 per month or 6LPA per year. If candidates salary is not mentioned, assume he passes this criteria.
     `,
+    //- Candidate should have maximum salary of 40,000 per month or 6LPA per year. If candidates salary is not mentioned, assume he passes this criteria.
     resume_rating: `
     Rate the following Node.js developer candidate on a scale of 1-10 based on their demonstrated proficiency in the following areas:
     Keep point no 1 to 7 as most priority, if even one of things mentioned in these points are not mentioned in resume reduce more points.
@@ -140,8 +140,8 @@ export const linkedJobProfileRules: Record<
     // Rule 4. Candidate should have done multiple work/projects/internship related python and flask/django. This is an important rule.`,
     full_criteria: `
     - Candidate should not belong to locations ${exclude_location_rule}
-    - Candidate should have maximum salary of 40,000 per month or 6LPA per year. If candidates salary is not mentioned, assume he passes this criteria.
     `,
+    //- Candidate should have maximum salary of 40,000 per month or 6LPA per year. If candidates salary is not mentioned, assume he passes this criteria.
     resume_criteria: `Resume rating should be more than 6`,
     resume_rating: `
       Rating criteria for a Python developer candidate on a scale of 1-10, keeping points 1 to 7 as the highest priority:
@@ -203,9 +203,9 @@ export const linkedJobProfileRules: Record<
     Good Knowledge in php`,
     full_criteria: `Rule 1. Candidate location should be ${near_location}.
     Rule 2. Candidate should not belong to locations ${exclude_location_rule}
-    Rule 3. Candidate should have maximum salary of 40,000 per month. If candidates salary is not mentioned, assume he passes this criteria.
     Rule 5. Candidate should have done multiple work/projects/internship related php. This is an important rule.`,
     resume_criteria: `Resume rating should be more than 6`,
+    //Rule 3. Candidate should have maximum salary of 40,000 per month. If candidates salary is not mentioned, assume he passes this criteria.
     resume_rating: `
     - Candidate should have done multiple experiance/projects/internship related to laravel.
     - Candidate should have done multiple experiance/projects/internship related mongodb or mysql database`,
@@ -217,10 +217,10 @@ export const linkedJobProfileRules: Record<
     Good Knowledge in php`,
     full_criteria: `Rule 1. Candidate location should be ${near_location}.
     Rule 2. Candidate should not belong to locations ${exclude_location_rule}
-    Rule 3. Candidate should have maximum salary of 40,000 per month. If candidates salary is not mentioned, assume he passes this criteria.
     Rule 4. Candidate should not have more than 1year of Experience.
     Rule 5. Candidate should have done multiple work/projects/internship related php. This is an important rule.`,
     resume_criteria: `Resume rating should be more than 6`,
+    //Rule 3. Candidate should have maximum salary of 40,000 per month. If candidates salary is not mentioned, assume he passes this criteria.
     resume_rating: `
     - Candidate should have done multiple experiance/projects/internship related to laravel.
     - Candidate should have done multiple experiance/projects/internship related mongodb or mysql database`,
