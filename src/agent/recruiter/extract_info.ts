@@ -80,7 +80,6 @@ export const extractInfo = async (
       ix++;
     }
   }
-
   const prompt = `You are an HR recruiter on ${type}.
   You are having a conversation with a person on ${type}. 
 
@@ -151,6 +150,7 @@ export const extractInfo = async (
     delete obj.REASON_FOR_SELECTING_JOB_PROFILE;
     return obj;
   });
+  console.log(">>Extracting Info ")
   console.log("LLM Output:", llm_output);
 
   const jObj = await parseStringPromise(llm_output.response, {

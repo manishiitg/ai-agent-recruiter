@@ -363,10 +363,15 @@ const callViaHuman = async (phoneNo: string, interview: Interview, cost: { type:
                 if (conv.messageType == "media" && conv.body) {
                   if ("Media0" in conv.body) {
                     if ("MimeType" in conv.body && conv.body["MimeType"].includes("pdf")) {
+                      console.log(">>Extracting Resume",conv.body);
+                    
                       if (!existsSync(resume_path)) {
+                        console.log(">>Creating Resume Directory start");
                         mkdirSync(resume_path, { recursive: true });
+                        console.log(">>Creating Resume Directory end");
                       }
                       let resume_file = path.join(resume_path, `${phoneNo}_resume.pdf`);
+                      console.log(">>resume_file",resume_file);
                       await downloadFile(conv.body.Media0, resume_file);
                       await postAttachment(resume_file, process.env.slack_hr_screening_channel_id, slack_thread_id);
                     }

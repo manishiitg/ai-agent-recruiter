@@ -5,164 +5,184 @@ import path from "path";
 import dotenv from "dotenv";
 import { captureException } from "@sentry/node";
 import qs from "qs";
-import { ENABLED_SLACK } from "../../config";
+import { ENABLED_SLACK } from "../server/whatsapp/config";
 dotenv.config();
 
-if(ENABLED_SLACK === true){
-   async function downloadSlackFile(fileId: string, outputPath: string): Promise<void> {
+export async function downloadSlackFile(fileId: string, outputPath: string): Promise<void> {
   
-    const slackToken = process.env.slack_token ? process.env.slack_token : "";
-  
-    const headers = {
-      Authorization: `Bearer ${slackToken}`,
-    };
-  
-    try {
-      // First, get the file info to get the download URL
-      const fileInfoResponse = await axios.get(`https://slack.com/api/files.info`, {
-        headers,
-        params: {
-          file: fileId,
-        },
-      });
-  
-      if (!fileInfoResponse.data.ok) {
-        throw new Error(`Error fetching file info: ${fileInfoResponse.data.error}`);
-      }
-  
-      const fileInfo = fileInfoResponse.data.file;
-      const downloadUrl = fileInfo.url_private;
-  
-      // Then, download the file
-      const fileResponse = await axios.get(downloadUrl, {
-        responseType: "stream",
-        headers,
-      });
-  
-      // Save the file to the specified output path
-      const writer = fs.createWriteStream(outputPath);
-      fileResponse.data.pipe(writer);
-  
-      return new Promise((resolve, reject) => {
-        writer.on("finish", resolve);
-        writer.on("error", reject);
-      });
-    } catch (error) {
-      console.error("Error downloading file:", error);
-      throw error; // Rethrow the error to be handled by the caller
-    }
-  }
+  const slackToken = process.env.slack_token ? process.env.slack_token : "";
 
+  const headers = {
+    Authorization: `Bearer ${slackToken}`,
+  };
+
+  try {
+    // First, get the file info to get the download URL
+    const fileInfoResponse = await axios.get(`https://slack.com/api/files.info`, {
+      headers,
+      params: {
+        file: fileId,
+      },
+    });
+
+    if (!fileInfoResponse.data.ok) {
+      throw new Error(`Error fetching file info: ${fileInfoResponse.data.error}`);
+    }
+
+    const fileInfo = fileInfoResponse.data.file;
+    const downloadUrl = fileInfo.url_private;
+
+    // Then, download the file
+    const fileResponse = await axios.get(downloadUrl, {
+      responseType: "stream",
+      headers,
+    });
+
+    // Save the file to the specified output path
+    const writer = fs.createWriteStream(outputPath);
+    fileResponse.data.pipe(writer);
+
+    return new Promise((resolve, reject) => {
+      writer.on("finish", resolve);
+      writer.on("error", reject);
+    });
+  } catch (error) {
+    console.error("Error downloading file:", error);
+    throw error; // Rethrow the error to be handled by the caller
+  }
 }
 
-if(ENABLED_SLACK === true){
-  async function uploadFileToSlack(token: string, channel: string, filePath: string, threadTs?: string) {
+async function uploadFileToSlack(token: string, channel: string, filePath: string, threadTs?: string) {
   
-    try {
-    
-      const fileName = path.basename(filePath);
-      const fileSize = fs.statSync(filePath).size;
+  try {
   
-      console.log("filename", fileName);
-      console.log("filesize", fileSize);
-      // Step 1: Get an upload URL
-      const uploadUrlResponse = await axios.post(
-        "https://slack.com/api/files.getUploadURLExternal",
-        {
-          filename: fileName,
-          length: fileSize,
+    const fileName = path.basename(filePath);
+    const fileSize = fs.statSync(filePath).size;
+
+    console.log("filename", fileName);
+    console.log("filesize", fileSize);
+    // Step 1: Get an upload URL
+    const uploadUrlResponse = await axios.post(
+      "https://slack.com/api/files.getUploadURLExternal",
+      {
+        filename: fileName,
+        length: fileSize,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
         },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
-          },
-        }
-      );
-  
-      if (!uploadUrlResponse.data.ok) {
-        console.error("Error details:", uploadUrlResponse.data);
-        throw new Error("Failed to get upload URL: " + uploadUrlResponse.data.error);
       }
-  
-      // console.log("uploadUrlResponse", uploadUrlResponse);
-      const { upload_url, file_id } = uploadUrlResponse.data;
-  
-      console.log("upload_url, file_id ", upload_url, file_id);
-  
-      // Step 2: Upload the file to the provided URL
-      const form = new FormData();
-      form.append("file", fs.createReadStream(filePath));
-  
-      await axios.post(upload_url, form, {
-        headers: form.getHeaders(),
-      });
-  
-      // Step 3: Complete the upload
-      const completeResponse = await axios.post(
-        "https://slack.com/api/files.completeUploadExternal",
-        {
-          files: JSON.stringify([
-            {
-              id: file_id,
-              title: fileName,
-            },
-          ]),
-          channel_id: channel,
-          thread_ts: threadTs,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/x-www-form-urlencoded; charset=utf-8",
-          },
-        }
-      );
-  
-      if (!completeResponse.data.ok) {
-        console.error("Error details:", completeResponse.data);
-        throw new Error("Failed to complete upload: " + completeResponse.data.error);
-      }
-  
-      // // Send a message to the channel with the file
-      // const messageResponse = await axios.post(
-      //   "https://slack.com/api/chat.postMessage",
-      //   {
-      //     channel: channel,
-      //     text: `File uploaded: ${fileName}`,
-      //     thread_ts: threadTs,
-      //   },
-      //   {
-      //     headers: {
-      //       Authorization: `Bearer ${token}`,
-      //       "Content-Type": "application/json",
-      //     },
-      //   }
-      // );
-  
-      // if (!messageResponse.data.ok) {
-      //   console.error("Error details:", messageResponse.data);
-      //   throw new Error("Failed to send message: " + messageResponse.data.error);
-      // }
-  
-      return file_id;
-    } catch (error) {
-      console.error(error);
-      throw new Error("File upload failed: " + error);
+    );
+
+    if (!uploadUrlResponse.data.ok) {
+      console.error("Error details:", uploadUrlResponse.data);
+      throw new Error("Failed to get upload URL: " + uploadUrlResponse.data.error);
     }
+
+    // console.log("uploadUrlResponse", uploadUrlResponse);
+    const { upload_url, file_id } = uploadUrlResponse.data;
+
+    console.log("upload_url, file_id ", upload_url, file_id);
+
+    // Step 2: Upload the file to the provided URL
+    const form = new FormData();
+    form.append("file", fs.createReadStream(filePath));
+
+    await axios.post(upload_url, form, {
+      headers: form.getHeaders(),
+    });
+
+    // Step 3: Complete the upload
+    const completeResponse = await axios.post(
+      "https://slack.com/api/files.completeUploadExternal",
+      {
+        files: JSON.stringify([
+          {
+            id: file_id,
+            title: fileName,
+          },
+        ]),
+        channel_id: channel,
+        thread_ts: threadTs,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/x-www-form-urlencoded; charset=utf-8",
+        },
+      }
+    );
+
+    if (!completeResponse.data.ok) {
+      console.error("Error details:", completeResponse.data);
+      throw new Error("Failed to complete upload: " + completeResponse.data.error);
+    }
+
+    // // Send a message to the channel with the file
+    // const messageResponse = await axios.post(
+    //   "https://slack.com/api/chat.postMessage",
+    //   {
+    //     channel: channel,
+    //     text: `File uploaded: ${fileName}`,
+    //     thread_ts: threadTs,
+    //   },
+    //   {
+    //     headers: {
+    //       Authorization: `Bearer ${token}`,
+    //       "Content-Type": "application/json",
+    //     },
+    //   }
+    // );
+
+    // if (!messageResponse.data.ok) {
+    //   console.error("Error details:", messageResponse.data);
+    //   throw new Error("Failed to send message: " + messageResponse.data.error);
+    // }
+
+    return file_id;
+  } catch (error) {
+    console.error(error);
+    throw new Error("File upload failed: " + error);
   }
 }
 
 // Function to post a message to a Slack channel
-if(ENABLED_SLACK === true){
-  async function postMessageToSlack(token: string, channel: string, text: string): Promise<string> {
-   
-  
-    const response = await axios.post(
+async function postMessageToSlack(token: string, channel: string, text: string): Promise<string> {
+ 
+  const response = await axios.post(
+    "https://slack.com/api/chat.postMessage",
+    {
+      channel: channel,
+      text: text,
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    }
+  );
+
+  return response.data.ts; // Timestamp of the message
+}
+
+export async function postMessageToThread(messageTs: string, text: string, channel_id: string, reply_broadcast = false) {
+
+  try {
+    const token = process.env.slack_token ? process.env.slack_token : "";
+    let channel = process.env.slack_channel_id ? process.env.slack_channel_id : "";
+    if (channel_id) {
+      channel = channel_id;
+    }
+    const threadResponse = await axios.post(
       "https://slack.com/api/chat.postMessage",
       {
         channel: channel,
         text: text,
+        thread_ts: messageTs,
+        reply_broadcast: reply_broadcast,
       },
       {
         headers: {
@@ -171,74 +191,44 @@ if(ENABLED_SLACK === true){
         },
       }
     );
-  
-    return response.data.ts; // Timestamp of the message
+
+    if (threadResponse.data.ok) {
+      console.log("Message and threads posted successfully!");
+    } else {
+      console.error("postMessageToThread: Error posting message and threads:", threadResponse.data.error);
+    }
+  } catch (error) {
+    captureException(error);
+    console.error("postMessageToThread: Error posting message and threads:", error);
   }
 }
 
- if(ENABLED_SLACK === true){
-  async function postMessageToThread(messageTs: string, text: string, channel_id: string, reply_broadcast = false) {
-  
-    try {
-      const token = process.env.slack_token ? process.env.slack_token : "";
-      let channel = process.env.slack_channel_id ? process.env.slack_channel_id : "";
-      if (channel_id) {
-        channel = channel_id;
-      }
-      const threadResponse = await axios.post(
-        "https://slack.com/api/chat.postMessage",
-        {
-          channel: channel,
-          text: text,
-          thread_ts: messageTs,
-          reply_broadcast: reply_broadcast,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-  
-      if (threadResponse.data.ok) {
-        console.log("Message and threads posted successfully!");
-      } else {
-        console.error("postMessageToThread: Error posting message and threads:", threadResponse.data.error);
-      }
-    } catch (error) {
-      captureException(error);
-      console.error("postMessageToThread: Error posting message and threads:", error);
-    }
-  }
- }
+export async function postAttachment(screenshotPath: string, channel_id?: string, thread_ts?: string): Promise<string> {
+ 
 
-if(ENABLED_SLACK === true){
-  async function postAttachment(screenshotPath: string, channel_id?: string, thread_ts?: string): Promise<string> {
-  
-
-    try {
-      // Replace with your Bot User OAuth Token
-      const token = process.env.slack_token ? process.env.slack_token : "";
-      // Replace with the ID of the channel you want to post to
-      let channel = process.env.slack_channel_id ? process.env.slack_channel_id : "";
-      if (channel_id) {
-        channel = channel_id;
-      }
-  
-      const messageTs = await uploadFileToSlack(token, channel, screenshotPath, thread_ts);
-  
-      return messageTs;
-    } catch (error) {
-      captureException(error);
-      console.error("postAttachment: Error posting message and threads:", error);
-      throw error;
+  try {
+    // Replace with your Bot User OAuth Token
+    const token = process.env.slack_token ? process.env.slack_token : "";
+    // Replace with the ID of the channel you want to post to
+    let channel = process.env.slack_channel_id ? process.env.slack_channel_id : "";
+    if (channel_id) {
+      channel = channel_id;
     }
+
+   if(ENABLED_SLACK === true){
+    const messageTs = await uploadFileToSlack(token, channel, screenshotPath, thread_ts);
+    return messageTs;
+   }
+
+   return "";
+  } catch (error) {
+    captureException(error);
+    console.error("postAttachment: Error posting message and threads:", error);
+    throw error;
   }
 }
 
- async function postMessageWithAttachment(screenshotPath: string, text: string, channel_id?: string): Promise<string> {
-  
+export async function postMessageWithAttachment(screenshotPath: string, text: string, channel_id?: string): Promise<string> {
 
   try {
     // Replace with your Bot User OAuth Token
@@ -249,11 +239,13 @@ if(ENABLED_SLACK === true){
       channel = channel_id;
     }
     // Upload the screenshot and PDF files
-    if (screenshotPath) await uploadFileToSlack(token, channel, screenshotPath);
+    if (screenshotPath && ENABLED_SLACK === true) await uploadFileToSlack(token, channel, screenshotPath);
 
     // Post the initial message with the screenshot
-    const messageTs = await postMessageToSlack(token, channel, text);
-    return messageTs;
+    if (ENABLED_SLACK === true) 
+      {const messageTs = await postMessageToSlack(token, channel, text);
+      return messageTs;}
+    return "";
   } catch (error) {
     captureException(error);
     console.error("postMessageWithAttachment: Error posting message and threads:", error);
@@ -261,9 +253,7 @@ if(ENABLED_SLACK === true){
   }
 }
 export async function postMessage(text: string, channel_id?: string): Promise<string> {
-  if(ENABLED_SLACK === false){
-    return "";
-  }
+ 
   try {
     const token = process.env.slack_token ? process.env.slack_token : "";
     let channel = process.env.slack_channel_id ? process.env.slack_channel_id : "";
@@ -272,8 +262,10 @@ export async function postMessage(text: string, channel_id?: string): Promise<st
     }
 
     // Post the initial message with the screenshot
-    const messageTs = await postMessageToSlack(token, channel, text);
-    return messageTs;
+    if (ENABLED_SLACK === true) 
+      {const messageTs = await postMessageToSlack(token, channel, text);
+      return messageTs;}
+    return "";
   } catch (error) {
     captureException(error);
     console.error("postMessage: Error posting message and threads:", error);
@@ -284,9 +276,6 @@ export async function postMessage(text: string, channel_id?: string): Promise<st
 const global_user_map: Record<string, SlackUser> = {};
 
 export async function getUserInfo(userId: string): Promise<SlackUser | null> {
-  if(ENABLED_SLACK === false){
-    return null;
-  }
 
   if (global_user_map[userId]) {
     return global_user_map[userId];
@@ -352,9 +341,7 @@ function convertSlackTimestampToDate(slackTimestamp: string): Date {
 }
 
 export async function getThreadMessages(channelId: string, threadTs: string): Promise<SlackMessage[]> {
-  if(ENABLED_SLACK === false){
-    return [];
-  }
+
 
   const slackToken = process.env.slack_token ? process.env.slack_token : "";
   const url = `https://slack.com/api/conversations.replies`;
@@ -401,9 +388,7 @@ export async function getThreadMessages(channelId: string, threadTs: string): Pr
 }
 
 export async function getLatestMessagesFromSlackChannel(channelId: string, count: number = 20): Promise<SlackMessage[]> {
-  if(ENABLED_SLACK === false){
-    return [];
-  }
+
 
   const slackToken = process.env.slack_token ? process.env.slack_token : "";
   const url = `https://slack.com/api/conversations.history`;
@@ -448,9 +433,7 @@ export async function getLatestMessagesFromSlackChannel(channelId: string, count
 }
 
 export async function getLatestMessagesFromThread(channelId: string, ts: string, count = 100): Promise<SlackMessage[]> {
-  if(ENABLED_SLACK === false){
-    return [];
-  }
+
 
   const slackToken = process.env.slack_token ? process.env.slack_token : "";
   const url = `https://slack.com/api/conversations.replies`;
