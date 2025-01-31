@@ -30,35 +30,35 @@
 // //     }
 // //   })();
   
-// import { whatsapp_webhook } from "./../server/whatsapp/index"; // Adjust the path accordingly
+import { whatsapp_webhook } from "./../server/whatsapp/index"; // Adjust the path accordingly
 
-// // Helper to simulate mock requests and responses
-// class MockRequest {
-//   body: any;
-//   constructor(body: any) {
-//     this.body = body;
-//   }
-// }
+// Helper to simulate mock requests and responses
+class MockRequest {
+  body: any;
+  constructor(body: any) {
+    this.body = body;
+  }
+}
 
-// class MockResponse {
-//   statusCode: number = 200;
-//   body: any = null;
+class MockResponse {
+  statusCode: number = 200;
+  body: any = null;
 
-//   status(code: number) {
-//     this.statusCode = code;
-//     return this;
-//   }
+  status(code: number) {
+    this.statusCode = code;
+    return this;
+  }
 
-//   json(data: any) {
-//     this.body = data;
-//     return this;
-//   }
-// }
+  json(data: any) {
+    this.body = data;
+    return this;
+  }
+}
 
-// // Test cases
-// function test_whatsapp_webhook() {
-//   console.log("Running Tests for whatsapp_webhook Function...\n");
-
+// Test cases
+function test_whatsapp_webhook() {
+  console.log("Running Tests for whatsapp_webhook Function...\n");
+}
 //   // Test 1: Handle a text message
 //   // const req1 = new MockRequest({
 //   //   From: "9876543210",
@@ -76,22 +76,21 @@
 //   // console.log(`Status: ${res1.statusCode}`);
 //   // console.log(`Response:`, res1.body);
 
-//   // Test 2: Handle a media message
-//   const req2 = new MockRequest({
-//     From: "1234567890",
-//     To: "0987654321",
-//     ContentType: "media",
-//     Context: "context data here",
-//     Button: null,
-//     Media0: "https://drive.google.com/uc?export=download&id=1QaYpPhuckLODIVq7pOuq3CQ2h8fZGYhd",
-//     Body: "Media caption here",
-//     MessageUUID: "5678-9101-1234",
-//   });
-//   const res2 = new MockResponse();
-//   whatsapp_webhook(req2 as any, res2 as any);
-//   console.log("\nTest 2 - Media Message:");
-//   console.log(`Status: ${res2.statusCode}`);
-//   console.log(`Response:`, res2.body);
+  // Test 2: Handle a media message
+  const req2 = new MockRequest({
+    From: "+911234567890",
+    To: "+910987654321",
+    ContentType: "media",
+    MimeType: "application/pdf",
+    Context: "context data here",
+    Media0: "https://raw.githubusercontent.com/iakshayrathee/weather-app/main/AkshayRathee-Resume.pdf",
+    Body: "Media caption here",
+    MessageUUID: "5678-9101-1234"
+});  const res2 = new MockResponse();
+  whatsapp_webhook(req2 as any, res2 as any);
+  console.log("\nTest 2 - Media Message:");
+  console.log(`Status: ${res2.statusCode}`);
+  console.log(`Response:`, res2.body);
 
 // //   // Test 3: Handle CLEAR command
 // //   const req3 = new MockRequest({
@@ -120,4 +119,4 @@
 // }
 
 // // Run the tests
-// test_whatsapp_webhook();
+test_whatsapp_webhook();
