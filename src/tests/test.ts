@@ -30,6 +30,7 @@
 // //     }
 // //   })();
   
+import { createRowInTab } from "../../googlesheets_db";
 import { whatsapp_webhook } from "./../server/whatsapp/index"; // Adjust the path accordingly
 
 // Helper to simulate mock requests and responses
@@ -77,20 +78,20 @@ function test_whatsapp_webhook() {
 //   // console.log(`Response:`, res1.body);
 
   // Test 2: Handle a media message
-  const req2 = new MockRequest({
-    From: "+911234567890",
-    To: "+910987654321",
-    ContentType: "media",
-    MimeType: "application/pdf",
-    Context: "context data here",
-    Media0: "https://raw.githubusercontent.com/iakshayrathee/weather-app/main/AkshayRathee-Resume.pdf",
-    Body: "Media caption here",
-    MessageUUID: "5678-9101-1234"
-});  const res2 = new MockResponse();
-  whatsapp_webhook(req2 as any, res2 as any);
-  console.log("\nTest 2 - Media Message:");
-  console.log(`Status: ${res2.statusCode}`);
-  console.log(`Response:`, res2.body);
+//   const req2 = new MockRequest({
+//     From: "+911234567890",
+//     To: "+910987654321",
+//     ContentType: "media",
+//     MimeType: "application/pdf",
+//     Context: "context data here",
+//     Media0: "https://raw.githubusercontent.com/iakshayrathee/weather-app/main/AkshayRathee-Resume.pdf",
+//     Body: "Media caption here",
+//     MessageUUID: "5678-9101-1234"
+// });  const res2 = new MockResponse();
+//   whatsapp_webhook(req2 as any, res2 as any);
+//   console.log("\nTest 2 - Media Message:");
+//   console.log(`Status: ${res2.statusCode}`);
+//   console.log(`Response:`, res2.body);
 
 // //   // Test 3: Handle CLEAR command
 // //   const req3 = new MockRequest({
@@ -119,4 +120,22 @@ function test_whatsapp_webhook() {
 // }
 
 // // Run the tests
-test_whatsapp_webhook();
+// test_whatsapp_webhook();
+
+(async () => {
+  const spreadsheetId = "1DrYojwFWr-MUydJdE7E-zsqLV4lPGXz100q2QLx6Y9M";
+  const tabName = "LOGIN";
+  const payload = {
+    EMAIL: "alice@example.com",
+    PASSWORD: "alice123",
+  };
+
+  try {
+    const result = await createRowInTab(spreadsheetId, tabName, payload);
+    console.log(result.message);
+    console.log("Created Data:", result.data);
+  } catch (error) {
+    console.error("Error:", error);
+  }
+})();
+
