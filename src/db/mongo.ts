@@ -59,6 +59,7 @@ export const deleteDataForCandidateToDebug = async (from: string) => {
 };
 
 export const check_whatsapp_convsation_exists = async (uid: string) => {
+  return false;
   const client = await connectDB();
   const db = client.db("whatsapp");
   const collection = db.collection("conversation");

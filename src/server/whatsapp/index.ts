@@ -32,7 +32,8 @@ import { conduct_interview, getInterviewObject } from "./interview";
 import { converToMp3 } from "../../integrations/mp3";
 import { transcribe_file_deepgram } from "../../integrations/deepgram";
 import { transribe_file_assembly_ai } from "../../integrations/assembly";
-import { ALLOW_SPECIFIC_USERS, CLOSE_BOT, CLOSE_INTERVIEW } from "./config";
+import { ALLOW_SPECIFIC_USERS, CLOSE_BOT, CLOSE_INTERVIEW, ENABLED_SLACK, SEND_REAL_WHATSAPP } from "./config";
+import { create, getHeaders } from "../../../googlesheets_db";
 var textract = require("textract");
 
 //find whats app creds bsaed on toNumber, for now only a single cred
@@ -56,18 +57,47 @@ export const queue: Record<
 
 const DEBOUNCE_TIMEOUT = 10; // no of seconds to wait before processing messages
 
+const spreadsheetId = process.env.SPREADSHEET_ID || "";
+const tabName = process.env.TABNAME || "";
+
+const extractNameAndEmail = (resumeText: string) => {
+  // Regular expressions for matching name and email
+  const nameRegex = /^([\w\s]+)/;
+  const emailRegex = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/;
+
+  let name = "";
+  let email = "";
+
+  // Extracting name, assuming it's at the beginning of the text
+  const nameMatch = resumeText.match(nameRegex);
+  if (nameMatch) {
+    name = nameMatch[1].split(/\r?\n/)[0].trim();
+  }
+
+  // Extracting email
+  const emailMatch = resumeText.match(emailRegex);
+  if (emailMatch) {
+    email = emailMatch[0];
+  }
+
+  return { name, email };
+};
+
 export const whatsapp_webhook = async (req: Request, res: Response) => {
   const { From, To, ContentType, Context, Button, Media0, Body, MessageUUID } = req.body;
+  console.log(">>>executing webhook start");
   console.log(req.body);
 
   const fromNumber = From;
   const toNumber = To;
+  console.log(">>>executing webhook 2", From, To, ContentType, Context, Button, Media0, Body, MessageUUID);
 
   console.log(ALLOW_SPECIFIC_USERS[fromNumber]);
 
   const time = formatTime(new Date());
   //ACK
-  res.sendStatus(200);
+  // res.sendStatus(200);
+  res.json({ status: "success", code: 200 });
 
   if (!(await check_whatsapp_convsation_exists(MessageUUID))) {
     console.log("ContentType", ContentType);
@@ -89,24 +119,38 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
         if (text == "CLEAR") {
           // only for debugging/ remove in production
           await deleteDataForCandidateToDebug(fromNumber);
-          await send_whatsapp_text_reply("DEBUG: YOUR CONVERSION HISTORY IS DELETED. START FRESH!.", fromNumber, toNumber);
+          if (SEND_REAL_WHATSAPP === true) {
+            await send_whatsapp_text_reply("DEBUG: YOUR CONVERSION HISTORY IS DELETED. START FRESH!.", fromNumber, toNumber);
+          } else {
+            console.log("not sending real whatsapp in testing");
+          }
         } else {
           await save_whatsapp_conversation("candidate", fromNumber, toNumber, ContentType, text, MessageUUID, req.body);
           const { slack_thread_id, channel_id } = await get_whatspp_conversations(fromNumber);
           if (slack_thread_id) {
-            await postMessageToThread(slack_thread_id, `${fromNumber}: ${text}. Time: ${time}`, channel_id || process.env.slack_action_channel_id);
+            if (ENABLED_SLACK === true) {
+              await postMessageToThread(slack_thread_id, `${fromNumber}: ${text}. Time: ${time}`, channel_id || process.env.slack_action_channel_id);
+            }
           } else {
-            const ts = await postMessage(`${fromNumber}: ${text}. Time: ${time} To: ${toNumber}`, channel_id || process.env.slack_action_channel_id);
-            await update_slack_thread_id_for_conversion(fromNumber, ts, channel_id || process.env.slack_action_channel_id);
+            if (ENABLED_SLACK === true) {
+              const ts = await postMessage(`${fromNumber}: ${text}. Time: ${time} To: ${toNumber}`, channel_id || process.env.slack_action_channel_id);
+              await update_slack_thread_id_for_conversion(fromNumber, ts, channel_id || process.env.slack_action_channel_id);
+            }
           }
 
           if (is_new_candidate) {
             const text = `Hi! I'm Mahima from Excellence Technologies. Can you send me your resume, expected CTC, current location and job profile you are looking for.`; //This is an AI assisted process to quickly shortlist your profile.
             await save_whatsapp_conversation("agent", fromNumber, toNumber, "text", text, "", "");
-            await send_whatsapp_text_reply(text, fromNumber, toNumber);
+            if (SEND_REAL_WHATSAPP === true) {
+              await send_whatsapp_text_reply(text, fromNumber, toNumber);
+            } else {
+              console.log("not sending real whatsapp in testing");
+            }
             const { slack_thread_id, channel_id } = await get_whatspp_conversations(fromNumber);
             if (slack_thread_id) {
-              await postMessageToThread(slack_thread_id, `HR: ${text}. Init Msg`, channel_id || process.env.slack_action_channel_id);
+              if (ENABLED_SLACK === true) {
+                await postMessageToThread(slack_thread_id, `HR: ${text}. Init Msg`, channel_id || process.env.slack_action_channel_id);
+              }
             }
           } else {
             if (queue[fromNumber]) {
@@ -150,6 +194,7 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
             // TODO: audio files only accept when interview starts not before it
 
             const interviewObj = await getInterviewObject(fromNumber);
+
             const resume_path = path.join(process.env.dirname ? process.env.dirname : "", fromNumber);
             if (!existsSync(resume_path)) {
               mkdirSync(resume_path, { recursive: true });
@@ -185,7 +230,9 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
               if (text) {
                 text = `<audio_recording>${text}</audio_recording>`;
                 await save_whatsapp_conversation("candidate", fromNumber, toNumber, ContentType, text, MessageUUID, req.body);
-                await postMessageToThread(slack_thread_id, text, channel_id);
+                if (ENABLED_SLACK === true) {
+                  await postMessageToThread(slack_thread_id, text, channel_id);
+                }
               } else {
                 await save_whatsapp_conversation("candidate", fromNumber, toNumber, ContentType, `Please find attached by audio recording`, MessageUUID, req.body);
               }
@@ -209,26 +256,33 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
 
               await saveCandidateInterviewToDB(interviewObj);
             }
-
             const resume_file = path.join(resume_path, `${fromNumber}_${interviewObj.interview?.stage}_audio.ogg`);
             await downloadFile(Media0, resume_file);
             try {
               const mp3_path = await converToMp3(resume_file);
               if (slack_thread_id) {
-                await postAttachment(mp3_path, channel_id || process.env.slack_action_channel_id, slack_thread_id);
+                if (ENABLED_SLACK === true) {
+                  await postAttachment(mp3_path, channel_id || process.env.slack_action_channel_id, slack_thread_id);
+                }
               } else {
-                const ts = await postMessage(`${fromNumber}: Attachment . Time: ${time}`, channel_id || process.env.slack_action_channel_id);
-                await update_slack_thread_id_for_conversion(fromNumber, ts, channel_id || process.env.slack_action_channel_id);
-                await postAttachment(mp3_path, channel_id || process.env.slack_action_channel_id, ts);
+                if (ENABLED_SLACK === true) {
+                  const ts = await postMessage(`${fromNumber}: Attachment . Time: ${time}`, channel_id || process.env.slack_action_channel_id);
+                  await update_slack_thread_id_for_conversion(fromNumber, ts, channel_id || process.env.slack_action_channel_id);
+                  await postAttachment(mp3_path, channel_id || process.env.slack_action_channel_id, ts);
+                }
               }
             } catch (error) {
               console.error(error);
               if (slack_thread_id) {
-                await postAttachment(resume_file, channel_id || process.env.slack_action_channel_id, slack_thread_id);
+                if (ENABLED_SLACK === true) {
+                  await postAttachment(resume_file, channel_id || process.env.slack_action_channel_id, slack_thread_id);
+                }
               } else {
-                const ts = await postMessage(`${fromNumber}: Attachment . Time: ${time}`, channel_id || process.env.slack_action_channel_id);
-                await update_slack_thread_id_for_conversion(fromNumber, ts, channel_id || process.env.slack_action_channel_id);
-                await postAttachment(resume_file, channel_id || process.env.slack_action_channel_id, ts);
+                if (ENABLED_SLACK === true) {
+                  const ts = await postMessage(`${fromNumber}: Attachment . Time: ${time}`, channel_id || process.env.slack_action_channel_id);
+                  await update_slack_thread_id_for_conversion(fromNumber, ts, channel_id || process.env.slack_action_channel_id);
+                  await postAttachment(resume_file, channel_id || process.env.slack_action_channel_id, ts);
+                }
               }
             }
             if (queue[fromNumber] && queue[fromNumber].status === "BLOCKING") {
@@ -267,6 +321,7 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
               };
             }
           } else if (req.body.MimeType.includes("pdf")) {
+            console.log(">>>starting resume download");
             const resume_path = path.join(process.env.dirname ? process.env.dirname : "", fromNumber);
             if (!existsSync(resume_path)) {
               mkdirSync(resume_path, { recursive: true });
@@ -282,19 +337,23 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
             const resume_file = path.join(resume_path, "resume.pdf");
             await downloadFile(Media0, resume_file);
 
-            const { slack_thread_id, channel_id } = await get_whatspp_conversations(fromNumber);
-            if (slack_thread_id) {
-              await postMessageToThread(slack_thread_id, `${fromNumber}: Attachment. Time: ${time}`, channel_id || process.env.slack_action_channel_id);
-              await postAttachment(resume_file, channel_id || process.env.slack_action_channel_id, slack_thread_id);
-            } else {
-              const ts = await postMessage(`${fromNumber}: Attachment . Time: ${time}`, channel_id || process.env.slack_action_channel_id);
-              await update_slack_thread_id_for_conversion(fromNumber, ts, channel_id || process.env.slack_action_channel_id);
-              await postAttachment(resume_file, channel_id || process.env.slack_action_channel_id, ts);
+            if (SEND_REAL_WHATSAPP === true) {
+              const { slack_thread_id, channel_id } = await get_whatspp_conversations(fromNumber);
+              if (slack_thread_id) {
+                await postMessageToThread(slack_thread_id, `${fromNumber}: Attachment. Time: ${time}`, channel_id || process.env.slack_action_channel_id);
+                await postAttachment(resume_file, channel_id || process.env.slack_action_channel_id, slack_thread_id);
+                const ts = await postMessage(`${fromNumber}: Attachment . Time: ${time}`, channel_id || process.env.slack_action_channel_id);
+                await update_slack_thread_id_for_conversion(fromNumber, ts, channel_id || process.env.slack_action_channel_id);
+                await postAttachment(resume_file, channel_id || process.env.slack_action_channel_id, ts);
+              } else {
+                console.log("not sending real whatsapp in testing");
+              }
             }
 
             let resume_text: string = "";
             // Extract text from the file
             try {
+              console.log(">>>1 resume text extraction");
               resume_text = await new Promise((resolve, reject) => {
                 textract.fromFileWithPath(resume_file, { preserveLineBreaks: true }, (error: any, text: string) => {
                   if (error) {
@@ -308,12 +367,31 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
               console.error(error);
             }
 
-            console.log(fromNumber, "resume text", resume_text);
+            //console.log(fromNumber, "resume text", resume_text);
             if (!resume_text || resume_text.length == 0) {
-              await send_whatsapp_text_reply("Unable to open your resume, please share resume which is ATS friendly..", fromNumber, toNumber);
+              if (SEND_REAL_WHATSAPP === true) {
+                await send_whatsapp_text_reply("Unable to open your resume, please share resume which is ATS friendly..", fromNumber, toNumber);
+              } else {
+                console.log("not sending real whatsapp in testing");
+              }
             }
+            if (SEND_REAL_WHATSAPP === true) {
+              await save_whatsapp_conversation("candidate", fromNumber, toNumber, ContentType, "Please find attached my resume", MessageUUID, req.body);
+            }
+            console.log(">>>Start saving details to sheets");
+            const { name, email } = extractNameAndEmail(resume_text);
 
-            await save_whatsapp_conversation("candidate", fromNumber, toNumber, ContentType, "Please find attached my resume", MessageUUID, req.body);
+            const payload = {
+              NAME: name || "Dummy",
+              EMAIL: email,
+              RESUME: Media0,
+            };
+            console.log(">>>payload", payload);
+            create(spreadsheetId, tabName, payload)
+              .then((response) => console.log(response.message))
+              .catch((error) => console.error(error));
+
+            console.log(">>>End saving details to sheets");
 
             const candidate = await getCandidate(fromNumber, toNumber);
             if (candidate.conversation)
@@ -321,7 +399,9 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
                 full_resume_text: resume_text,
                 created_at: new Date(),
               };
+
             await saveCandidateDetailsToDB(candidate);
+            // console.log(candidate, "resume saved");
 
             if (CLOSE_BOT && ALLOW_SPECIFIC_USERS[fromNumber] === undefined) {
               return;
@@ -364,7 +444,11 @@ export const whatsapp_webhook = async (req: Request, res: Response) => {
               };
             }
           } else {
-            await send_whatsapp_text_reply("Only PDF Files are accepted.", fromNumber, toNumber);
+            if (SEND_REAL_WHATSAPP === true) {
+              await send_whatsapp_text_reply("Only PDF Files are accepted.", fromNumber, toNumber);
+            } else {
+              console.log("not sending real whatsapp in testing");
+            }
           }
         }
 
@@ -403,10 +487,16 @@ export const schedule_message_to_be_processed = async (fromNumber: string, toNum
   if (CLOSE_BOT && ALLOW_SPECIFIC_USERS[fromNumber] === undefined) {
     const text = `Currently we are getting lot of candidates and cannot process anymore! Just send your resume, expected CTC, current location. job profile you are looking for and your phone no. We will try to process 2-3 days!`;
     await save_whatsapp_conversation("agent", fromNumber, toNumber, "text", text, "", "");
-    await send_whatsapp_text_reply(text, fromNumber, toNumber);
+    if (SEND_REAL_WHATSAPP === true) {
+      await send_whatsapp_text_reply(text, fromNumber, toNumber);
+    } else {
+      console.log("not sending real whatsapp in testing");
+    }
     const { slack_thread_id, channel_id } = await get_whatspp_conversations(fromNumber);
     if (slack_thread_id) {
-      await postMessageToThread(slack_thread_id, `HR: ${text}.`, channel_id || process.env.slack_action_channel_id);
+      if (ENABLED_SLACK === true) {
+        await postMessageToThread(slack_thread_id, `HR: ${text}.`, channel_id || process.env.slack_action_channel_id);
+      }
     }
     return;
   } else {
@@ -447,14 +537,20 @@ export const schedule_message_to_be_processed = async (fromNumber: string, toNum
         (reply: string) => {
           (async () => {
             console.log(fromNumber, "repling through callback");
-            const response = await send_whatsapp_text_reply(reply, fromNumber, toNumber);
-            const { slack_thread_id, channel_id } = await get_whatspp_conversations(fromNumber);
-            if (slack_thread_id) {
-              await postMessageToThread(slack_thread_id, `HR: ${reply}.`, channel_id || process.env.slack_action_channel_id);
+            if (SEND_REAL_WHATSAPP === true) {
+              const response = await send_whatsapp_text_reply(reply, fromNumber, toNumber);
+              const { slack_thread_id, channel_id } = await get_whatspp_conversations(fromNumber);
+              if (slack_thread_id) {
+                if (ENABLED_SLACK === true) {
+                  await postMessageToThread(slack_thread_id, `HR: ${reply}.`, channel_id || process.env.slack_action_channel_id);
+                }
+              }
+              const messageUuid = response.messageUuid;
+              await save_whatsapp_conversation("agent", fromNumber, toNumber, "text", reply, "", "");
+              await add_whatsapp_message_sent_delivery_report(fromNumber, reply, "text", messageUuid);
+            } else {
+              console.log("not sending real whatsapp in testing");
             }
-            const messageUuid = response.messageUuid;
-            await save_whatsapp_conversation("agent", fromNumber, toNumber, "text", reply, "", "");
-            await add_whatsapp_message_sent_delivery_report(fromNumber, reply, "text", messageUuid);
           })();
         }
       );
@@ -471,14 +567,18 @@ export const schedule_message_to_be_processed = async (fromNumber: string, toNum
       if (agentReply.action.includes("no_action")) {
         const { slack_thread_id, channel_id } = await get_whatspp_conversations(fromNumber);
         if (slack_thread_id) {
-          await postMessageToThread(
-            slack_thread_id,
-            `HR: ${agentReply.message}. Action: ${agentReply.action} Stage: ${agentReply.stage} ${scheduled_from} ${formatTime(convertToIST(new Date()))} Cost: ${costBreakUp}`,
-            channel_id || process.env.slack_action_channel_id
-          );
+          if (ENABLED_SLACK === true) {
+            await postMessageToThread(
+              slack_thread_id,
+              `HR: ${agentReply.message}. Action: ${agentReply.action} Stage: ${agentReply.stage} ${scheduled_from} ${formatTime(convertToIST(new Date()))} Cost: ${costBreakUp}`,
+              channel_id || process.env.slack_action_channel_id
+            );
+          }
         } else {
-          const ts = await postMessage(`HR: ${agentReply.message}. Action: ${agentReply.action} Stage: ${agentReply.stage}  Cost: ${costBreakUp}`, channel_id || process.env.slack_action_channel_id);
-          await update_slack_thread_id_for_conversion(fromNumber, ts, channel_id || process.env.slack_action_channel_id);
+          if (ENABLED_SLACK === true) {
+            const ts = await postMessage(`HR: ${agentReply.message}. Action: ${agentReply.action} Stage: ${agentReply.stage}  Cost: ${costBreakUp}`, channel_id || process.env.slack_action_channel_id);
+            await update_slack_thread_id_for_conversion(fromNumber, ts, channel_id || process.env.slack_action_channel_id);
+          }
         }
       } else {
         // let should_reply = true;
@@ -488,30 +588,41 @@ export const schedule_message_to_be_processed = async (fromNumber: string, toNum
         // if (should_reply) {
         //if not can delete, means there is another process in queue which will run and reply to user
 
-        const response = await send_whatsapp_text_reply(agentReply.message, fromNumber, toNumber);
-        const messageUuid = response.messageUuid;
-        console.log(fromNumber, "got messageUuid", messageUuid);
-        await save_whatsapp_conversation("agent", fromNumber, toNumber, "text", agentReply.message, "", "");
-        await add_whatsapp_message_sent_delivery_report(fromNumber, agentReply.message, "text", messageUuid);
+        if (SEND_REAL_WHATSAPP === true) {
+          const response = await send_whatsapp_text_reply(agentReply.message, fromNumber, toNumber);
+          const messageUuid = response.messageUuid;
+          console.log(fromNumber, "got messageUuid", messageUuid);
+          await save_whatsapp_conversation("agent", fromNumber, toNumber, "text", agentReply.message, "", "");
+          await add_whatsapp_message_sent_delivery_report(fromNumber, agentReply.message, "text", messageUuid);
 
-        const { slack_thread_id, channel_id } = await get_whatspp_conversations(fromNumber);
-        if (slack_thread_id) {
-          await postMessageToThread(
-            slack_thread_id,
-            `HR: ${agentReply.message}. Action: ${agentReply.action} Stage: ${agentReply.stage} ${scheduled_from} ${formatTime(convertToIST(new Date()))}  Cost: ${costBreakUp}`,
-            channel_id || process.env.slack_action_channel_id
-          );
+          const { slack_thread_id, channel_id } = await get_whatspp_conversations(fromNumber);
+          if (slack_thread_id) {
+            if (ENABLED_SLACK === true) {
+              await postMessageToThread(
+                slack_thread_id,
+                `HR: ${agentReply.message}. Action: ${agentReply.action} Stage: ${agentReply.stage} ${scheduled_from} ${formatTime(convertToIST(new Date()))}  Cost: ${costBreakUp}`,
+                channel_id || process.env.slack_action_channel_id
+              );
+            }
+          } else {
+            if (ENABLED_SLACK === true) {
+              const ts = await postMessage(
+                `HR: ${agentReply.message}. Action: ${agentReply.action} Stage: ${agentReply.stage}  Cost: ${costBreakUp}`,
+                channel_id || process.env.slack_action_channel_id
+              );
+              await update_slack_thread_id_for_conversion(fromNumber, ts, channel_id || process.env.slack_action_channel_id);
+            }
+          }
         } else {
-          const ts = await postMessage(`HR: ${agentReply.message}. Action: ${agentReply.action} Stage: ${agentReply.stage}  Cost: ${costBreakUp}`, channel_id || process.env.slack_action_channel_id);
-          await update_slack_thread_id_for_conversion(fromNumber, ts, channel_id || process.env.slack_action_channel_id);
+          console.log("not sending real whatsapp in testing");
         }
-      }
-      // }
-      // got_shortlisted.do_complete_process
-      if (agentReply.action == "do_complete_process") {
-        setTimeout(() => {
-          schedule_message_to_be_processed(fromNumber, toNumber, "human-interview-start");
-        }, (fromNumber === ADMIN_PHNO ? 5 : DEBOUNCE_TIMEOUT) * 1000);
+        // }
+        // got_shortlisted.do_complete_process
+        if (agentReply.action == "do_complete_process") {
+          setTimeout(() => {
+            schedule_message_to_be_processed(fromNumber, toNumber, "human-interview-start");
+          }, (fromNumber === ADMIN_PHNO ? 5 : DEBOUNCE_TIMEOUT) * 1000);
+        }
       }
     } else {
       console.log(fromNumber, "debug!");
@@ -537,10 +648,23 @@ export const schedule_message_to_be_processed = async (fromNumber: string, toNum
   console.log(`${fromNumber} processing completed! ${formatTime(convertToIST(new Date()))}`);
 };
 
+// export const whatsapp_callback = async (req: Request, res: Response) => {
+//   const { MessageUUID, To, From, Type, Status, ConversationExpirationTimestamp, ConversationOrigin, ConversationID, Units, TotalRate, TotalAmount, ErrorCode, QueuedTime, SentTime, Sequence } =
+//     req.body;
+//   console.log("MessageUUID", MessageUUID, "Status", Status, "To", To, "ErrorCode", ErrorCode);
+//   //   await update_whatsapp_message_sent_delivery_report(MessageUUID, Status);
+//   res.sendStatus(200);
+// };
 export const whatsapp_callback = async (req: Request, res: Response) => {
-  const { MessageUUID, To, From, Type, Status, ConversationExpirationTimestamp, ConversationOrigin, ConversationID, Units, TotalRate, TotalAmount, ErrorCode, QueuedTime, SentTime, Sequence } =
-    req.body;
-  console.log("MessageUUID", MessageUUID, "Status", Status, "To", To, "ErrorCode", ErrorCode);
-  //   await update_whatsapp_message_sent_delivery_report(MessageUUID, Status);
-  res.sendStatus(200);
+  const { MessageUUID, Status, To, ErrorCode } = req.body;
+
+  // Ensure all required fields are present before logging
+  if (MessageUUID && Status && To && ErrorCode) {
+    console.log("MessageUUID:", MessageUUID, "Status:", Status, "To:", To, "ErrorCode:", ErrorCode);
+  } else {
+    console.error("Missing one or more required fields in the request body.");
+  }
+
+  // Respond with 200 OK status
+  res.json({ status: "success", code: 200 });
 };

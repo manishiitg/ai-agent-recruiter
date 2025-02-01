@@ -129,10 +129,26 @@ export const process_whatsapp_conversation = async (
     category: CONV_CLASSIFY_CANDIDATE_JOB,
     reason: "manual",
   }; //via whatsapp only jobs people apply
-
+  // candidate.conversation.info = {
+  //   current_ctc: "no",
+  //   expected_ctc: "no",
+  //   years_of_experiance: "no",
+  //   phone_no: "no",
+  //   location: "no",
+  //   name: "no",
+  //   gender: "no",
+  //   suitable_job_profile: "no_profile",
+  //   hiring_for_job_profile: true,
+  // };
+  // candidate.conversation.resume = {
+  //   created_at: new Date(),
+  //   full_resume_text: "Hello this is my resume",
+  // };
   if (shouldExtractInfo(candidate.conversation?.info) && candidate.conversation.resume && candidate.conversation.resume?.full_resume_text.length > 0) {
     //atleast two messages
+    console.log(">>>>shouldExtractInfo : start");
     const info = await extractInfo(phoneNo, creds.name, convertConversationToText(conversation), candidate.conversation.resume?.full_resume_text);
+    console.log(">>>>shouldExtractInfo : mid");
     cost.push({
       cost: info.cost,
       type: `extractInfo`,
@@ -141,6 +157,7 @@ export const process_whatsapp_conversation = async (
       candidate.conversation.info = info.info;
       await saveCandidateDetailsToDB(candidate);
     }
+    console.log(">>>>extracting info : end");
   }
   console.log(phoneNo, "checking conv category", candidate.conversation?.classifed_to.category);
   if (!candidate.conversation?.classifed_to.category) {

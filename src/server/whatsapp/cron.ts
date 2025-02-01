@@ -39,7 +39,7 @@ import { queue, schedule_message_to_be_processed } from ".";
 import { transcribe_file_deepgram } from "../../integrations/deepgram";
 import { transribe_file_assembly_ai } from "../../integrations/assembly";
 import { rate_interview } from "../../agent/prompts/rate_interview";
-import { CLOSE_BOT } from "./config";
+import { CLOSE_BOT, SEND_REAL_WHATSAPP, ENABLED_SLACK } from "./config";
 
 export const remind_candidates = async (remainders: boolean) => {
   const candidates = await getPendingNotCompletedCandidates(remainders);
@@ -180,28 +180,36 @@ const check_slack_thread_for_manual_msgs = async () => {
     const { slack_thread_id, channel_id } = await get_whatspp_conversations(candidate.unique_id);
     if (slack_thread_id && channel_id) {
       try {
-        const msgs = await getLatestMessagesFromThread(channel_id, slack_thread_id, 500);
-        console.log(`got msgs from slack for ${fromNumber} ${msgs.length}`);
+        if(ENABLED_SLACK === true){
 
-        for (const msg of msgs) {
-          const text = msg.text;
-          if (text.includes(process.env.bot_user_id || "<@U017T6CK4ET>")) {
-            console.log(msg);
-            console.log("got msg to be sent to user!", msg);
-            if (msg.ts) {
-              console.log("await getSlackTsRead(msg.bot_id))", await getSlackTsRead(msg.ts));
-              if (!(await getSlackTsRead(msg.ts))) {
-                //post this msg to user via whatsapp
-                console.log("sending to user!");
-                let text_to_send = text.replace(process.env.bot_user_id || "<@U017T6CK4ET>", "");
-                text_to_send = text_to_send.trim();
-
-                const response = await send_whatsapp_text_reply(text_to_send, fromNumber, toNumber);
-                const messageUuid = response.messageUuid;
-                await save_whatsapp_conversation("agent", fromNumber, toNumber, "text", fromNumber, text_to_send, "");
-                await add_whatsapp_message_sent_delivery_report(fromNumber, text_to_send, "text", messageUuid);
-                await postMessageToThread(slack_thread_id, `HR: ${text_to_send}. Action: ${"manual"} Stage: ${"slack"}`, channel_id);
-                await saveSlackTsRead(msg.ts);
+          const msgs = await getLatestMessagesFromThread(channel_id, slack_thread_id, 500);
+          console.log(`got msgs from slack for ${fromNumber} ${msgs.length}`);
+          for (const msg of msgs) {
+            const text = msg.text;
+            if (text.includes(process.env.bot_user_id || "<@U017T6CK4ET>")) {
+              console.log(msg);
+              console.log("got msg to be sent to user!", msg);
+              if (msg.ts) {
+                console.log("await getSlackTsRead(msg.bot_id))", await getSlackTsRead(msg.ts));
+                if (!(await getSlackTsRead(msg.ts))) {
+                  //post this msg to user via whatsapp
+                  console.log("sending to user!");
+                  let text_to_send = text.replace(process.env.bot_user_id || "<@U017T6CK4ET>", "");
+                  text_to_send = text_to_send.trim();
+                  
+                 
+                  if (SEND_REAL_WHATSAPP === true) {
+                    const response = await send_whatsapp_text_reply(text_to_send, fromNumber, toNumber);
+                    const messageUuid = response.messageUuid;
+                    await save_whatsapp_conversation("agent", fromNumber, toNumber, "text", fromNumber, text_to_send, "");
+                    await add_whatsapp_message_sent_delivery_report(fromNumber, text_to_send, "text", messageUuid);
+                  }
+                  await postMessageToThread(slack_thread_id, `HR: ${text_to_send}. Action: ${"manual"} Stage: ${"slack"}`, channel_id);
+                }else{
+                  console.log("not sending real whatsapp in testing");
+                }
+                  await saveSlackTsRead(msg.ts);
+                }
 
                 try {
                   const candidate = await getCandidateDetailsFromDB(fromNumber);
@@ -224,7 +232,7 @@ const check_slack_thread_for_manual_msgs = async () => {
             }
           }
         }
-      } catch (error) {
+       catch (error) {
         // console.error(error);
       }
     }
@@ -245,20 +253,26 @@ export const evaluate_hr_screen_interview = async () => {
           Math.round(interview.interview.avg_rating * 10) / 10
         } out of 10 based on your anwers. This score is lower than avg rating we are expecting for the interview. We will still manually go through your recording once.`;
 
-        const response = await send_whatsapp_text_reply(text_to_send, ph, candidate.whatsapp);
-        const messageUuid = response.messageUuid;
-        await save_whatsapp_conversation("agent", ph, candidate.whatsapp, "text", ph, text_to_send, "");
-        await add_whatsapp_message_sent_delivery_report(ph, text_to_send, "text", messageUuid);
+        if (SEND_REAL_WHATSAPP === true) {
+          const response = await send_whatsapp_text_reply(text_to_send, ph, candidate.whatsapp);
+          const messageUuid = response.messageUuid;
+          await save_whatsapp_conversation("agent", ph, candidate.whatsapp, "text", ph, text_to_send, "");
+          await add_whatsapp_message_sent_delivery_report(ph, text_to_send, "text", messageUuid);
+        }
         await postMessageToThread(slack_thread_id, `HR: ${text_to_send}. Action: ${"manual"} Stage: ${"interview review"}`, channel_id);
       } else {
         const text_to_send = `You scored a rating of ${
           Math.round(interview.interview.avg_rating * 10) / 10
         } out of 10 based on your anwers. This is good score so our HR team will reach out to you soon!`;
 
-        const response = await send_whatsapp_text_reply(text_to_send, ph, candidate.whatsapp);
-        const messageUuid = response.messageUuid;
-        await save_whatsapp_conversation("agent", ph, candidate.whatsapp, "text", ph, text_to_send, "");
-        await add_whatsapp_message_sent_delivery_report(ph, text_to_send, "text", messageUuid);
+        if (SEND_REAL_WHATSAPP === true) {
+          const response = await send_whatsapp_text_reply(text_to_send, ph, candidate.whatsapp);
+          const messageUuid = response.messageUuid;
+          await save_whatsapp_conversation("agent", ph, candidate.whatsapp, "text", ph, text_to_send, "");
+          await add_whatsapp_message_sent_delivery_report(ph, text_to_send, "text", messageUuid);
+        } else{           
+           console.log("not sending real whatsapp in testing");
+        }
         await postMessageToThread(slack_thread_id, `HR: ${text_to_send}. Action: ${"manual"} Stage: ${"interview review"}`, channel_id);
       }
       interview.interview.avg_rating_sent = true;
@@ -293,10 +307,14 @@ const keep_conversation_warm = async () => {
         const candidate = await getCandidateDetailsFromDB(ph);
         const text_to_send = "You are still in our shortlist, didn't get time to review interview recordings yet";
 
-        const response = await send_whatsapp_text_reply(text_to_send, ph, candidate.whatsapp);
-        const messageUuid = response.messageUuid;
-        await save_whatsapp_conversation("agent", ph, candidate.whatsapp, "text", ph, text_to_send, "");
-        await add_whatsapp_message_sent_delivery_report(ph, text_to_send, "text", messageUuid);
+        if (SEND_REAL_WHATSAPP === true) {
+          const response = await send_whatsapp_text_reply(text_to_send, ph, candidate.whatsapp);
+          const messageUuid = response.messageUuid;
+          await save_whatsapp_conversation("agent", ph, candidate.whatsapp, "text", ph, text_to_send, "");
+          await add_whatsapp_message_sent_delivery_report(ph, text_to_send, "text", messageUuid);
+        } else {
+          console.log("not sending real whatsapp in testing");
+        }
         await postMessageToThread(slack_thread_id, `HR: ${text_to_send}. Action: ${"manual"} Stage: ${"12hr-updated"}`, channel_id);
       }
       // }

@@ -5,9 +5,11 @@ import path from "path";
 import dotenv from "dotenv";
 import { captureException } from "@sentry/node";
 import qs from "qs";
+import { ENABLED_SLACK } from "../server/whatsapp/config";
 dotenv.config();
 
 export async function downloadSlackFile(fileId: string, outputPath: string): Promise<void> {
+  
   const slackToken = process.env.slack_token ? process.env.slack_token : "";
 
   const headers = {
@@ -51,7 +53,9 @@ export async function downloadSlackFile(fileId: string, outputPath: string): Pro
 }
 
 async function uploadFileToSlack(token: string, channel: string, filePath: string, threadTs?: string) {
+  
   try {
+  
     const fileName = path.basename(filePath);
     const fileSize = fs.statSync(filePath).size;
 
@@ -146,6 +150,7 @@ async function uploadFileToSlack(token: string, channel: string, filePath: strin
 
 // Function to post a message to a Slack channel
 async function postMessageToSlack(token: string, channel: string, text: string): Promise<string> {
+ 
   const response = await axios.post(
     "https://slack.com/api/chat.postMessage",
     {
@@ -164,6 +169,7 @@ async function postMessageToSlack(token: string, channel: string, text: string):
 }
 
 export async function postMessageToThread(messageTs: string, text: string, channel_id: string, reply_broadcast = false) {
+
   try {
     const token = process.env.slack_token ? process.env.slack_token : "";
     let channel = process.env.slack_channel_id ? process.env.slack_channel_id : "";
@@ -198,6 +204,8 @@ export async function postMessageToThread(messageTs: string, text: string, chann
 }
 
 export async function postAttachment(screenshotPath: string, channel_id?: string, thread_ts?: string): Promise<string> {
+ 
+
   try {
     // Replace with your Bot User OAuth Token
     const token = process.env.slack_token ? process.env.slack_token : "";
@@ -207,9 +215,12 @@ export async function postAttachment(screenshotPath: string, channel_id?: string
       channel = channel_id;
     }
 
+   if(ENABLED_SLACK === true){
     const messageTs = await uploadFileToSlack(token, channel, screenshotPath, thread_ts);
-
     return messageTs;
+   }
+
+   return "";
   } catch (error) {
     captureException(error);
     console.error("postAttachment: Error posting message and threads:", error);
@@ -218,6 +229,7 @@ export async function postAttachment(screenshotPath: string, channel_id?: string
 }
 
 export async function postMessageWithAttachment(screenshotPath: string, text: string, channel_id?: string): Promise<string> {
+
   try {
     // Replace with your Bot User OAuth Token
     const token = process.env.slack_token ? process.env.slack_token : "";
@@ -227,11 +239,13 @@ export async function postMessageWithAttachment(screenshotPath: string, text: st
       channel = channel_id;
     }
     // Upload the screenshot and PDF files
-    if (screenshotPath) await uploadFileToSlack(token, channel, screenshotPath);
+    if (screenshotPath && ENABLED_SLACK === true) await uploadFileToSlack(token, channel, screenshotPath);
 
     // Post the initial message with the screenshot
-    const messageTs = await postMessageToSlack(token, channel, text);
-    return messageTs;
+    if (ENABLED_SLACK === true) 
+      {const messageTs = await postMessageToSlack(token, channel, text);
+      return messageTs;}
+    return "";
   } catch (error) {
     captureException(error);
     console.error("postMessageWithAttachment: Error posting message and threads:", error);
@@ -239,6 +253,7 @@ export async function postMessageWithAttachment(screenshotPath: string, text: st
   }
 }
 export async function postMessage(text: string, channel_id?: string): Promise<string> {
+ 
   try {
     const token = process.env.slack_token ? process.env.slack_token : "";
     let channel = process.env.slack_channel_id ? process.env.slack_channel_id : "";
@@ -247,8 +262,10 @@ export async function postMessage(text: string, channel_id?: string): Promise<st
     }
 
     // Post the initial message with the screenshot
-    const messageTs = await postMessageToSlack(token, channel, text);
-    return messageTs;
+    if (ENABLED_SLACK === true) 
+      {const messageTs = await postMessageToSlack(token, channel, text);
+      return messageTs;}
+    return "";
   } catch (error) {
     captureException(error);
     console.error("postMessage: Error posting message and threads:", error);
@@ -259,6 +276,7 @@ export async function postMessage(text: string, channel_id?: string): Promise<st
 const global_user_map: Record<string, SlackUser> = {};
 
 export async function getUserInfo(userId: string): Promise<SlackUser | null> {
+
   if (global_user_map[userId]) {
     return global_user_map[userId];
   }
@@ -323,6 +341,8 @@ function convertSlackTimestampToDate(slackTimestamp: string): Date {
 }
 
 export async function getThreadMessages(channelId: string, threadTs: string): Promise<SlackMessage[]> {
+
+
   const slackToken = process.env.slack_token ? process.env.slack_token : "";
   const url = `https://slack.com/api/conversations.replies`;
   const headers = {
@@ -368,6 +388,8 @@ export async function getThreadMessages(channelId: string, threadTs: string): Pr
 }
 
 export async function getLatestMessagesFromSlackChannel(channelId: string, count: number = 20): Promise<SlackMessage[]> {
+
+
   const slackToken = process.env.slack_token ? process.env.slack_token : "";
   const url = `https://slack.com/api/conversations.history`;
   const headers = {
@@ -411,6 +433,8 @@ export async function getLatestMessagesFromSlackChannel(channelId: string, count
 }
 
 export async function getLatestMessagesFromThread(channelId: string, ts: string, count = 100): Promise<SlackMessage[]> {
+
+
   const slackToken = process.env.slack_token ? process.env.slack_token : "";
   const url = `https://slack.com/api/conversations.replies`;
   const headers = {

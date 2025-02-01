@@ -178,12 +178,11 @@ export async function callDeepkSeekLLM(
     },
     input: messages,
   });
-
   // console.log("messages", messages);
 
   let data = JSON.stringify({
     messages: messages,
-    model: DEEP_SEEK_V2_CODER ? "deepseek-coder" : "deepseek-chat",
+    model: "deepseek-chat",
     frequency_penalty: 0,
     max_tokens: max_tokens,
     presence_penalty: 0,
@@ -194,7 +193,7 @@ export async function callDeepkSeekLLM(
     logprobs: false,
     top_logprobs: null,
   });
-
+  
   let config = {
     method: "post",
     maxBodyLength: Infinity,
@@ -206,7 +205,6 @@ export async function callDeepkSeekLLM(
     },
     data: data,
   };
-
   const response = await axios(config);
   const typedData = response.data as ChatCompletion;
   const responseData = typedData.choices[0].message;
